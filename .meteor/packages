@@ -20,3 +20,4 @@ insecure                # Allow all DB writes from clients (for prototyping)
 d3
 json
 standard-app-packages
+pchvykov:tok
