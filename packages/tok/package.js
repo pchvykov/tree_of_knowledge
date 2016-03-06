@@ -15,7 +15,7 @@ Package.onUse(function(api) {
   api.use(['ecmascript','d3']);
 
   api.addFiles('dbServer.js', 'server');
-  api.addFiles(['tok.css','tok.js'], 'client');
+  api.addFiles(['tok.css','tok.js','gui.js'], 'client');
   
   api.export('treeData','server');
   api.export('ToK','client');
