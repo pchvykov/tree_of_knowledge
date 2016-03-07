@@ -1,13 +1,14 @@
-// var Nodes = new Meteor.Collection("nodeColl");
-// var Links = new Meteor.Collection("linkColl");
+var Nodes = new Meteor.Collection("nodeColl");
+var Links = new Meteor.Collection("linkColl");
 //var Nodes = db.getCollection("nodeColl");
 //var Links = db.getCollection("linkColl");
 
+var db = new treeData(Nodes, Links);
 // Server-side code:
 if (Meteor.isServer){
   Meteor.startup(function(){
-    var data = new treeData();
-    data.publish();
+    // db.loadJSON(JSON.parse(Assets.getText("miserables.json")));
+    db.publish();
   })
 }
 
@@ -28,8 +29,9 @@ if (Meteor.isClient) {
         .attr("width", width)
         .attr("height", height); //Set SVG attributes
 
-    var graph = new ToK(svg);
+    db.subscribe(function(){
+      var graph = new ToK(svg, db);
+    });
 
   }
 };
-

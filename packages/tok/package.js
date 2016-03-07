@@ -14,10 +14,10 @@ Package.onUse(function(api) {
   api.versionsFrom('1.2.1');
   api.use(['ecmascript','d3']);
 
-  api.addFiles('dbServer.js', 'server');
+  api.addFiles('dbServer.js');
   api.addFiles(['tok.css','tok.js','gui.js'], 'client');
   
-  api.export('treeData','server');
+  api.export('treeData');
   api.export('ToK','client');
 });
 

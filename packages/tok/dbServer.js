@@ -1,12 +1,15 @@
-treeData = function(){
-	var Nodes = new Meteor.Collection("nodeColl");
-	var Links = new Meteor.Collection("linkColl");
+treeData = function(Nodes, Links){
+  this.Nodes=Nodes;
+  this.Links=Links;
 	console.log("nodes count:", Nodes.find({}).count());
 	console.log("links count:", Links.find({}).count());
 
-	this.loadJSON = function(fileName){
+	this.loadJSON = function(graph){
       console.log("loading collection from json")
-      var graph = JSON.parse(Assets.getText(fileName));
+      //Clear all entries in current collection:
+      Nodes.remove({});
+      Links.remove({});
+      // var graph = JSON.parse(Assets.getText(fileName));
       graph.nodes.forEach(function (item, index, array) {
         Nodes.insert(item);
       });
@@ -18,14 +21,29 @@ treeData = function(){
     };
 
   this.publish = function(){
-    	Meteor.publish("allNodes", function () {
-    	  return Nodes.find();
-    	});
-    	Meteor.publish("allLinks", function () {
-    	  return Links.find();
-    	});
-    };
+  	Meteor.publish("allNodes", function () {
+  	  return Nodes.find();
+  	});
+  	Meteor.publish("allLinks", function () {
+  	  return Links.find();
+  	});
+  };
 
-    //publish();
+  this.subscribe = function(onReady){
+    Meteor.subscribe("allLinks",function(){
+    Meteor.subscribe("allNodes",function(){
+      onReady();
+    })});
+  }
+
+  //methods for calls from the client:
+  Meteor.methods({
+    addNode: function (node) {
+      Nodes.insert(node);
+      console.log("added node in method!");
+    }
+  });
 
 }
+
+

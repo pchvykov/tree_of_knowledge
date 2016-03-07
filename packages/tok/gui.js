@@ -24,8 +24,14 @@ var drag_line = tree.drag_line.append("line")
 var nodeDrag = tree.force.drag()
       .on("dragstart",function(d){d.dragging=true})
       .on("dragend",function(d){d.dragging=false});
+var zoom = d3.behavior.zoom()
+      .on("zoom", rescale);
+tree.vis.call(zoom)
+    .on("dblclick.zoom", null)
+    .append('svg:g');
 
 var resetMouseVars = function() {
+  // console.log("resetting mouse");
   mousedown_node = null;
   mousedown_node_DOM = null;
   mouseup_node = null;
@@ -35,19 +41,24 @@ var resetMouseVars = function() {
 //Mouse actions when not dragging nodes
 //(zoom and pan):
 this.mousedown = function() {
-  if (!mousedown_node && !mousedown_link) {
-    // allow panning if nothing is selected
-    //vis.call(d3.behavior.zoom().on("zoom"), rescale);
-    tree.vis.call(d3.behavior.zoom().on("zoom", rescale));
-    return;
-  }
+  // if (!mousedown_node && !mousedown_link) {
+  //   // allow panning if nothing is selected
+  //   // tree.vis.call(d3.behavior.zoom().on("zoom", rescale));
+  //   // console.log("mousedown");
+  //   // tree.vis.call(zoom)
+  //   //   .on("dblclick.zoom", null)
+  //   //   .append('svg:g');
+  //   d3.event.preventDefault();
+  //   return;
+  // }
 }
 
 this.mousemove = function() {
-  if (!mousedown_node) return;
+  if (!mousedown_node) {return};
 
   // update drag line
   drag_line
+      .attr("class", "drag_line")
       .attr("x1", mousedown_node.x)
       .attr("y1", mousedown_node.y)
       .attr("x2", d3.mouse(this)[0])
@@ -56,11 +67,9 @@ this.mousemove = function() {
 }
 
 this.mouseup = function() {
+  // hide drag line
+  drag_line.attr("class", "drag_line_hidden");
   if (mousedown_node) {
-    // hide drag line
-    drag_line
-      .attr("class", "drag_line_hidden");
-
     //enable drag:
     d3.select(mousedown_node_DOM).call(nodeDrag);
 
@@ -69,6 +78,8 @@ this.mouseup = function() {
       var point = d3.mouse(this),
         node = {x: point[0], y: point[1]},
         n = nodes.push(node);
+        Meteor.call("addNode",node);
+
 
       // select new node
       gui.selected_node = node;
@@ -85,6 +96,7 @@ this.mouseup = function() {
 }
 
 this.nodeMousedown = function (d) { 
+    // console.log("node mouse down");
   mousedown_node = d;
   mousedown_node_DOM = this;
   if (mousedown_node == gui.selected_node) gui.selected_node = null;
@@ -93,9 +105,11 @@ this.nodeMousedown = function (d) {
 
   if (d3.event.ctrlKey) {
     console.log("Ctrl+drag!!");
+    d3.event.stopPropagation();
     // disable zoom and drag:
     // tree.vis.call(d3.behavior.zoom().on("zoom"), null);
-    tree.vis.call(d3.behavior.zoom().on("zoom", null));
+    // tree.vis.call(d3.behavior.zoom().on("zoom", null));
+    // tree.vis.on(".zoom",null);
     d3.select(this).on(".drag",null);
 
     // reposition drag line
@@ -105,27 +119,31 @@ this.nodeMousedown = function (d) {
         .attr("x2", mousedown_node.x)
         .attr("y2", mousedown_node.y);
   }
+  else resetMouseVars();
   tree.redraw(); 
 };
 this.nodeMouseup = function(d) { 
+  drag_line.attr("class", "drag_line_hidden");
   if (mousedown_node) {
-    //enable drag:
-    d3.select(mousedown_node_DOM).call(nodeDrag);
+    
     mouseup_node = d; 
-    if (mouseup_node == mousedown_node) { resetMouseVars(); return; }
 
-    // add link
-    var link = {source: mousedown_node, target: mouseup_node};
-    links.push(link);
+    if (mouseup_node != mousedown_node) { 
+      // add link
+      var link = {source: mousedown_node, target: mouseup_node};
+      links.push(link);
 
-    // select new link
-    gui.selected_link = link;
-    gui.selected_node = null;
-
-    // enable zoom
-    tree.vis.call(d3.behavior.zoom().on("zoom", rescale));
+      // select new link
+      gui.selected_link = link;
+      gui.selected_node = null;
+    }
+    // enable zoom and drag:
+    // tree.vis.call(zoom);
+    d3.select(mousedown_node_DOM).call(nodeDrag);
+    // console.log(gui.selected_node, gui.selected_link);
     tree.redraw();
-  } 
+  }
+  resetMouseVars(); 
 };
 
 this.nodeMouseover = function(d){
@@ -149,15 +167,7 @@ this.linkMousedown = function(d) {
   tree.redraw(); 
 }
 
-// rescale g
-var rescale = function() {
-  trans=d3.event.translate;
-  scale=d3.event.scale;
 
-  tree.vis.attr("transform",
-      "translate(" + trans + ")"
-      + " scale(" + scale + ")");
-}
 this.keydown = function() {
   if (!gui.selected_node && !gui.selected_link) return;
   switch (d3.event.keyCode) {
@@ -178,6 +188,16 @@ this.keydown = function() {
   }
 }
 
+// rescale g
+function rescale() {
+  var transl=d3.event.translate;
+  var scale = d3.event.scale;
+  // console.log("translate", transl);
+  tree.vis.attr("transform",
+      "translate(" + transl + ")"
+      + " scale(" + scale + ")");
+}
+
 function spliceLinksForNode(node) {
   toSplice = links.filter(
     function(l) { 
@@ -189,7 +209,7 @@ function spliceLinksForNode(node) {
 
 //Export some local variables and functions:
 this.nodeDrag = nodeDrag;
-this.rescale = rescale;
+this.zoom = zoom;
 this.nodes = nodes;
 this.links = links;
 
