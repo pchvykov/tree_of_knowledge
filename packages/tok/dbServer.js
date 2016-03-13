@@ -38,10 +38,25 @@ treeData = function(Nodes, Links){
 
   //methods for calls from the client:
   Meteor.methods({
-    addNode: function (node) {
-      Nodes.insert(node);
-      console.log("added node in method!");
+    updateCoord: function(nodes){
+      console.log("storing node locations");
+      nodes.forEach(function(nd, ix){
+        // console.log(nd._id, nd.x);
+        Nodes.update( { _id: nd._id }, { $set: { 
+          x: nd.x,
+          y: nd.y 
+        } } );
+      })
+    },
+    addNode: function (nd) {
+      var newId= Nodes.insert(nd);
+      // console.log("added node in method!", newId);
+      return newId;
     }
+    // addLink: function (link) {
+    //   Links.insert(link);
+    //   console.log("added link in method!", link);
+    // }
   });
 
 }

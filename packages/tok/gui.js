@@ -10,9 +10,6 @@ var mousedown_link = null,
     mousedown_node_DOM = null,
     mouseup_node = null;
 
-var nodes = tree.force.nodes(),
-    links = tree.force.links();
-
 // line displayed when dragging new nodes
 var drag_line = tree.drag_line.append("line")
     .attr("class", "drag_line")
@@ -76,17 +73,17 @@ this.mouseup = function() {
     if (!mouseup_node) {
       // add node
       var point = d3.mouse(this),
-        node = {x: point[0], y: point[1]},
-        n = nodes.push(node);
-        Meteor.call("addNode",node);
-
+        node = {x: point[0], y: point[1]};
+      tree.addNode(node);     
 
       // select new node
       gui.selected_node = node;
       gui.selected_link = null;
       
       // add link to mousedown node
-      links.push({source: mousedown_node, target: node});
+      // var link={source: mousedown_node, target: node};
+      tree.addLink({source: mousedown_node, target: node});
+      // Meteor.call("addLink",link);
     }
 
     tree.redraw();
@@ -124,6 +121,7 @@ this.nodeMousedown = function (d) {
 };
 this.nodeMouseup = function(d) { 
   drag_line.attr("class", "drag_line_hidden");
+  d.dragging=false;
   if (mousedown_node) {
     
     mouseup_node = d; 
@@ -131,7 +129,7 @@ this.nodeMouseup = function(d) {
     if (mouseup_node != mousedown_node) { 
       // add link
       var link = {source: mousedown_node, target: mouseup_node};
-      links.push(link);
+      tree.addLink(link);
 
       // select new link
       gui.selected_link = link;
@@ -174,11 +172,10 @@ this.keydown = function() {
     case 8: // backspace
     case 46: { // delete
       if (gui.selected_node) {
-        nodes.splice(nodes.indexOf(gui.selected_node), 1);
-        spliceLinksForNode(gui.selected_node);
+        tree.deleteNode(gui.selected_node);
       }
       else if (gui.selected_link) {
-        links.splice(links.indexOf(gui.selected_link), 1);
+        tree.deleteLink(gui.selected_link);
       }
       gui.selected_link = null;
       gui.selected_node = null;
@@ -198,19 +195,8 @@ function rescale() {
       + " scale(" + scale + ")");
 }
 
-function spliceLinksForNode(node) {
-  toSplice = links.filter(
-    function(l) { 
-      return (l.source === node) || (l.target === node); });
-  toSplice.map(
-    function(l) {
-      links.splice(links.indexOf(l), 1); });
-}
-
 //Export some local variables and functions:
 this.nodeDrag = nodeDrag;
 this.zoom = zoom;
-this.nodes = nodes;
-this.links = links;
 
 }
