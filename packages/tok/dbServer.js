@@ -19,6 +19,12 @@ treeData = function(Nodes, Links){
       console.log("nodes count:", Nodes.find({}).count());
       console.log("links count:", Links.find({}).count());
     };
+  this.clear = function(){
+    console.log("deleting everything!")
+    //Clear all entries in current collection:
+    Nodes.remove({});
+    Links.remove({});
+  }
 
   this.publish = function(){
   	Meteor.publish("allNodes", function () {
@@ -48,15 +54,28 @@ treeData = function(Nodes, Links){
         } } );
       })
     },
+    addLinkedNode: function(from, nd){
+      var ndID = Nodes.insert(nd);
+      var lkID = Links.insert({source: from, target: ndID});
+      return [ndID, lkID];
+    },
+    addLink: function (link) {
+      // console.log("added link in method!", link);
+      return Links.insert(link);
+    },
     addNode: function (nd) {
       var newId= Nodes.insert(nd);
       // console.log("added node in method!", newId);
       return newId;
+    },
+    deleteNode: function(nd){
+      //Remove node and all connected links:
+      Links.remove({$or: [{source: nd}, {target: nd}]});
+      Nodes.remove(nd);
+    },
+    deleteLink: function(lk){
+      Links.remove(lk);
     }
-    // addLink: function (link) {
-    //   Links.insert(link);
-    //   console.log("added link in method!", link);
-    // }
   });
 
 }

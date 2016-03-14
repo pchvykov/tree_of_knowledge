@@ -8,6 +8,8 @@ var db = new treeData(Nodes, Links);
 if (Meteor.isServer){
   Meteor.startup(function(){
     // db.loadJSON(JSON.parse(Assets.getText("miserables.json")));
+    // db.clear();
+    // Nodes.insert({x: 0.0, y: 0.0});
     db.publish();
   })
 }
@@ -25,9 +27,9 @@ if (Meteor.isClient) {
         .attr("width", width)
         .attr("height", height); //Set SVG attributes
 
-    db.subscribe(function(){
-      var graph = new ToK(svg, db);
-    });
+    // db.subscribe(function(){
+    var graph = new ToK(svg, db);
+    // });
 
   }
 };

@@ -57,7 +57,7 @@ this.nodeMousedown = function (d) {
   if (d3.event.ctrlKey) { //Creating new node or link:
     mousedown_node = d;
     mousedown_node_DOM = this;
-    console.log("Ctrl+drag!!");
+    // console.log("Ctrl+drag!!");
     d3.event.stopPropagation(); //prevents panning
     // disable zoom and drag:
     // tree.vis.call(d3.behavior.zoom().on("zoom"), null);
@@ -81,14 +81,7 @@ this.nodeMouseup = function(d) { //Create new link:
 
     if (mouseup_node != mousedown_node) { 
       d3.event.stopPropagation(); //prevent anything else from happening
-      // add link
-      var link = {source: mousedown_node, target: mouseup_node};
-      tree.addLink(link);
-
-      // select new link
-      gui.selected_link = link;
-      gui.selected_node = null;
-      tree.redraw();
+      tree.addLink({source: mousedown_node, target: mouseup_node});
     }
     // enable zoom and drag:
     // tree.vis.call(zoom);
@@ -133,20 +126,10 @@ this.mouseup = function() {
     if (!mouseup_node) {
       // add node
       var point = d3.mouse(this),
-        node = {x: point[0], y: point[1]};
-      tree.addNode(node);     
-
-      // select new node
-      gui.selected_node = node;
-      gui.selected_link = null;
-      
-      // add link to mousedown node
-      // var link={source: mousedown_node, target: node};
-      tree.addLink({source: mousedown_node, target: node});
-      // Meteor.call("addLink",link);
+          node = {x: point[0], y: point[1]};
+      tree.addLinkedNode({source: mousedown_node, target: node});
     }
 
-    tree.redraw();
   }
   // hide drag line
   drag_line.attr("class", "drag_line_hidden");
@@ -168,7 +151,7 @@ this.keydown = function() {
       }
       gui.selected_link = null;
       gui.selected_node = null;
-      tree.redraw();
+      // tree.redraw();
       break;
     }
   }
