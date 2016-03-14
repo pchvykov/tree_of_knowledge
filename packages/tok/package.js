@@ -12,7 +12,7 @@ Package.describe({
 
 Package.onUse(function(api) {
   api.versionsFrom('1.2.1');
-  api.use(['ecmascript','d3']);
+  api.use(['ecmascript']);
 
   api.addFiles('dbServer.js');
   api.addFiles(['tok.css','tok.js','gui.js'], 'client');

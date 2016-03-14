@@ -4,6 +4,9 @@
 //links and nodes are arrays in the d3.force
 //and link and node are visualized d3 object arrays (almost SVGs)
 
+  //Hierarchy of objects:
+  //svg > outer > vis > bckgnd,drag_line,node,link
+
 
 ToK = function(svg, db) {
 
@@ -13,18 +16,22 @@ ToK = function(svg, db) {
   var width = svg.attr("width"),
       height = svg.attr("height");
 
-  //Define client-side temp MiniMongo collections:
-  // var Nodes = new Meteor.Collection("nodeColl");
-  // var Links = new Meteor.Collection("linkColl"); 
-
   // init svg
   var outer = svg.append("svg:svg")
       .attr("pointer-events", "all");
 
-      
-  //Run the following when the databases have loaded:
-  // Meteor.subscribe("allLinks",function(){
-  // Meteor.subscribe("allNodes",function(){
+  //visualized picture:
+  var vis = outer
+  .append('svg:g')
+    .call(d3.behavior.zoom().on("zoom", rescale))
+    .on("dblclick.zoom", null)
+  .append('svg:g');
+
+vis.append('svg:rect')
+    .attr('width', width)
+    .attr('height', height)
+    .attr('fill', 'white');
+
 
   var linkData=db.Links.find({}).fetch();
   var nodeData=db.Nodes.find({}).fetch();
@@ -42,10 +49,8 @@ ToK = function(svg, db) {
       .on("end", function(){
           Meteor.call("updateCoord",force.nodes())
         });
-  //visualized picture:
-  var vis = outer;
-  //Need this to get the layering correctly:
-  var bckgnd = vis.append('svg:g');
+
+  // var bckgnd = vis.append('svg:g');
   this.drag_line = vis.append('svg:g');
 
   //export local variables:
@@ -53,14 +58,10 @@ ToK = function(svg, db) {
   this.vis = vis;
   var gui = new GUI(this);
   vis.on("mousemove", gui.mousemove)
-    .on("mousedown", gui.mousedown)
-    .on("mouseup", gui.mouseup);
+    .on("mouseup", gui.mouseup, false);
 
 
-  bckgnd.append('svg:rect')
-      .attr('width', width)
-      .attr('height', height)
-      .attr('fill', 'white');
+  
 
 
   //Get pointers to graph elements: 
@@ -97,18 +98,18 @@ ToK = function(svg, db) {
   }
   this.addLink = function(lk){
     links.push(lk);
-    Meteor.call("addLink", 
-      {source: lk.source._id, target: lk.target._id}, 
-      function(error, result){
-      if(error){
-        console.log(error.reason);
-        return;
-      }
-      newId=result;
-      //Assign the DB id to the nodes 
-      links[links.length-1]._id = newId;
-      console.log("added link ID:", links[links.length-1]._id);
-    })
+    // Meteor.call("addLink", 
+    //   {source: lk.source._id, target: lk.target._id}, 
+    //   function(error, result){
+    //   if(error){
+    //     console.log(error.reason);
+    //     return;
+    //   }
+    //   newId=result;
+    //   //Assign the DB id to the nodes 
+    //   links[links.length-1]._id = newId;
+    //   console.log("added link ID:", links[links.length-1]._id);
+    // })
     console.log("added link:", lk);
   }
   this.deleteNode = function(nd){
@@ -118,9 +119,23 @@ ToK = function(svg, db) {
   this.deleteLink = function(lk){
     links.splice(links.indexOf(lk), 1);
   }
+  this.updateSelection = function(){
+    link
+      .classed("link_selected", function(d) { 
+        return d === gui.selected_link; 
+        });
+    node
+      .classed("node_selected", function(d) { 
+        return d === gui.selected_node; });
+  }
   // redraw force layout
   this.redraw = function() {
+  db.subscribe(function(){
     console.log("redrawing");
+    // links=db.Links.find({}).fetch();
+    // nodes=db.Nodes.find({}).fetch();
+    // force.nodes(nodes)
+        // .links(links);
     //update data on d3 objects (SVGs)
     link = link.data(links); 
     //show new SVG-s for new links
@@ -146,6 +161,7 @@ ToK = function(svg, db) {
         .on("mouseup", gui.nodeMouseup)
         .on("mouseover", gui.nodeMouseover)
         .on("mouseout", gui.nodeMouseout)
+        .on("click", gui.nodeClick)
         .call(gui.nodeDrag)
         .transition()
         .duration(750)
@@ -167,6 +183,7 @@ ToK = function(svg, db) {
     }
 
     force.start();
+  })
   }
 
    
@@ -212,6 +229,15 @@ ToK = function(svg, db) {
   toSplice.map(
     function(l) {
       links.splice(links.indexOf(l), 1); });
-}
+  }
+  // rescale g
+  function rescale() {
+    var transl=d3.event.translate;
+    var scale = d3.event.scale;
+    // console.log("translate", transl);
+    vis.attr("transform",
+        "translate(" + transl + ")"
+        + " scale(" + scale + ")");
+  }
 
 }

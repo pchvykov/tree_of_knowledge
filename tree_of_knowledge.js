@@ -15,10 +15,6 @@ if (Meteor.isServer){
 
 //Client-side code:
 if (Meteor.isClient) {
-  Template.graph.events({
-
-  });
-
   //Once the SVG is rendered:
   Template.graph.rendered = function(){
     var width = 450,
