@@ -137,8 +137,10 @@ vis.append('svg:rect')
 
 
   this.addLink = function(lk){
-    Meteor.call("addLink", 
-      {source: lk.source._id, target: lk.target._id});
+    Modal.show('linkOptions',{
+      link: {source: lk.source._id, target: lk.target._id},
+      tree: tree
+    }); 
     //   function(error, result){
     //   if(error){
     //     console.log(error.reason);
@@ -150,12 +152,13 @@ vis.append('svg:rect')
     //   console.log("added link ID:", links[links.length-1]._id);
     // })
     // console.log("added link:", lk);
-    tree.redraw();
   }
   this.addLinkedNode = function(lk){
-    Meteor.call("addLinkedNode",
-      lk.source._id, lk.target);
-    tree.redraw();
+    Modal.show('nodeOptions',{
+      node: lk.target,
+      sourceID: lk.source._id,
+      tree: tree
+    }); 
   }
   this.deleteNode = function(nd){
     Meteor.call("deleteNode",nd._id);

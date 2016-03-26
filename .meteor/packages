@@ -20,3 +20,5 @@ d3
 json
 standard-app-packages
 pchvykov:tok
+twbs:bootstrap
+peppelg:bootstrap-3-modal

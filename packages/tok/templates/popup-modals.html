@@ -1,0 +1,71 @@
+<template name="nodeOptions">
+  <div class="modal fade" id="myModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h4 class="modal-title">Add/edit node</h4>
+        </div>
+
+        <div class="modal-body">
+        <form>
+          <select id="type">
+            <option value="assumption">Assumption</option>
+            <option value="definition">Definition</option>
+            <option value="statement">Statement</option>
+            <option value="example">Example</option>
+            <option value="epmirical">Empirical</option>
+          </select>
+          &emsp;
+          Importance:<input type="number" id="importance">
+        <br><br>
+          <label for="content">Content</label><br>
+          <textarea id="content" rows="10" style="width:100%"></textarea>
+        </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="save">Save</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</template>
+
+
+<template name="linkOptions">
+  <div class="modal fade" id="myModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h4 class="modal-title">Add/edit link</h4>
+        </div>
+
+        <div class="modal-body">
+        <form>
+          <select id="type">
+            <option value="theorem">Theorem</option>
+            <option value="conjecture">Conjecture</option>
+            <option value="connection">Connection</option>
+            <option value="specialCase">Special Case</option>
+          </select>
+          &emsp;
+          Strength:<input type="number" id="importance">
+        <br><br>
+          <label for="content">Content</label><br>
+          <textarea id="content" rows="10" style="width:100%"></textarea>
+        </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="save">Save</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</template>

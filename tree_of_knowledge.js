@@ -19,6 +19,9 @@ if (Meteor.isServer){
 if (Meteor.isClient) {
   //Once the SVG is rendered:
   Template.graph.rendered = function(){
+    // $("#nodeOptions").dialog({
+    //     autoOpen: false
+    // });
     var width = 450,
     height = 300; //SVG size
 
@@ -30,6 +33,12 @@ if (Meteor.isClient) {
     // db.subscribe(function(){
     var graph = new ToK(svg, db);
     // });
+  },
+  Template.graph.events({
+    'click #bckup': function(e){
+      e.preventDefault();
+      
+    }
+  })
 
-  }
 };

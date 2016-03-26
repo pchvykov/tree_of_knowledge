@@ -54,20 +54,25 @@ treeData = function(Nodes, Links){
         } } );
       })
     },
-    addLinkedNode: function(from, nd){
-      var ndID = Nodes.insert(nd);
-      var lkID = Links.insert({source: from, target: ndID});
-      return [ndID, lkID];
+    addNode: function(node, fromID, link){
+      var ndID = Nodes.insert(node);
+      // console.log("fromID",fromID);
+      if(fromID){
+        link.source=fromID; link.target=ndID;
+        var lkID = Links.insert(link);
+        return [ndID, lkID];
+      }
+      return ndID;
     },
     addLink: function (link) {
       // console.log("added link in method!", link);
       return Links.insert(link);
     },
-    addNode: function (nd) {
-      var newId= Nodes.insert(nd);
-      // console.log("added node in method!", newId);
-      return newId;
-    },
+    // addNode: function (nd) {
+    //   var newId= Nodes.insert(nd);
+    //   // console.log("added node in method!", newId);
+    //   return newId;
+    // },
     deleteNode: function(nd){
       //Remove node and all connected links:
       Links.remove({$or: [{source: nd}, {target: nd}]});

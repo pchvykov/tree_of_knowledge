@@ -40,13 +40,14 @@ var resetMouseVars = function() {
 //Mouse actions - set to bubble up form deepest-level SVGs
 //node events executed first:
 this.nodeClick = function(d){
-  console.log("clicked!!");
+  console.log("clicked node:", d);
   if (d == gui.selected_node) gui.selected_node = null;
   else gui.selected_node = d; 
   gui.selected_link = null; 
   tree.updateSelection(); 
 }
 this.linkMousedown = function(d) { //easier to catch than Click
+  console.log("clicked link:", d);
   if (d == gui.selected_link) gui.selected_link = null;
   else gui.selected_link = d
   gui.selected_node=null;
@@ -57,7 +58,7 @@ this.nodeMousedown = function (d) {
   if (d3.event.ctrlKey) { //Creating new node or link:
     mousedown_node = d;
     mousedown_node_DOM = this;
-    // console.log("Ctrl+drag!!");
+    // console.log("Ctrl+drag!!");223
     d3.event.stopPropagation(); //prevents panning
     // disable zoom and drag:
     // tree.vis.call(d3.behavior.zoom().on("zoom"), null);
