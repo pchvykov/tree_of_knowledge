@@ -8,9 +8,9 @@ var db = new treeData(Nodes, Links);
 if (Meteor.isServer){
   Meteor.startup(function(){
     // db.loadJSON(JSON.parse(Assets.getText("miserables.json")));
-    // db.clear();
-    // Nodes.insert({x: 0.0, y: 0.0});
-    db.publish();
+    db.clear();
+    Nodes.insert({x: 0.0, y: 0.0});
+    db.publish()
   })
 }
 

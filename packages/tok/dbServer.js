@@ -54,19 +54,40 @@ treeData = function(Nodes, Links){
         } } );
       })
     },
-    addNode: function(node, fromID, link){
-      var ndID = Nodes.insert(node);
-      // console.log("fromID",fromID);
-      if(fromID){
-        link.source=fromID; link.target=ndID;
-        var lkID = Links.insert(link);
-        return [ndID, lkID];
+    updateNode: function(node, fromID, link){
+      if(!node._id){ //add new node
+        var ndID = Nodes.insert(node);
+        // console.log("fromID",fromID);
+        if(fromID){
+          link.source=fromID; link.target=ndID;
+          var lkID = Links.insert(link);
+          return [ndID, lkID];
+        }
+        return ndID;
       }
-      return ndID;
+      else{ //update existing node
+        var attr = {};
+        for (var attrname in node) { 
+          if(attrname!="_id") attr[attrname] = node[attrname]; 
+        };
+        var num = Nodes.update( { _id: node._id }, { $set: attr } );
+        if(num!=1) alert("failed to update a document!");
+        return null;
+      }
     },
-    addLink: function (link) {
+    updateLink: function (link) {
       // console.log("added link in method!", link);
-      return Links.insert(link);
+      if(!link._id) return Links.insert(link);
+      else{
+        var attr = {};
+        for (var attrname in link) { 
+          if(attrname!="_id") attr[attrname] = link[attrname]; 
+        };
+        // console.log("attr",attr);
+        var num = Links.update( { _id: link._id }, { $set: attr } );
+        if(num!=1) alert("failed to update a document!");
+        return null;
+      }
     },
     // addNode: function (nd) {
     //   var newId= Nodes.insert(nd);

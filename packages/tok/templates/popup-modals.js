@@ -1,3 +1,14 @@
+// Template.nodeOptions.helpers({
+//   select: function(){
+//     $("#type").val("example");
+//   }
+// });
+Template.nodeOptions.onRendered(function(){
+  var node= this.data.node;
+  if(node.type) $("#type").val(node.type);
+  if(node.importance) $("#importance").val(node.importance);
+  $("#content").val(node.text);
+})
 Template.nodeOptions.events({
   'click #save': function(e) {
     e.preventDefault();
@@ -8,9 +19,9 @@ Template.nodeOptions.events({
     node.type = $('#type').val();
     node.importance = $('#importance').val();
     node.text = $('#content').val();
-
+    // console.log("sourceID", this.sourceID);
     if (this.sourceID){
-    //create defaults for link:
+      //create defaults for link:
       var lkType = function(ndType){
           switch(ndType){
               case "assumption": return "connection";
@@ -25,17 +36,25 @@ Template.nodeOptions.events({
         strength: 10
       };
     };
-    Meteor.call("addNode",
+    Meteor.call("updateNode",
       node, this.sourceID, link,
       function(err,res){
         if(err) alert(err);
       });
+    
     this.tree.redraw();
 
     Modal.hide('nodeOptions');
   }
 });
 
+Template.linkOptions.onRendered(function(){
+  var link= this.data.link;
+  // console.log("link here",link);
+  if(link.type) $("#type").val(link.type);
+  if(link.strength) $("#importance").val(link.strength);
+  $("#content").val(link.text);
+})
 Template.linkOptions.events({
   'click #save': function(e) {
     e.preventDefault();
@@ -47,10 +66,11 @@ Template.linkOptions.events({
     link.strength = $('#importance').val();
     link.text = $('#content').val();
     
-    Meteor.call("addLink", link,
+    Meteor.call("updateLink", link,
       function(err,res){
         if(err) alert(err);
       });
+    
     this.tree.redraw();
 
     Modal.hide('linkOptions');

@@ -46,12 +46,28 @@ this.nodeClick = function(d){
   gui.selected_link = null; 
   tree.updateSelection(); 
 }
+this.nodeDblClick = function(d){
+  Modal.show('nodeOptions',{
+    node: d,
+    tree: tree
+  });
+}
 this.linkMousedown = function(d) { //easier to catch than Click
   console.log("clicked link:", d);
   if (d == gui.selected_link) gui.selected_link = null;
   else gui.selected_link = d
   gui.selected_node=null;
   tree.updateSelection(); 
+}
+this.linkDblClick = function(d){
+  var lk={};
+  for(var attr in d) lk[attr] = d[attr];
+  lk.source = d.source._id;
+  lk.target = d.target._id;
+  Modal.show('linkOptions',{
+    link: lk,
+    tree: tree
+  });
 }
 this.nodeMousedown = function (d) { 
     // console.log("node mouse down");
@@ -135,6 +151,15 @@ this.mouseup = function() {
   // hide drag line
   drag_line.attr("class", "drag_line_hidden");
   // clear mouse event vars
+  resetMouseVars();
+}
+
+this.dblclick = function(){
+  if(!mousedown_node){
+    var point = d3.mouse(this),
+          node = {x: point[0], y: point[1]};
+    tree.addNode(node);
+  }
   resetMouseVars();
 }
 

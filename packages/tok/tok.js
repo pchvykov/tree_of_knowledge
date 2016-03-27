@@ -53,7 +53,8 @@ vis.append('svg:rect')
   this.vis = vis;
   var gui = new GUI(this);
   vis.on("mousemove", gui.mousemove)
-    .on("mouseup", gui.mouseup, false);
+    .on("mouseup", gui.mouseup, false)
+    .on("dblclick", gui.dblclick, false);
 
   // get layout properties
   var node = vis.selectAll(".node"),
@@ -88,10 +89,11 @@ vis.append('svg:rect')
         .attr("r", 6.5) //radius
         // .attr("id",function(d){return d._id}) //for selecting
         .on("mousedown",gui.nodeMousedown, false) //callbacks
-        .on("mouseup", gui.nodeMouseup, false)
+        .on("mouseup", gui.nodeMouseup, false) //bubble event propagation
         .on("mouseover", gui.nodeMouseover)
         .on("mouseout", gui.nodeMouseout)
         .on("click", gui.nodeClick)
+        .on("dblclick", gui.nodeDblClick)
         .call(gui.nodeDrag)
         .transition()
         .duration(750)
@@ -107,7 +109,8 @@ vis.append('svg:rect')
     link.enter()
         .insert("line", ".node")
         .attr("class", "link")
-        .on("mousedown", gui.linkMousedown);
+        .on("mousedown", gui.linkMousedown)
+        .on("dblclick", gui.linkDblClick);
         // .each(function(d){
         //   console.log(d);
         //   d.source = d3.select("#"+d.source);
@@ -157,6 +160,12 @@ vis.append('svg:rect')
     Modal.show('nodeOptions',{
       node: lk.target,
       sourceID: lk.source._id,
+      tree: tree
+    }); 
+  }
+  this.addNode = function(nd){
+    Modal.show('nodeOptions',{
+      node: nd,
       tree: tree
     }); 
   }
