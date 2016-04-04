@@ -6,8 +6,8 @@
 Template.nodeOptions.onRendered(function(){
   var node= this.data.node;
   if(node.type) $("#type").val(node.type);
-  if(node.importance) $("#importance").val(node.importance);
-  $("#content").val(node.text);
+  // if(node.importance) $("#importance").val(node.importance);
+  // $("#content").val(node.text);
 })
 Template.nodeOptions.events({
   'click #save': function(e) {
@@ -16,6 +16,7 @@ Template.nodeOptions.events({
     // node = Session.get('newNode');
 
     var node = this.node;
+    node.title = $('#title').val();
     node.type = $('#type').val();
     node.importance = $('#importance').val();
     node.text = $('#content').val();
@@ -47,6 +48,12 @@ Template.nodeOptions.events({
     Modal.hide('nodeOptions');
   }
 });
+
+Template.nodeContent.events({
+  "click #close": function(e){
+    Blaze.remove(Blaze.currentView);
+  }
+})
 
 Template.linkOptions.onRendered(function(){
   var link= this.data.link;

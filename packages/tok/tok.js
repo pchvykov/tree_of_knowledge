@@ -11,16 +11,17 @@
 ToK = function(svg, db) {
 
   var tree=this;
+  this.svg=svg;
 
   var color = d3.scale.category20();
   var width = svg.attr("width"),
       height = svg.attr("height");
 
-  // init svg
+  // init svg, registers events:
   var outer = svg.append("svg:svg")
       .attr("pointer-events", "all");
 
-  //visualized picture:
+  //visualized picture, moves with pan/zoom:
   var vis = outer
   .append('svg:g')
     .call(d3.behavior.zoom().on("zoom", rescale))
@@ -65,7 +66,8 @@ vis.append('svg:rect')
   d3.select(window)
       .on("keydown", gui.keydown);
 
-  // redraw force layout
+
+  // pull data from server and redraw force layout
   this.redraw = function() {
   db.subscribe(function(){
     console.log("redrawing");
@@ -87,7 +89,7 @@ vis.append('svg:rect')
     node.enter().insert("circle")
         .attr("class", "node") //styling
         .attr("r", 6.5) //radius
-        // .attr("id",function(d){return d._id}) //for selecting
+        // .attr("id",function(d){return d._id}) //for selection
         .on("mousedown",gui.nodeMousedown, false) //callbacks
         .on("mouseup", gui.nodeMouseup, false) //bubble event propagation
         .on("mouseover", gui.nodeMouseover)
@@ -98,6 +100,12 @@ vis.append('svg:rect')
         .transition()
         .duration(750)
         .ease("elastic");
+    // node.append("title")
+    //     .text(function(d){return d.title});
+    node.attr("data-tooltip", function(d){return d.title})
+        .attr("data-tooltip-top", function(d){
+          return 15 + parseFloat(this.getAttribute("r"));
+        });
 
     node.exit().transition()
         .attr("r", 0)
@@ -132,6 +140,7 @@ vis.append('svg:rect')
     }
 
     force.start();
+    force.alpha(0.05);
   })
   }
   

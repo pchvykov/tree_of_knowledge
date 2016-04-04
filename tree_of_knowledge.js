@@ -8,8 +8,8 @@ var db = new treeData(Nodes, Links);
 if (Meteor.isServer){
   Meteor.startup(function(){
     // db.loadJSON(JSON.parse(Assets.getText("miserables.json")));
-    db.clear();
-    Nodes.insert({x: 0.0, y: 0.0});
+    // db.clear(); 
+    // Nodes.insert({x: 0.0, y: 0.0});
     db.publish()
   })
 }
@@ -22,9 +22,8 @@ if (Meteor.isClient) {
     // $("#nodeOptions").dialog({
     //     autoOpen: false
     // });
-    var width = 450,
-    height = 300; //SVG size
-
+    var width = $(window).width(),
+    height = 600; //SVG size
 
     var svg = d3.select("#graphSVG")
         .attr("width", width)
@@ -39,6 +38,6 @@ if (Meteor.isClient) {
       e.preventDefault();
       
     }
-  })
+  });
 
 };

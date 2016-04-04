@@ -3,6 +3,7 @@
 GUI = function(tree){
 
 var gui = this;
+var popup=null;
 this.selected_node = null;
 this.selected_link = null;
 
@@ -25,10 +26,6 @@ var nodeDrag = tree.force.drag()
       .on("dragstart",function(d){d.dragging=true;})
       .on("dragend",function(d){d.dragging=false});
 
-// tree.vis.call(zoom)
-//     .on("dblclick.zoom", null)
-//     .append('svg:g');
-
 var resetMouseVars = function() {
   // console.log("resetting mouse");
   mousedown_node = null;
@@ -41,8 +38,23 @@ var resetMouseVars = function() {
 //node events executed first:
 this.nodeClick = function(d){
   console.log("clicked node:", d);
-  if (d == gui.selected_node) gui.selected_node = null;
-  else gui.selected_node = d; 
+  //delete existing popup window
+  if(popup){Blaze.remove(popup); popup=null;}
+  if (d == gui.selected_node) {
+    gui.selected_node = null; 
+  }
+  else {
+    //show node info in a popup:
+    gui.selected_node = d; 
+    popup=Blaze.renderWithData(Template.nodeContent, 
+      d, tree.svg.node().parentNode);
+    var offset = tree.svg.node().getBoundingClientRect();
+    $('.popup').offset({
+      top:offset.top+5, left:offset.left+5
+    })
+
+  }
+  //update which nodes/links show up as selected:
   gui.selected_link = null; 
   tree.updateSelection(); 
 }
@@ -70,6 +82,7 @@ this.linkDblClick = function(d){
   });
 }
 this.nodeMousedown = function (d) { 
+  d3.event.preventDefault();
     // console.log("node mouse down");
   if (d3.event.ctrlKey) { //Creating new node or link:
     mousedown_node = d;

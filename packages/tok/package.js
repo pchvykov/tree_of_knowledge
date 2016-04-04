@@ -16,14 +16,17 @@ Package.onUse(function(api) {
   api.use(['d3',
           'templating',
           'twbs:bootstrap', 
-          'peppelg:bootstrap-3-modal'],'client');
+          'peppelg:bootstrap-3-modal',
+          'mrt:mathjax',
+          'rancas:meteor-d3-tip'],'client');
 
   api.addFiles('dbServer.js'); //load both on client and server
   api.addFiles(['tok.css',
               'tok.js',
               'gui.js',
               'templates/popup-modals.html',
-              'templates/popup-modals.js'], 'client');
+              'templates/popup-modals.js',
+              'templates/popup-modals.css'], 'client');
   
   api.export('treeData');
   api.export('ToK','client');

@@ -9,6 +9,8 @@
 
         <div class="modal-body">
         <form>
+        {{#with node}}
+          Node Title: <input typt="text" id="title" value={{title}}><br>
           <select id="type">
             <option value="assumption">Assumption</option>
             <option value="definition">Definition</option>
@@ -17,10 +19,11 @@
             <option value="epmirical">Empirical</option>
           </select>
           &emsp;
-          Importance:<input type="number" id="importance">
+          Importance:<input type="number" id="importance" value={{importance}}>
         <br><br>
           <label for="content">Content</label><br>
-          <textarea id="content" rows="10" style="width:100%"></textarea>
+          <textarea id="content" rows="10" style="width:100%" value={{text}}></textarea>
+        {{/with}}
         </form>
         </div>
 
@@ -31,6 +34,29 @@
 
       </div>
     </div>
+  </div>
+</template>
+
+<!-- Content popup: -->
+<template name="nodeContent">
+  <div class="popup">
+    {{#mathjax}}
+    <h2>{{title}}
+    <!-- <button aria-label="close" style="float: right">&times;</button> -->
+    <a href="#" id="close" style="float:right">&times;</a>
+    </h2>
+    <div class="popupBody">
+    <h3>
+    {{type}}
+    &emsp;
+    {{importance}}
+    </h3>
+    <br>
+    <p>
+      {{text}}
+    </p>
+    </div>
+    {{/mathjax}}
   </div>
 </template>
 
