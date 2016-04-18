@@ -16,31 +16,40 @@ ToK = function(svg, db) {
   var color = d3.scale.category20();
   var width = svg.attr("width"),
       height = svg.attr("height");
+  var treeDim = [5000, 5000];
 
   // init svg, registers events:
   var outer = svg.append("svg:svg")
       .attr("pointer-events", "all");
 
   //visualized picture, moves with pan/zoom:
+  //initialize the starting offset to center tree:
   var vis = outer
   .append('svg:g')
+    .attr("transform", 
+      "translate(" + [(width-treeDim[0])/2, (height-treeDim[1])/2] + ")")
     .call(d3.behavior.zoom().on("zoom", rescale))
     .on("dblclick.zoom", null)
   .append('svg:g');
 
+// vis.attr("width",treeWidth)
+//    .attr("height",treeHeight);
+//    .attr("transform",
+//        "translate(" + transl0 + ")");
 vis.append('svg:rect')
-    .attr('width', width)
-    .attr('height', height)
+    .attr('width', treeDim[0])
+    .attr('height', treeDim[1])
     .attr('fill', 'white');
 
 
   // init force layout
   var force = d3.layout.force()
-      .size([width, height])
+      .size(treeDim)
       // .nodes(nodeData)
       // .links(linkData)
       .linkDistance(15)
       .charge(-80)
+      .friction(0.9)
       .on("tick", tick)
       .on("end", function(){
           Meteor.call("updateCoord",force.nodes())
@@ -57,7 +66,7 @@ vis.append('svg:rect')
     .on("mouseup", gui.mouseup, false)
     .on("dblclick", gui.dblclick, false);
 
-  // get layout properties
+  // get existing layout properties (enpty at start)
   var node = vis.selectAll(".node"),
       link = vis.selectAll(".link");
 
@@ -73,15 +82,20 @@ vis.append('svg:rect')
     console.log("redrawing");
     var linkData=db.Links.find({}).fetch();
     var nodeData=db.Nodes.find({}).fetch();
-    //replace node id-s in links with indexes (slow?)
+    //replace node id-s in links with pointers to nodes
     linkData.forEach(function(lk, idx){
-      lk.source = nodeData.findIndex(function(nd){return nd._id == lk.source});
-      lk.target = nodeData.findIndex(function(nd){return nd._id == lk.target});
+      lk.source = nodeData.find(function(nd){return nd._id == lk.source});
+      lk.target = nodeData.find(function(nd){return nd._id == lk.target});
+      if(!lk.source || !lk.target) console.error("orphaned link! ", lk._id);
+      // console.log("lk", lk._id, lk.source, lk.target);
     });
-    // console.log("links here", linkData);
-    //Update the force graph:
-    force.nodes(nodeData)
-        .links(linkData);
+    //initialize all node velocities to 0:
+    nodeData.forEach(function(nd){
+      nd.px=nd.x;
+      nd.py=nd.y;
+    });
+
+    // console.log("links here", linkData)    
 
     //update data on d3 objects (SVGs), bind using _id:
     node = node.data(nodeData, function(d){return d._id});
@@ -139,8 +153,11 @@ vis.append('svg:rect')
       d3.event.preventDefault();
     }
 
+    //Update the force graph:
+    force.nodes(nodeData)
+        .links(linkData);
     force.start();
-    force.alpha(0.05);
+    force.alpha(0.06);
   })
   }
   
@@ -214,7 +231,7 @@ vis.append('svg:rect')
   function rescale() {
     var transl=d3.event.translate;
     var scale = d3.event.scale;
-    // console.log("translate", transl);
+    // console.log("translate", transl, [transl[0]+transl0[0],transl[1]+transl0[1]]);
     vis.attr("transform",
         "translate(" + transl + ")"
         + " scale(" + scale + ")");
