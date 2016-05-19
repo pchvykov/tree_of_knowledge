@@ -14,8 +14,11 @@ ToK = function(svg, db) {
   this.svg=svg;
 
   var color = d3.scale.category20();
+  //size of the displayed portion:
   var width = svg.attr("width"),
       height = svg.attr("height");
+  this.canvasSize=[width, height];
+  //size of the entire tree page:
   var treeDim = [5000, 5000];
 
   // init svg, registers events:
@@ -100,26 +103,58 @@ vis.append('svg:rect')
     //update data on d3 objects (SVGs), bind using _id:
     node = node.data(nodeData, function(d){return d._id});
         
-    node.enter().insert("circle")
+    //create group for each node:
+    var newNodes = node.enter().append("svg:g")
+        .attr("class","node-outer")
+        // .attr("id",function(d){return d._id}) //for selection
+        .call(gui.nodeDrag);
+    newNodes.append("circle")
         .attr("class", "node") //styling
         .attr("r", 6.5) //radius
-        // .attr("id",function(d){return d._id}) //for selection
-        .on("mousedown",gui.nodeMousedown, false) //callbacks
-        .on("mouseup", gui.nodeMouseup, false) //bubble event propagation
         .on("mouseover", gui.nodeMouseover)
         .on("mouseout", gui.nodeMouseout)
+        .on("mousedown",gui.nodeMousedown, false) //callbacks
+        .on("mouseup", gui.nodeMouseup, false) //bubble event propagation
         .on("click", gui.nodeClick)
         .on("dblclick", gui.nodeDblClick)
-        .call(gui.nodeDrag)
         .transition()
         .duration(750)
-        .ease("elastic");
-    // node.append("title")
-    //     .text(function(d){return d.title});
-    node.attr("data-tooltip", function(d){return d.title})
-        .attr("data-tooltip-top", function(d){
-          return 15 + parseFloat(this.getAttribute("r"));
-        });
+        .ease("elastic")
+        // using lookback/meteor-tooltips library:
+        // .attr("data-tooltip", function(d){return d.title})
+        // .attr("data-tooltip-top", function(d){
+        //   return 10 + parseFloat(this.getAttribute("r"));
+        // });
+    // Add tooltip for each:-------
+    //as SVG text and backgnd rect:
+    // var newTT=newNodes.append("svg:g") 
+    //         .attr("class",'tooltip1')
+    //         .style("opacity", 0.5)
+    // var text=newTT.append('text')
+    //         .text(function(d){return d.title});      
+    // text.each(function(d,idx){
+    //   var bbox=this.getBBox();
+    //   var padding=3;
+    //   d3.select(this.parentNode)
+    //       .insert("rect","text")
+    //       .attr("x", bbox.x - padding)
+    //       .attr("y", bbox.y - padding)
+    //       .attr("width", bbox.width + (padding*2))
+    //       .attr("height", bbox.height + (padding*2))
+    //       .style("fill", "blueviolet");
+    // })
+
+    //Tooltips as foreignObject: (position in tick and rescale) 
+    newNodes.append("svg:foreignObject")
+          // .attr("width",100)
+          // .attr("height",100)
+          .append("xhtml:div")
+          .attr("class",'tooltip')
+          .append("xhtml:span") 
+          .attr("class",'inner');
+    d3.selectAll('.tooltip .inner')
+          .text(function(d){return d.title});
+
 
     node.exit().transition()
         .attr("r", 0)
@@ -129,7 +164,7 @@ vis.append('svg:rect')
     link = link.data(linkData, function(d){return d._id});
     //show new SVG-s for new links
     link.enter()
-        .insert("line", ".node")
+        .insert("line", ".node-outer")
         .attr("class", "link")
         .on("mousedown", gui.linkMousedown)
         .on("dblclick", gui.linkDblClick);
@@ -146,7 +181,7 @@ vis.append('svg:rect')
     
 
     //show the selection correctly:
-    // tree.updateSelection();
+    tree.updateSelection();
 
     if (d3.event) {
       // prevent browser's default behavior
@@ -160,10 +195,21 @@ vis.append('svg:rect')
     force.alpha(0.06);
   })
   }
-  
     
   this.redraw();
 
+  //Position tooltip divs next to their nodes:
+  function positionTooltips(){
+    d3.selectAll('.tooltip').each(function(d,idx){
+      var bbox=this.parentNode.parentNode.getBoundingClientRect();
+      this.style.left=(bbox.left+bbox.right-
+        this.firstChild.offsetWidth)/2 -8+'px';
+      this.style.top=bbox.top+'px';
+        // this.firstChild.offsetHeight -16+'px';
+    // .style("left", function(d){return d.x+'px'})
+    // .style("top", function(d){return d.y+'px'}) 
+    })
+  }
 
   this.addLink = function(lk){
     Modal.show('linkOptions',{
@@ -183,17 +229,21 @@ vis.append('svg:rect')
     // console.log("added link:", lk);
   }
   this.addLinkedNode = function(lk){
-    Modal.show('nodeOptions',{
-      node: lk.target,
-      sourceID: lk.source._id,
-      tree: tree
-    }); 
+    // Modal.show('nodeOptions',{
+    //   node: lk.target,
+    //   sourceID: lk.source._id,
+    //   tree: tree
+    // }); 
+    // lk.target.title='...';
+    gui.nodeEditor(lk.target, lk.source._id);
   }
   this.addNode = function(nd){
-    Modal.show('nodeOptions',{
-      node: nd,
-      tree: tree
-    }); 
+    // Modal.show('nodeOptions',{
+    //   node: nd,
+    //   tree: tree
+    // }); 
+    // nd.title='...';
+    gui.nodeEditor(nd);
   }
   this.deleteNode = function(nd){
     Meteor.call("deleteNode",nd._id);
@@ -206,13 +256,36 @@ vis.append('svg:rect')
     tree.redraw();
   }
   this.updateSelection = function(){
-    link
-      .classed("link_selected", function(d) { 
-        return d === gui.selected_link; 
-        });
-    node
-      .classed("node_selected", function(d) { 
-        return d === gui.selected_node; });
+    if(gui.selected){
+      link
+        .classed("link_selected", function(d) { 
+          return d._id == gui.selected._id;
+          });
+      node.select('.node')
+        .classed("node_selected", function(d) { 
+          return d._id == gui.selected._id;
+         });
+    }
+    else{
+      link.classed("link_selected", false);
+      node.select('.node').classed("node_selected", false);
+    }
+    if(gui.editPopup){
+      var editID = Blaze.getData(gui.editPopup).node._id;
+      // console.log(editID)
+      link
+        .classed("link_edited", function(d) { 
+          return d._id == editID;
+          });
+      node.select('.node')
+        .classed("node_edited", function(d) { 
+          return d._id == editID;
+         });
+    }
+    else{
+      link.classed("link_edited", false);
+      node.select('.node').classed("node_edited", false);
+      }
   }
 
   // }); });
@@ -223,8 +296,12 @@ vis.append('svg:rect')
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
 
-    node.attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
+    //position the node group:
+    node.attr("transform",function(d){
+      return ("translate("+d.x+','+d.y+')')});
+    // attr("x", function(d) { return d.x; })
+    //     .attr("y", function(d) { return d.y; });
+    positionTooltips();
   }
 
   // rescale g
@@ -235,6 +312,7 @@ vis.append('svg:rect')
     vis.attr("transform",
         "translate(" + transl + ")"
         + " scale(" + scale + ")");
+    positionTooltips();
   }
 
 }

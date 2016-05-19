@@ -3,9 +3,10 @@
 GUI = function(tree){
 
 var gui = this;
-var popup=null;
-this.selected_node = null;
-this.selected_link = null;
+gui.tree=tree;
+this.contentPopup=null;
+this.editPopup=null;
+this.selected = null;
 
 // mouse event vars
 var mousedown_link = null,
@@ -34,42 +35,82 @@ var resetMouseVars = function() {
   mousedown_link = null;
 }
 
+//delete content popup window:
+this.hideContent = function(){
+  if(gui.contentPopup){
+    Blaze.remove(gui.contentPopup); 
+    gui.contentPopup=null;
+  }
+}
+//Show object content in a popup:
+this.showContent = function(d){
+  //delete existing popup window
+  gui.hideContent();
+  //show node info about gui.selected_node in a popup:
+  gui.selected = d; 
+  gui.contentPopup=Blaze.renderWithData(Template.nodeContent, 
+    gui, tree.svg.node().parentNode);
+  var offset = tree.svg.node().getBoundingClientRect();
+  $('#contentPopup').offset({
+    top:offset.top+5, left:offset.left+5
+  })
+  if(gui.editPopup){
+    $('#contentPopup').height(Math.round(tree.canvasSize[1]/3))
+  }
+
+  //update which nodes/links show up as selected:
+  tree.updateSelection(); 
+}
+
+//Edit object content in a popup:
+this.nodeEditor = function(d, srcID){
+  if(gui.editPopup) return;
+  gui.editPopup=Blaze.renderWithData(Template.nodeOptions, 
+    {
+      node:d,
+      sourceID: srcID,
+      gui:gui
+    }, tree.svg.node().parentNode);
+  var offset = tree.svg.node().getBoundingClientRect();
+  $('#editPopup').offset({
+    top:offset.top+Math.round(tree.canvasSize[1]/3)+30, left:offset.left+5
+  })
+  $('#editPopup').css({"max-height": 
+    (Math.round(tree.canvasSize[1]*2/3)-40)+'px'});
+  //make text-area resize automatically (2nd argument to keep scrollbar in check:)
+  autoSizeTextarea(document.getElementById('content'), 
+    $('#editPopup'));
+  gui.showContent(d);
+}
 //Mouse actions - set to bubble up form deepest-level SVGs
 //node events executed first:
-this.nodeClick = function(d){
-  console.log("clicked node:", d);
-  //delete existing popup window
-  if(popup){Blaze.remove(popup); popup=null;}
-  if (d == gui.selected_node) {
-    gui.selected_node = null; 
+this.nodeClick = function(d){  
+  if (d == gui.selected) {
+    if(gui.contentPopup){
+      Blaze.remove(gui.contentPopup); 
+      gui.contentPopup=null;
+    }
+    gui.selected = null;
+    //update which nodes/links show up as selected:
+    tree.updateSelection(); 
   }
   else {
-    //show node info in a popup:
-    gui.selected_node = d; 
-    popup=Blaze.renderWithData(Template.nodeContent, 
-      d, tree.svg.node().parentNode);
-    var offset = tree.svg.node().getBoundingClientRect();
-    $('.popup').offset({
-      top:offset.top+5, left:offset.left+5
-    })
-
+    gui.showContent(d);
   }
-  //update which nodes/links show up as selected:
-  gui.selected_link = null; 
-  tree.updateSelection(); 
+  console.log("selected node:", gui.selected);  
 }
 this.nodeDblClick = function(d){
-  Modal.show('nodeOptions',{
-    node: d,
-    tree: tree
-  });
+  // Modal.show('nodeOptions',{
+  //   node: d,
+  //   tree: tree
+  // });
+  gui.nodeEditor(d);  
 }
 this.linkMousedown = function(d) { //easier to catch than Click
-  console.log("clicked link:", d);
-  if (d == gui.selected_link) gui.selected_link = null;
-  else gui.selected_link = d
-  gui.selected_node=null;
+  if (d == gui.selected) gui.selected = null;
+  else gui.selected = d
   tree.updateSelection(); 
+  console.log("clicked link:", gui.selected);
 }
 this.linkDblClick = function(d){
   var lk={};
@@ -84,7 +125,8 @@ this.linkDblClick = function(d){
 this.nodeMousedown = function (d) { 
   d3.event.preventDefault();
     // console.log("node mouse down");
-  if (d3.event.ctrlKey) { //Creating new node or link:
+  if (d3.event.ctrlKey && !gui.editPopup) { 
+  //Creating new node or link:
     mousedown_node = d;
     mousedown_node_DOM = this;
     // console.log("Ctrl+drag!!");223
@@ -126,12 +168,16 @@ this.nodeMouseup = function(d) { //Create new link:
 this.nodeMouseover = function(d){
   d3.select(this)
       .classed("fixed",d.fixed=true);
+  d3.select(this.parentNode).select('.tooltip')
+      .classed("show",true);
 }
 
 this.nodeMouseout = function(d){
   if(!d.dragging){
     d3.select(this)
         .classed("fixed",d.fixed=false);
+    d3.select(this.parentNode).select('.tooltip')
+        .classed("show",false);
   }
 
 }
@@ -161,14 +207,14 @@ this.mouseup = function() {
     }
 
   }
-  // hide drag line
-  drag_line.attr("class", "drag_line_hidden");
+  // // hide drag line
+  // drag_line.attr("class", "drag_line_hidden");
   // clear mouse event vars
   resetMouseVars();
 }
 
 this.dblclick = function(){
-  if(!mousedown_node){
+  if(!mousedown_node && !gui.editPopup){
     var point = d3.mouse(this),
           node = {x: point[0], y: point[1]};
     tree.addNode(node);
@@ -178,19 +224,23 @@ this.dblclick = function(){
 
 
 this.keydown = function() {
-  if (!gui.selected_node && !gui.selected_link) return;
+  if (!gui.selected) return;
   switch (d3.event.keyCode) {
     case 8: // backspace
     case 46: { // delete
-      if (gui.selected_node) {
-        tree.deleteNode(gui.selected_node);
+      if(d3.event.ctrlKey){
+        //use "source" attribute to determine 
+        //whether "selected" is a link:
+        if (gui.selected.source) {
+          tree.deleteLink(gui.selected);
+        }
+        else {
+          tree.deleteNode(gui.selected);
+        }
+        gui.selected = null;
+        gui.hideContent();
+        // tree.redraw();
       }
-      else if (gui.selected_link) {
-        tree.deleteLink(gui.selected_link);
-      }
-      gui.selected_link = null;
-      gui.selected_node = null;
-      // tree.redraw();
       break;
     }
   }
@@ -198,5 +248,5 @@ this.keydown = function() {
 
 //Export some local variables and functions:
 this.nodeDrag = nodeDrag;
-
+this.drag_line=drag_line;
 }

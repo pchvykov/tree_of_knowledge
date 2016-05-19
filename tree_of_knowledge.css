@@ -1,10 +1,10 @@
 /* CSS declarations go here */
 
-/*.canvas {
-	border: 1px solid black;
-	width:auto;
-	height:auto;
-}*/
+.canvas {
+	border: 5px solid black;
+	/*width:calc(100%+15px);*/
+	/*height:auto;*/
+}
 
 /*.node {
   stroke: #fff;

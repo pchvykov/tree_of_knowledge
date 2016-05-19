@@ -18,10 +18,7 @@ ecmascript              # Enable ECMAScript2015+ syntax in app code
 json
 standard-app-packages
 pchvykov:tok
-twbs:bootstrap
-peppelg:bootstrap-3-modal
-mrt:mathjax
 d3
-lookback:tooltips
 standard-minifier-css
 standard-minifier-js
+mrt:mathjax

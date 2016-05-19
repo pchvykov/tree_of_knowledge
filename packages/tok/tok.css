@@ -1,5 +1,5 @@
 body {
-  font: 13px sans-serif;
+  font: 16px sans-serif;
   position: relative;
   width: 960px;
   height: 500px;
@@ -14,6 +14,11 @@ body {
 .node_selected {
   fill: #ff7f0e;
   stroke: #ff7f0e;
+}
+
+.node_edited {
+  /*fill: #ff7f0e;*/
+  stroke: #00f;
 }
 
 .node.fixed {
@@ -42,23 +47,43 @@ body {
   stroke: #ff7f0e;
 }
 
-
-.tooltip {
-  z-index: 1001;
+.tooltip{
+  width: 300px; /*max width*/
+  position: absolute;
   pointer-events: none;
-  transition: opacity .1s ease-out;
-  opacity: 0;
-  text-align: center;
-  font: 16px sans-serif;
-  color: white;
-  /*background: lightsteelblue; */
-  background: blueviolet;
-  border: 0px;    
-  border-radius: 8px;     
 }
-.tooltip.hide {
-    opacity: 0;
-  }
-.tooltip.show {
-    opacity: 1;
-  }
+
+.tooltip .inner {     
+    text-align: center;
+    position: absolute; 
+    bottom:16px;    
+    padding: 3px; 
+    max-width: 50px;
+    display: inline-block;
+    /*width: auto;*/
+    word-wrap: break-word;
+    font: 0.8em sans-serif; 
+    color: white;   
+    background: blueviolet; 
+    border: 0px;    
+    border-radius: 8px;     
+    opacity: 0.35; 
+    /*z-index: 1002;    */
+}
+
+/*create tooltip arrow*/
+.tooltip .inner::after {
+    content: "";
+    position: absolute;
+    top: 98%;
+    left: 50%;
+    margin-left: -8px;
+    border-width: 8px;
+    border-style: solid;
+    border-color: blueviolet transparent transparent transparent;
+}
+
+.tooltip.show .inner{
+  font: 1em sans-serif; 
+  opacity: 0.8;
+}

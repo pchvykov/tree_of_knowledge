@@ -15,18 +15,21 @@ Package.onUse(function(api) {
   api.use(['ecmascript']);
   api.use(['d3',
           'templating',
-          'twbs:bootstrap', 
-          'peppelg:bootstrap-3-modal',
+          // 'twbs:bootstrap', 
+          // 'peppelg:bootstrap-3-modal',
           'mrt:mathjax',
-          'rancas:meteor-d3-tip'],'client');
+          // 'rancas:meteor-d3-tip',
+          // 'lookback:tooltips'
+          ],'client');
 
   api.addFiles('dbServer.js'); //load both on client and server
-  api.addFiles(['tok.css',
+  api.addFiles(['lib/ui_functions.js',
+              'tok.css',
               'tok.js',
               'gui.js',
-              'templates/popup-modals.html',
-              'templates/popup-modals.js',
-              'templates/popup-modals.css'], 'client');
+              'templates/popups.html',
+              'templates/popups.js',
+              'templates/popups.css'], 'client');
   
   api.export('treeData');
   api.export('ToK','client');

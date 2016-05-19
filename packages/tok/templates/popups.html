@@ -1,61 +1,58 @@
 <template name="nodeOptions">
-  <div class="modal fade" id="myModal">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
+  <div id="editPopup">
 
-        <div class="modal-header">
-          <h4 class="modal-title">Add/edit node</h4>
-        </div>
+    <!-- <div class="modal-header"> -->
+      <h2 class="modal-title">Add/edit node</h2>
+    <!-- </div> -->
 
-        <div class="modal-body">
-        <form>
-        {{#with node}}
-          Node Title: <input typt="text" id="title" value={{title}}><br>
-          <select id="type">
-            <option value="assumption">Assumption</option>
-            <option value="definition">Definition</option>
-            <option value="statement">Statement</option>
-            <option value="example">Example</option>
-            <option value="epmirical">Empirical</option>
-          </select>
-          &emsp;
-          Importance:<input type="number" id="importance" value={{importance}}>
-        <br><br>
-          <label for="content">Content</label><br>
-          <textarea id="content" rows="10" style="width:100%" value={{text}}></textarea>
-        {{/with}}
-        </form>
-        </div>
+    <!-- <div class="modal-body"> -->
+    <form>
+    {{#with node}}
+      Node Title: <input typt="text" id="title" value={{title}}><br>
+      <select id="type">
+        <option value="assumption">Assumption</option>
+        <option value="definition">Definition</option>
+        <option value="statement">Statement</option>
+        <option value="example">Example</option>
+        <option value="epmirical">Empirical</option>
+      </select>
+      &emsp;
+      Importance:<input type="number" id="importance" style="width: 100px" value={{importance}}>
+    <br><br>
+      <label for="content">Content (Shift+Enter to update)</label><br>
+      <textarea id="content" rows=3 value={{text}}></textarea>
+    {{/with}}
+    </form>
+    <!-- </div> -->
 
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" id="save">Save</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        </div>
-
-      </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" id="save">Save</button>
+        <button type="button" class="btn btn-default" id="cancel" data-dismiss="modal">Cancel</button>
     </div>
   </div>
 </template>
 
 <!-- Content popup: -->
 <template name="nodeContent">
-  <div class="popup">
+  <div id="contentPopup">
     {{#mathjax}}
-    <h2>{{title}}
+    <h2>{{selected.title}}
     <!-- <button aria-label="close" style="float: right">&times;</button> -->
     <a href="#" id="close" style="float:right">&times;</a>
     </h2>
-    <div class="popupBody">
+    {{#with selected}}
+    <div id="popupBody">
     <h3>
     {{type}}
     &emsp;
     {{importance}}
     </h3>
     <br>
-    <p>
+    <p style="white-space: pre-wrap">
       {{text}}
     </p>
     </div>
+    {{/with}}
     {{/mathjax}}
   </div>
 </template>

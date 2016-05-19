@@ -23,11 +23,12 @@ if (Meteor.isClient) {
     //     autoOpen: false
     // });
     var width = $(window).width(),
-    height = 600; //SVG size
+    height = 700;//$(window).height(); //SVG size
 
     var svg = d3.select("#graphSVG")
         .attr("width", width)
         .attr("height", height); //Set SVG attributes
+    $(".canvas").width(width);
 
     // db.subscribe(function(){
     var graph = new ToK(svg, db);

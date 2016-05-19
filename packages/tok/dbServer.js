@@ -63,7 +63,7 @@ treeData = function(Nodes, Links){
           var lkID = Links.insert(link);
           return [ndID, lkID];
         }
-        return ndID;
+        return [ndID];
       }
       else{ //update existing node
         var attr = {};

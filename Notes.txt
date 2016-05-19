@@ -1,0 +1,33 @@
+popup-modal css - inheret editPopup styling
+center tooltips
+edited node highlighting
+remove dependencies - bootstrap, tip
+
+remove lookback tooltip css
+adding new nodes without editing
+mathjax superscripts disappear
+mathjax re-render on update
+tooltip max-width control
+position tooltips
+show/hide on mouseover.
+
+
+
+
+Launching online:
+(already good now) - remove the local mrt:mathjax and MathJax installations - let it use latest MathJax code directly from their server.
+
+Tooltips pros/cons:
+			pro				con
+-meteor lookback	simple, mathjax			only 1, not smooth
+-SVG text		smooth move/zoom		no mathjax, must resize
+-foreign div		mathjax, easy styling		must update
+
+
+UI:--------------
+Ctrl+... - editing controls
+ +Del (or +Bcksp) - delete node
+ +Click & drag - create new link
+Shift+Enter in text edit box - update DB
+Dbl-Click - create/edit node
+Click - select node
