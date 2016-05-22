@@ -1,15 +1,15 @@
 popup-modal css - inheret editPopup styling
-center tooltips
-edited node highlighting
-remove dependencies - bootstrap, tip
+--center tooltips
+--edited node highlighting
+--remove dependencies - bootstrap, tip
 
-remove lookback tooltip css
-adding new nodes without editing
+--remove lookback tooltip css
+--adding new nodes without editing
 mathjax superscripts disappear
 mathjax re-render on update
-tooltip max-width control
-position tooltips
-show/hide on mouseover.
+--tooltip max-width control
+--position tooltips
+--show/hide on mouseover.
 
 
 

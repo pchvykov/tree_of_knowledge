@@ -26,11 +26,11 @@
 	<h2>Graph here
 	<input type="button" id="bckup" value="Backup Tree" />
 	</h2>
-	
+	{{#unless noRender}}
   {{#mathjax}}
 	<div class="canvas" id="graphCanvas">
 		<svg id="graphSVG"></svg>
 	</div>
   {{/mathjax}}
-
+  {{/unless}}
 </template>

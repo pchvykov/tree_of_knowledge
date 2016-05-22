@@ -168,16 +168,14 @@ this.nodeMouseup = function(d) { //Create new link:
 this.nodeMouseover = function(d){
   d3.select(this)
       .classed("fixed",d.fixed=true);
-  d3.select(this.parentNode).select('.tooltip')
-      .classed("show",true);
+  this.parentNode.tooltip.classed("show",true);
 }
 
 this.nodeMouseout = function(d){
   if(!d.dragging){
     d3.select(this)
         .classed("fixed",d.fixed=false);
-    d3.select(this.parentNode).select('.tooltip')
-        .classed("show",false);
+    this.parentNode.tooltip.classed("show",false);
   }
 
 }

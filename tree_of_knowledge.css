@@ -1,6 +1,6 @@
 /* CSS declarations go here */
 
-.canvas {
+.graphCanvas {
 	border: 5px solid black;
 	/*width:calc(100%+15px);*/
 	/*height:auto;*/

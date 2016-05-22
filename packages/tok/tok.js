@@ -126,7 +126,7 @@ vis.append('svg:rect')
         //   return 10 + parseFloat(this.getAttribute("r"));
         // });
     // Add tooltip for each:-------
-    //as SVG text and backgnd rect:
+    //as SVG text and backgnd rect: - can't render MathJax
     // var newTT=newNodes.append("svg:g") 
     //         .attr("class",'tooltip1')
     //         .style("opacity", 0.5)
@@ -145,20 +145,35 @@ vis.append('svg:rect')
     // })
 
     //Tooltips as foreignObject: (position in tick and rescale) 
-    newNodes.append("svg:foreignObject")
-          // .attr("width",100)
-          // .attr("height",100)
+    //problems rendering MathJax
+    // newNodes.append("svg:foreignObject")
+    //       // .attr("width",100)
+    //       // .attr("height",100)
+    //       .append("xhtml:div")
+    //       .attr("class",'tooltip')
+    //       .append("xhtml:span") 
+    //       .attr("class",'inner');
+
+    //Tooltips as divs in the body, with reference to node SVG:
+    newNodes.each(function(d, idx){
+      var newTT=d3.select('#graphCanvas')
           .append("xhtml:div")
-          .attr("class",'tooltip')
+          .attr("class",'tooltip');
+      newTT.datum(this)
           .append("xhtml:span") 
           .attr("class",'inner');
+      this.tooltip=newTT; //newTT - d3 elt, this - DOM elt
+    })
+
     d3.selectAll('.tooltip .inner')
-          .text(function(d){return d.title});
+          .text(function(d){return d3.select(d).datum().title});
+    Session.set("noRender", false);
 
-
-    node.exit().transition()
-        .attr("r", 0)
-      .remove();
+    node.exit().each(function(){this.tooltip.remove();})
+    node.exit().select('.node')
+        .transition()
+        .attr("r", 0);
+    node.exit().remove();
 
     //For links-----------------------
     link = link.data(linkData, function(d){return d._id});
@@ -201,13 +216,14 @@ vis.append('svg:rect')
   //Position tooltip divs next to their nodes:
   function positionTooltips(){
     d3.selectAll('.tooltip').each(function(d,idx){
-      var bbox=this.parentNode.parentNode.getBoundingClientRect();
+      // var bbox=this.parentNode.parentNode.getBoundingClientRect();
+      var bbox=d.getBoundingClientRect();
       this.style.left=(bbox.left+bbox.right-
-        this.firstChild.offsetWidth)/2 -8+'px';
-      this.style.top=bbox.top+'px';
+        this.firstChild.offsetWidth)/2 -8
+            +window.scrollX+'px';
+      this.style.top=bbox.top
+            +window.scrollY+'px';
         // this.firstChild.offsetHeight -16+'px';
-    // .style("left", function(d){return d.x+'px'})
-    // .style("top", function(d){return d.y+'px'}) 
     })
   }
 

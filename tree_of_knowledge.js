@@ -22,6 +22,7 @@ if (Meteor.isClient) {
     // $("#nodeOptions").dialog({
     //     autoOpen: false
     // });
+    Session.set("noRender", true);
     var width = $(window).width(),
     height = 700;//$(window).height(); //SVG size
 
@@ -30,10 +31,15 @@ if (Meteor.isClient) {
         .attr("height", height); //Set SVG attributes
     $(".canvas").width(width);
 
+
     // db.subscribe(function(){
     var graph = new ToK(svg, db);
     // });
   },
+  Template.graph.helpers(
+    noRender = function(){
+    return Session.get("noRender");
+  }),
   Template.graph.events({
     'click #bckup': function(e){
       e.preventDefault();
