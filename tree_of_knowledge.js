@@ -18,11 +18,11 @@ if (Meteor.isServer){
 //Client-side code:
 if (Meteor.isClient) {
   //Once the SVG is rendered:
-  Template.graph.rendered = function(){
+  Template.graph.onRendered(function(){
     // $("#nodeOptions").dialog({
     //     autoOpen: false
     // });
-    Session.set("noRender", true);
+    Session.set('lastUpdate', new Date() );
     var width = $(window).width(),
     height = 700;//$(window).height(); //SVG size
 
@@ -35,11 +35,10 @@ if (Meteor.isClient) {
     // db.subscribe(function(){
     var graph = new ToK(svg, db);
     // });
-  },
-  Template.graph.helpers(
-    noRender = function(){
-    return Session.get("noRender");
-  }),
+  });
+  Template.graph.helpers({
+    lastUpdate(){return Session.get('lastUpdate');}
+  });
   Template.graph.events({
     'click #bckup': function(e){
       e.preventDefault();

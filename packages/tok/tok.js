@@ -156,7 +156,7 @@ vis.append('svg:rect')
 
     //Tooltips as divs in the body, with reference to node SVG:
     newNodes.each(function(d, idx){
-      var newTT=d3.select('#graphCanvas')
+      var newTT=d3.select('#allTooltips')
           .append("xhtml:div")
           .attr("class",'tooltip');
       newTT.datum(this)
@@ -167,13 +167,16 @@ vis.append('svg:rect')
 
     d3.selectAll('.tooltip .inner')
           .text(function(d){return d3.select(d).datum().title});
-    Session.set("noRender", false);
 
     node.exit().each(function(){this.tooltip.remove();})
     node.exit().select('.node')
         .transition()
         .attr("r", 0);
     node.exit().remove();
+
+    //re-render all math - in the entire page!
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub]); 
+    Session.set('lastUpdate', new Date() );
 
     //For links-----------------------
     link = link.data(linkData, function(d){return d._id});
