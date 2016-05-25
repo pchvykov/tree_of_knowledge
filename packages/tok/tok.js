@@ -175,7 +175,7 @@ vis.append('svg:rect')
     node.exit().remove();
 
     //re-render all math - in the entire page!
-    MathJax.Hub.Queue(["Typeset", MathJax.Hub]); 
+    if(typeof MathJax !== 'undefined') MathJax.Hub.Queue(["Typeset", MathJax.Hub]); 
     Session.set('lastUpdate', new Date() );
 
     //For links-----------------------
@@ -185,7 +185,7 @@ vis.append('svg:rect')
         .insert("line", ".node-outer")
         .attr("class", "link")
         .on("mousedown", gui.linkMousedown)
-        .on("dblclick", gui.linkDblClick);
+        .on("dblclick", gui.linkDblClick,false);//bubble events
         // .each(function(d){
         //   console.log(d);
         //   d.source = d3.select("#"+d.source);
@@ -254,7 +254,7 @@ vis.append('svg:rect')
     //   tree: tree
     // }); 
     // lk.target.title='...';
-    gui.nodeEditor(lk.target, lk.source._id);
+    gui.showEditor(lk.target, lk.source._id);
   }
   this.addNode = function(nd){
     // Modal.show('nodeOptions',{
@@ -262,7 +262,7 @@ vis.append('svg:rect')
     //   tree: tree
     // }); 
     // nd.title='...';
-    gui.nodeEditor(nd);
+    gui.showEditor(nd);
   }
   this.deleteNode = function(nd){
     Meteor.call("deleteNode",nd._id);
@@ -290,7 +290,9 @@ vis.append('svg:rect')
       node.select('.node').classed("node_selected", false);
     }
     if(gui.editPopup){
-      var editID = Blaze.getData(gui.editPopup).node._id;
+      var editID = Blaze.getData(gui.editPopup);
+      if(editID.node) editID=editID.node._id;
+      else editID=editID.link._id;
       // console.log(editID)
       link
         .classed("link_edited", function(d) { 

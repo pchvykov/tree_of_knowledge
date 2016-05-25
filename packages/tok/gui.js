@@ -48,14 +48,20 @@ this.showContent = function(d){
   gui.hideContent();
   //show node info about gui.selected_node in a popup:
   gui.selected = d; 
-  gui.contentPopup=Blaze.renderWithData(Template.nodeContent, 
+  if(d.source){
+    gui.contentPopup=Blaze.renderWithData(Template.linkContent, 
     gui, tree.svg.node().parentNode);
+  }
+  else {
+    gui.contentPopup=Blaze.renderWithData(Template.nodeContent, 
+    gui, tree.svg.node().parentNode);
+  }
   var offset = tree.svg.node().getBoundingClientRect();
-  $('#contentPopup').offset({
+  $('.contentPopup').offset({
     top:offset.top+5, left:offset.left+5
   })
   if(gui.editPopup){
-    $('#contentPopup').height(Math.round(tree.canvasSize[1]/3))
+    $('.contentPopup').height(Math.round(tree.canvasSize[1]/3))
   }
 
   //update which nodes/links show up as selected:
@@ -63,33 +69,40 @@ this.showContent = function(d){
 }
 
 //Edit object content in a popup:
-this.nodeEditor = function(d, srcID){
+this.showEditor = function(d, srcID){
   if(gui.editPopup) return;
-  gui.editPopup=Blaze.renderWithData(Template.nodeOptions, 
-    {
-      node:d,
-      sourceID: srcID,
-      gui:gui
-    }, tree.svg.node().parentNode);
+  if(d.source){
+    if(srcID) console.error("wrong inputs for showEditor");
+    gui.editPopup=Blaze.renderWithData(Template.linkOptions, 
+      {
+        link:d,
+        gui:gui
+      }, tree.svg.node().parentNode);
+  }
+  else{
+    gui.editPopup=Blaze.renderWithData(Template.nodeOptions, 
+      {
+        node:d,
+        sourceID: srcID,
+        gui:gui
+      }, tree.svg.node().parentNode);
+  }
   var offset = tree.svg.node().getBoundingClientRect();
-  $('#editPopup').offset({
+  $('.editPopup').offset({
     top:offset.top+Math.round(tree.canvasSize[1]/3)+30, left:offset.left+5
   })
-  $('#editPopup').css({"max-height": 
+  $('.editPopup').css({"max-height": 
     (Math.round(tree.canvasSize[1]*2/3)-40)+'px'});
   //make text-area resize automatically (2nd argument to keep scrollbar in check:)
   autoSizeTextarea(document.getElementById('content'), 
-    $('#editPopup'));
+    $('.editPopup'));
   gui.showContent(d);
 }
 //Mouse actions - set to bubble up form deepest-level SVGs
 //node events executed first:
 this.nodeClick = function(d){  
   if (d == gui.selected) {
-    if(gui.contentPopup){
-      Blaze.remove(gui.contentPopup); 
-      gui.contentPopup=null;
-    }
+    gui.hideContent();
     gui.selected = null;
     //update which nodes/links show up as selected:
     tree.updateSelection(); 
@@ -104,23 +117,31 @@ this.nodeDblClick = function(d){
   //   node: d,
   //   tree: tree
   // });
-  gui.nodeEditor(d);  
+  gui.showEditor(d);  
 }
 this.linkMousedown = function(d) { //easier to catch than Click
-  if (d == gui.selected) gui.selected = null;
-  else gui.selected = d
-  tree.updateSelection(); 
-  console.log("clicked link:", gui.selected);
+  if (d == gui.selected) {
+    gui.hideContent();
+    gui.selected = null;
+    //update which nodes/links show up as selected:
+    tree.updateSelection(); 
+  }
+  else {
+    gui.showContent(d);
+  }
+  console.log("selected link:", gui.selected);
 }
 this.linkDblClick = function(d){
+  d3.event.stopPropagation();
   var lk={};
   for(var attr in d) lk[attr] = d[attr];
   lk.source = d.source._id;
   lk.target = d.target._id;
-  Modal.show('linkOptions',{
-    link: lk,
-    tree: tree
-  });
+  // Modal.show('linkOptions',{
+  //   link: lk,
+  //   tree: tree
+  // });
+  gui.showEditor(lk);
 }
 this.nodeMousedown = function (d) { 
   d3.event.preventDefault();

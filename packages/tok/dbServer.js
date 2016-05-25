@@ -54,6 +54,8 @@ treeData = function(Nodes, Links){
         } } );
       })
     },
+    //replace data entries in DB with ones provided 
+    //(leave others unchanged):
     updateNode: function(node, fromID, link){
       if(!node._id){ //add new node
         var ndID = Nodes.insert(node);

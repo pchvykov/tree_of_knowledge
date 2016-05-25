@@ -86,4 +86,5 @@ body {
 .tooltip.show .inner{
   font: 1em sans-serif; 
   opacity: 0.8;
+  z-index: 1001;
 }

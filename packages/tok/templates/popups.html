@@ -1,5 +1,5 @@
 <template name="nodeOptions">
-  <div id="editPopup">
+  <div class="editPopup">
 
     <!-- <div class="modal-header"> -->
       <h2 class="modal-title">Add/edit node</h2>
@@ -34,14 +34,14 @@
 
 <!-- Content popup: -->
 <template name="nodeContent">
-  <div id="contentPopup">
+  <div class="contentPopup">
     {{#mathjax}}
     <h2>{{selected.title}}
     <!-- <button aria-label="close" style="float: right">&times;</button> -->
     <a href="#" id="close" style="float:right">&times;</a>
     </h2>
     {{#with selected}}
-    <div id="popupBody">
+    <div class="popupBody">
     <h3>
     {{type}}
     &emsp;
@@ -59,36 +59,56 @@
 
 
 <template name="linkOptions">
-  <div class="modal fade" id="myModal">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
+  <div class="editPopup">
 
-        <div class="modal-header">
-          <h4 class="modal-title">Add/edit link</h4>
-        </div>
+    <!-- <div class="modal-header"> -->
+      <h4 class="modal-title">Add/edit link</h4>
+    <!-- </div> -->
 
-        <div class="modal-body">
-        <form>
-          <select id="type">
-            <option value="theorem">Theorem</option>
-            <option value="conjecture">Conjecture</option>
-            <option value="connection">Connection</option>
-            <option value="specialCase">Special Case</option>
-          </select>
-          &emsp;
-          Strength:<input type="number" id="importance">
-        <br><br>
-          <label for="content">Content</label><br>
-          <textarea id="content" rows="10" style="width:100%"></textarea>
-        </form>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" id="save">Save</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        </div>
-
-      </div>
+    <!-- <div class="modal-body"> -->
+    {{#with link}}
+    <form>
+      <select id="type">
+        <option value="theorem">Theorem</option>
+        <option value="conjecture">Conjecture</option>
+        <option value="connection">Connection</option>
+        <option value="specialCase">Special Case</option>
+      </select>
+      &emsp;
+      Strength:<input type="number" id="importance" value={{strength}}>
+    <br><br>
+      <label for="content">Content</label><br>
+      <textarea id="content" rows="3" value={{text}}></textarea>
+    </form>
+    <!-- </div> -->
+    {{/with}}
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" id="save">Save</button>
+        <button type="button" class="btn btn-default" id="cancel">Cancel</button>
     </div>
+
+  </div>
+</template>
+
+<!-- Link popup: -->
+<template name="linkContent">
+  <div class="contentPopup">
+    <h2><a href="#" id="close" style="float:right">&times;</a>
+    </h2>
+    {{#mathjax}}
+    {{#with selected}}
+    <div class="popupBody">
+    <h3>
+    {{type}}
+    &emsp;
+    {{strength}}
+    </h3>
+    <br>
+    <p style="white-space: pre-wrap">
+      {{text}}
+    </p>
+    </div>
+    {{/with}}
+    {{/mathjax}}
   </div>
 </template>
