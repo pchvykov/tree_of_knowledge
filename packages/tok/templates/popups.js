@@ -84,8 +84,20 @@ var editorEvents = {
 
 var rendered = function(){
   var dat= this.data;
-  if(dat.node) $("#type").val(dat.node.type);
-  if(dat.link) $("#type").val(dat.link.type);
+  if(dat.node) {
+    if(dat.node.type){ $("#type").val(dat.node.type) }
+    else{ //defaults
+      $('#type').val('statement');
+      $('#importance').val(10);
+    }
+  };
+  if(dat.link){
+    if(dat.link.type) $("#type").val(dat.link.type);
+    else{ //defaults
+      $('#type').val('connection');
+      $('#importance').val(10);
+    }
+  }
   // if(node.importance) $("#importance").val(node.importance);
   // $("#content").val(node.text);
   //Shift+Enter updates the DB and content popup:
@@ -93,9 +105,14 @@ var rendered = function(){
     if (event.keyCode == 13 && event.shiftKey) {
       event.preventDefault();
       // console.log("event", event);
-      var cont_scroll = $('.contentPopup.popupBody').scrollTop();
+      // var cont_scroll = $('#contentPopup #popupBody').scrollTop();
+      //match content scroll fraction to edit scroll:
+      var containeR = document.getElementById('editPopup');
+      var cont_scroll = containeR.scrollTop / (containeR.scrollHeight - containeR.clientHeight);
+        console.log(cont_scroll);
       updateDB(dat);
-      $('.contentPopup.popupBody').scrollTop(cont_scroll);
+      $('#contentPopup #popupBody')
+        .scrollTop(cont_scroll*document.getElementById('popupBody').scrollHeight);
     }
   });
 };

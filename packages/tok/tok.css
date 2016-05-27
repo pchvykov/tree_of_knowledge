@@ -46,6 +46,12 @@ body {
 .link_selected {
   stroke: #ff7f0e;
 }
+.link_edited {
+  stroke: #00f;
+}
+.link.fixed{
+  stroke: #f00;
+}
 
 .tooltip{
   width: 300px; /*max width*/
@@ -83,6 +89,7 @@ body {
     border-color: blueviolet transparent transparent transparent;
 }
 
+/*when highlighted*/
 .tooltip.show .inner{
   font: 1em sans-serif; 
   opacity: 0.8;

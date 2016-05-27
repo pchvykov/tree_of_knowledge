@@ -1,12 +1,23 @@
-popup-modal css - inheret editPopup styling
+do not update link source/target on update
+creatin links behavior
+link mouseove and edited styling (+fixed?)
+link tooltips?
+
+link orientation and d3 force behavior
+overall styling
+images support
+tree backup
+nodes fixing?
+
+--popup-modal css - inheret editPopup styling
 --center tooltips
 --edited node highlighting
 --remove dependencies - bootstrap, tip
 
 --remove lookback tooltip css
 --adding new nodes without editing
-mathjax superscripts disappear
-mathjax re-render on update
+--mathjax superscripts disappear
+--mathjax re-render on update
 --tooltip max-width control
 --position tooltips
 --show/hide on mouseover.

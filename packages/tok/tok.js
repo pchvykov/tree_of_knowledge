@@ -185,6 +185,8 @@ vis.append('svg:rect')
         .insert("line", ".node-outer")
         .attr("class", "link")
         .on("mousedown", gui.linkMousedown)
+        .on("mouseover", gui.linkMouseover)
+        .on("mouseout",gui.linkMouseout)
         .on("dblclick", gui.linkDblClick,false);//bubble events
         // .each(function(d){
         //   console.log(d);
@@ -231,10 +233,11 @@ vis.append('svg:rect')
   }
 
   this.addLink = function(lk){
-    Modal.show('linkOptions',{
-      link: {source: lk.source._id, target: lk.target._id},
-      tree: tree
-    }); 
+    // Modal.show('linkOptions',{
+    //   link: {source: lk.source._id, target: lk.target._id},
+    //   tree: tree
+    // }); 
+    gui.showEditor({source: lk.source._id, target: lk.target._id});
     //   function(error, result){
     //   if(error){
     //     console.log(error.reason);

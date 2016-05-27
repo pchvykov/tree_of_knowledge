@@ -57,11 +57,12 @@ this.showContent = function(d){
     gui, tree.svg.node().parentNode);
   }
   var offset = tree.svg.node().getBoundingClientRect();
-  $('.contentPopup').offset({
-    top:offset.top+5, left:offset.left+5
+  $('#contentPopup').offset({
+    top:offset.top+5+window.scrollY, 
+    left:offset.left+5+window.scrollX
   })
   if(gui.editPopup){
-    $('.contentPopup').height(Math.round(tree.canvasSize[1]/3))
+    $('#contentPopup').height(Math.round(tree.canvasSize[1]/3))
   }
 
   //update which nodes/links show up as selected:
@@ -88,14 +89,15 @@ this.showEditor = function(d, srcID){
       }, tree.svg.node().parentNode);
   }
   var offset = tree.svg.node().getBoundingClientRect();
-  $('.editPopup').offset({
-    top:offset.top+Math.round(tree.canvasSize[1]/3)+30, left:offset.left+5
+  $('#editPopup').offset({
+    top:offset.top+Math.round(tree.canvasSize[1]/3)+30+window.scrollY, 
+    left:offset.left+5+window.scrollX
   })
-  $('.editPopup').css({"max-height": 
+  $('#editPopup').css({"max-height": 
     (Math.round(tree.canvasSize[1]*2/3)-40)+'px'});
   //make text-area resize automatically (2nd argument to keep scrollbar in check:)
   autoSizeTextarea(document.getElementById('content'), 
-    $('.editPopup'));
+    $('#editPopup'));
   gui.showContent(d);
 }
 //Mouse actions - set to bubble up form deepest-level SVGs
@@ -182,10 +184,10 @@ this.nodeMouseup = function(d) { //Create new link:
     // console.log(gui.selected_node, gui.selected_link);
   }
   d.dragging=false;
-  drag_line.attr("class", "drag_line_hidden");
+  // drag_line.attr("class", "drag_line_hidden");
   resetMouseVars(); 
 };
-
+//fix links/nodes on hover to make them easier to select:
 this.nodeMouseover = function(d){
   d3.select(this)
       .classed("fixed",d.fixed=true);
@@ -199,6 +201,16 @@ this.nodeMouseout = function(d){
     this.parentNode.tooltip.classed("show",false);
   }
 
+}
+this.linkMouseover=function(d){
+  d.source.fixed=true;
+  d.target.fixed=true;
+  d3.select(this).classed("fixed",true);
+}
+this.linkMouseout=function(d){
+  d.source.fixed=false;
+  d.target.fixed=false;
+  d3.select(this).classed("fixed",false);
 }
 
 this.mousemove = function() {

@@ -1,5 +1,5 @@
 <template name="nodeOptions">
-  <div class="editPopup">
+  <div id="editPopup">
 
     <!-- <div class="modal-header"> -->
       <h2 class="modal-title">Add/edit node</h2>
@@ -34,14 +34,14 @@
 
 <!-- Content popup: -->
 <template name="nodeContent">
-  <div class="contentPopup">
+  <div id="contentPopup">
     {{#mathjax}}
     <h2>{{selected.title}}
     <!-- <button aria-label="close" style="float: right">&times;</button> -->
     <a href="#" id="close" style="float:right">&times;</a>
     </h2>
     {{#with selected}}
-    <div class="popupBody">
+    <div id="popupBody">
     <h3>
     {{type}}
     &emsp;
@@ -59,7 +59,7 @@
 
 
 <template name="linkOptions">
-  <div class="editPopup">
+  <div id="editPopup">
 
     <!-- <div class="modal-header"> -->
       <h4 class="modal-title">Add/edit link</h4>
@@ -92,12 +92,12 @@
 
 <!-- Link popup: -->
 <template name="linkContent">
-  <div class="contentPopup">
+  <div id="contentPopup">
     <h2><a href="#" id="close" style="float:right">&times;</a>
     </h2>
     {{#mathjax}}
     {{#with selected}}
-    <div class="popupBody">
+    <div id="popupBody">
     <h3>
     {{type}}
     &emsp;
