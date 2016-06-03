@@ -50,13 +50,15 @@ vis.append('svg:rect')
       .size(treeDim)
       // .nodes(nodeData)
       // .links(linkData)
-      .linkDistance(15)
-      .charge(-80)
+      // .linkDistance(5)
+      // .charge(-80)
+      // .chargeDistance(250) //change with rescaling!
       .friction(0.9)
       .on("tick", tick)
       .on("end", function(){
           Meteor.call("updateCoord",force.nodes())
         });
+    // console.log("chdist",force.chargeDistance());
 
   // var bckgnd = vis.append('svg:g');
   this.drag_line = vis.append('svg:g');
@@ -81,6 +83,8 @@ vis.append('svg:rect')
 
   // pull data from server and redraw force layout
   this.redraw = function() {
+    //store current node coordinates to restart from same position:
+  if(force.nodes().length >0) Meteor.call("updateCoord",force.nodes())
   db.subscribe(function(){
     console.log("redrawing");
     var linkData=db.Links.find({}).fetch();
@@ -110,13 +114,12 @@ vis.append('svg:rect')
         .call(gui.nodeDrag);
     newNodes.append("circle")
         .attr("class", "node") //styling
-        .attr("r", 6.5) //radius
         .on("mouseover", gui.nodeMouseover)
         .on("mouseout", gui.nodeMouseout)
         .on("mousedown",gui.nodeMousedown, false) //callbacks
         .on("mouseup", gui.nodeMouseup, false) //bubble event propagation
-        .on("click", gui.nodeClick)
-        .on("dblclick", gui.nodeDblClick)
+        .on("click", gui.nodeClick,false)
+        .on("dblclick", gui.nodeDblClick,false)
         .transition()
         .duration(750)
         .ease("elastic")
@@ -173,6 +176,10 @@ vis.append('svg:rect')
         .transition()
         .attr("r", 0);
     node.exit().remove();
+    //Formatting interactions:
+    node.select('.node')
+        .attr("r", function(d){return d.importance}) //radius
+    force.charge(function(d){return -Math.pow(d.importance/2,3)})
 
     //re-render all math - in the entire page!
     if(typeof MathJax !== 'undefined') MathJax.Hub.Queue(["Typeset", MathJax.Hub]); 
@@ -184,9 +191,9 @@ vis.append('svg:rect')
     link.enter()
         .insert("line", ".node-outer")
         .attr("class", "link")
-        .on("mousedown", gui.linkMousedown)
         .on("mouseover", gui.linkMouseover)
         .on("mouseout",gui.linkMouseout)
+        .on("click", gui.linkMousedown,false)
         .on("dblclick", gui.linkDblClick,false);//bubble events
         // .each(function(d){
         //   console.log(d);
@@ -198,7 +205,30 @@ vis.append('svg:rect')
     link.exit().remove();
     // console.log('link',gui.selected_link);
     // console.log('node',gui.selected_node);
-    
+
+    //style and behavrior according to datum:
+    link.style({
+      "stroke-width":function(d){
+        return d.strength+'px';
+      }
+    })
+    link.each(function(d){
+      switch(d.type){
+        case "theorem": break;
+        case "conjecture": break;
+        case "related": 
+          $(this).css("stroke-dasharray",5); break;
+        case "specialCase": break;
+        default: console.error("unrecognized link type:", d.type, d);
+      }
+    })
+    force.linkDistance(function(d){ //ensure that links are visible
+      return (parseFloat(d.source.importance)+
+        parseFloat(d.target.importance))*1.2;
+    })
+      .linkStrength(function(d){
+        return d.strength/10;
+      })
 
     //show the selection correctly:
     tree.updateSelection();

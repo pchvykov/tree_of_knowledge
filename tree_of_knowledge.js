@@ -10,6 +10,13 @@ if (Meteor.isServer){
     // db.loadJSON(JSON.parse(Assets.getText("miserables.json")));
     // db.clear(); 
     // Nodes.insert({x: 0.0, y: 0.0});
+    // console.log("updated #",
+    // Nodes.update({importance: {$in:["",null,10]}}, 
+    //   {$set: {importance:10}}, {multi:true}));
+    // Links.update({strength: {$in:["",null,10]}}, 
+    //   {$set: {strength:5}}, {multi:true});
+    Links.update({type: {$in:["connection"]}}, 
+      {$set: {type:"related"}}, {multi:true});
     db.publish()
   })
 }

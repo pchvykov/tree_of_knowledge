@@ -9,45 +9,46 @@
 var updateDB = function(dat){
   // console.log("in helper", dat.node);
   if(dat.node){
-    var node = dat.node;
-    node.title = $('#title').val();
-    node.type = $('#type').val();
-    node.importance = $('#importance').val();
-    node.text = $('#content').val();
+    var obj = dat.node;
+    obj.title = $('#title').val();
+    obj.type = $('#type').val();
+    obj.importance = $('#importance').val();
+    obj.text = $('#content').val();
     // console.log("sourceID", this.sourceID);
     //if adding a new linked node:
     if (dat.sourceID){
       //create defaults for link type:
       var lkType = function(ndType){
           switch(ndType){
-              case "assumption": return "connection";
-              case "definition": return "connection";
+              case "assumption": return "related";
+              case "definition": return "related";
               case "statement": return "theorem";
               case "example": return "specialCase";
               case "empirical": return "connection";
           }
         };
       var link = {
-        type: lkType(node.type),
+        type: lkType(obj.type),
         strength: 10
       };
     };
     //update the database entry:
     Meteor.call("updateNode",
-      node, dat.sourceID, link,
+      obj, dat.sourceID, link,
       function(err,res){
         if(err) alert(err);
         if(res) dat.node._id=res[0];
       });
   }
   else if(dat.link){
-    var node = dat.link;
-    node.type = $('#type').val();
-    node.strength = $('#importance').val();
-    node.text = $('#content').val();
+    var obj = dat.link;
+    obj.type = $('#type').val();
+    obj.strength = $('#importance').val();
+    obj.text = $('#content').val();
+    obj.oriented = $('#oriented').is(":checked");
 
     //update the database entry:
-    Meteor.call("updateLink", node,
+    Meteor.call("updateLink", obj,
       function(err,res){
         if(err) alert(err);
         if(res) dat.link._id=res;
@@ -56,7 +57,7 @@ var updateDB = function(dat){
   else console.error("failed to update DB: no data given");
   dat.gui.tree.redraw();
   // dat.gui.tree.updateSelection();
-  dat.gui.showContent(node);
+  dat.gui.showContent(obj);
   dat.gui.drag_line.attr("class", "drag_line_hidden");
 }
 
@@ -92,9 +93,12 @@ var rendered = function(){
     }
   };
   if(dat.link){
-    if(dat.link.type) $("#type").val(dat.link.type);
+    if(dat.link.type){
+      $("#type").val(dat.link.type);
+      $("#oriented").prop("checked",dat.link.oriented);
+    }
     else{ //defaults
-      $('#type').val('connection');
+      $('#type').val('related');
       $('#importance').val(10);
     }
   }
@@ -109,7 +113,6 @@ var rendered = function(){
       //match content scroll fraction to edit scroll:
       var containeR = document.getElementById('editPopup');
       var cont_scroll = containeR.scrollTop / (containeR.scrollHeight - containeR.clientHeight);
-        console.log(cont_scroll);
       updateDB(dat);
       $('#contentPopup #popupBody')
         .scrollTop(cont_scroll*document.getElementById('popupBody').scrollHeight);

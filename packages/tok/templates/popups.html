@@ -71,11 +71,13 @@
       <select id="type">
         <option value="theorem">Theorem</option>
         <option value="conjecture">Conjecture</option>
-        <option value="connection">Connection</option>
+        <option value="related">Related</option>
         <option value="specialCase">Special Case</option>
       </select>
       &emsp;
-      Strength:<input type="number" id="importance" value={{strength}}>
+      Strength:<input type="number" id="importance" style="width: 100px" value={{strength}}>
+      &emsp;
+      Oriented: <input type="checkbox" id="oriented">
     <br><br>
       <label for="content">Content</label><br>
       <textarea id="content" rows="3" value={{text}}></textarea>

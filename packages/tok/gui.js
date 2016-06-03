@@ -12,7 +12,8 @@ this.selected = null;
 var mousedown_link = null,
     mousedown_node = null,
     mousedown_node_DOM = null,
-    mouseup_node = null;
+    mouseup_node = null,
+    clickTimer=null;
 
 // line displayed when creating new nodes
 var drag_line = tree.drag_line.append("line")
@@ -103,25 +104,31 @@ this.showEditor = function(d, srcID){
 //Mouse actions - set to bubble up form deepest-level SVGs
 //node events executed first:
 this.nodeClick = function(d){  
-  if (d == gui.selected) {
-    gui.hideContent();
-    gui.selected = null;
-    //update which nodes/links show up as selected:
-    tree.updateSelection(); 
-  }
-  else {
-    gui.showContent(d);
-  }
-  console.log("selected node:", gui.selected);  
+  if(!clickTimer){ clickTimer= setTimeout(function(){
+    clickTimer=null;
+    if (d == gui.selected) {
+      gui.hideContent();
+      gui.selected = null;
+      //update which nodes/links show up as selected:
+      tree.updateSelection(); 
+    }
+    else {
+      gui.showContent(d);
+    }
+    console.log("selected node:", gui.selected);  
+    }, 200);}
 }
 this.nodeDblClick = function(d){
   // Modal.show('nodeOptions',{
   //   node: d,
   //   tree: tree
   // });
+  clearTimeout(clickTimer); clickTimer=null;
   gui.showEditor(d);  
 }
 this.linkMousedown = function(d) { //easier to catch than Click
+  if(!clickTimer){ clickTimer= setTimeout(function(){
+    clickTimer=null;
   if (d == gui.selected) {
     gui.hideContent();
     gui.selected = null;
@@ -132,9 +139,11 @@ this.linkMousedown = function(d) { //easier to catch than Click
     gui.showContent(d);
   }
   console.log("selected link:", gui.selected);
+  }, 200)};
 }
 this.linkDblClick = function(d){
   d3.event.stopPropagation();
+  clearTimeout(clickTimer); clickTimer=null;
   var lk={};
   for(var attr in d) lk[attr] = d[attr];
   lk.source = d.source._id;
