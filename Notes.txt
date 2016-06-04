@@ -3,9 +3,9 @@
 --link mouseove and edited styling (+fixed?)
 --link tooltips?
 
-may be find a library for these?:
-make links a group and allow double lines
-arrow heads and exact connection points on nodes
+--may be find a library for these?:
+--make links a group and allow double lines
+--arrow heads and exact connection points on nodes
 link orientation and weight and d3 force behavior
 overall styling
 images support

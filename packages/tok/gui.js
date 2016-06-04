@@ -139,7 +139,7 @@ this.linkMousedown = function(d) { //easier to catch than Click
     gui.showContent(d);
   }
   console.log("selected link:", gui.selected);
-  }, 200)};
+  }, 300)};
 }
 this.linkDblClick = function(d){
   d3.event.stopPropagation();

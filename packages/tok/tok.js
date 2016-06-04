@@ -63,6 +63,21 @@ vis.append('svg:rect')
   // var bckgnd = vis.append('svg:g');
   this.drag_line = vis.append('svg:g');
 
+  //Arrowhead markers definition:
+    svg.append("defs").append("marker")
+    .attr("id", "arrowHead")
+    .attr("viewBox", "0 0 10 10")
+    .attr("refX", 1)
+    .attr("refY", 5)
+    .attr("markerWidth", 3)
+    .attr("markerHeight", 3)
+    .attr("orient", "auto")
+  .append("path")
+    .attr("d", "M 0 0 L 7 5 L 0 10 z")
+    // .attr("fill", "context-stroke")
+    // .style("fill", "#999")
+    .style("opacity", "0.5");
+
   //export local variables:
   this.force = force;
   this.vis = vis;
@@ -186,14 +201,16 @@ vis.append('svg:rect')
     Session.set('lastUpdate', new Date() );
 
     //For links-----------------------
+
     link = link.data(linkData, function(d){return d._id});
     //show new SVG-s for new links
     link.enter()
-        .insert("line", ".node-outer")
+        .insert("polyline", ".node-outer")
         .attr("class", "link")
+        // .style("marker-mid",  "url(#arrowHead)")
         .on("mouseover", gui.linkMouseover)
         .on("mouseout",gui.linkMouseout)
-        .on("click", gui.linkMousedown,false)
+        .on("mousedown", gui.linkMousedown)
         .on("dblclick", gui.linkDblClick,false);//bubble events
         // .each(function(d){
         //   console.log(d);
@@ -210,14 +227,23 @@ vis.append('svg:rect')
     link.style({
       "stroke-width":function(d){
         return d.strength+'px';
+      },
+      "marker-mid":function(d){
+        return (d.oriented ?  "url(#arrowHead)" : null) //Arrow heads
       }
     })
     link.each(function(d){
       switch(d.type){
-        case "theorem": break;
-        case "conjecture": break;
+        //other line options: polyline coord to make double line;
+        //polyline with many segments and different shape markers 
+        //at each junction, then remove backgnd line;
+        //polyline to make long narrow triangle line
+        case "theorem": 
+          $(this).removeAttr("stroke-dasharray");break;
+        case "conjecture": 
+          $(this).css("stroke-dasharray","10,3");break;
         case "related": 
-          $(this).css("stroke-dasharray",5); break;
+          $(this).css("stroke-dasharray","3,7"); break;
         case "specialCase": break;
         default: console.error("unrecognized link type:", d.type, d);
       }
@@ -345,10 +371,16 @@ vis.append('svg:rect')
   // }); });
 
   function tick() {
-    link.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
+    // link.attr("x1", function(d) { return d.source.x; })
+    //     .attr("y1", function(d) { return d.source.y; })
+    //     .attr("x2", function(d) { return d.target.x; })
+    //     .attr("y2", function(d) { return d.target.y; });
+    link.attr("points", function(d){
+      return d.source.x+','+d.source.y+' '+
+          (d.source.x+d.target.x)/2+','+ //where to put the arrowhead
+          (d.source.y+d.target.y)/2+' '+
+             d.target.x+','+d.target.y;
+    })
 
     //position the node group:
     node.attr("transform",function(d){
