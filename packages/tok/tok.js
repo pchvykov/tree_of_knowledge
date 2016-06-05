@@ -46,14 +46,16 @@ vis.append('svg:rect')
 
 
   // init force layout
+  var nodeData, linkData;
   var force = d3.layout.force()
       .size(treeDim)
+      .gravity(0.1)
       // .nodes(nodeData)
       // .links(linkData)
       // .linkDistance(5)
       // .charge(-80)
       // .chargeDistance(250) //change with rescaling!
-      .friction(0.9)
+      .friction(0.5)
       .on("tick", tick)
       .on("end", function(){
           Meteor.call("updateCoord",force.nodes())
@@ -74,7 +76,7 @@ vis.append('svg:rect')
     .attr("orient", "auto")
   .append("path")
     .attr("d", "M 0 0 L 7 5 L 0 10 z")
-    // .attr("fill", "context-stroke")
+    .attr("fill", "context-stroke")
     // .style("fill", "#999")
     .style("opacity", "0.5");
 
@@ -102,19 +104,31 @@ vis.append('svg:rect')
   if(force.nodes().length >0) Meteor.call("updateCoord",force.nodes())
   db.subscribe(function(){
     console.log("redrawing");
-    var linkData=db.Links.find({}).fetch();
-    var nodeData=db.Nodes.find({}).fetch();
+    linkData=db.Links.find({}).fetch();
+    nodeData=db.Nodes.find({}).fetch();
+
+    nodeData.forEach(function(nd){
+      //initialize all node velocities to 0:
+      // nd.x=treeDim[0]/2; nd.y=treeDim[1]/2;
+      nd.px=nd.x;
+      nd.py=nd.y;
+      //indices of parent nodes in nodeData (for oriented links only)
+      nd.parentsIx = linkData 
+          .filter(lk => nd._id==lk.target && lk.oriented)
+          .map(lk => 
+            nodeData.findIndex(ndDat => ndDat._id==lk.source));
+      nd.childrenIx = linkData 
+          .filter(lk => nd._id==lk.source && lk.oriented)
+          .map(lk => 
+            nodeData.findIndex(ndDat => ndDat._id==lk.target));
+    });
     //replace node id-s in links with pointers to nodes
+    //note: link.source prop used to distinguish links and nodes
     linkData.forEach(function(lk, idx){
       lk.source = nodeData.find(function(nd){return nd._id == lk.source});
       lk.target = nodeData.find(function(nd){return nd._id == lk.target});
       if(!lk.source || !lk.target) console.error("orphaned link! ", lk._id);
       // console.log("lk", lk._id, lk.source, lk.target);
-    });
-    //initialize all node velocities to 0:
-    nodeData.forEach(function(nd){
-      nd.px=nd.x;
-      nd.py=nd.y;
     });
 
     // console.log("links here", linkData)    
@@ -177,7 +191,7 @@ vis.append('svg:rect')
       var newTT=d3.select('#allTooltips')
           .append("xhtml:div")
           .attr("class",'tooltip');
-      newTT.datum(this)
+      newTT.datum(this) //store node DOM el't in datum
           .append("xhtml:span") 
           .attr("class",'inner');
       this.tooltip=newTT; //newTT - d3 elt, this - DOM elt
@@ -278,7 +292,7 @@ vis.append('svg:rect')
   function positionTooltips(){
     d3.selectAll('.tooltip').each(function(d,idx){
       // var bbox=this.parentNode.parentNode.getBoundingClientRect();
-      var bbox=d.getBoundingClientRect();
+      var bbox=d.getBoundingClientRect(); //node bbox
       this.style.left=(bbox.left+bbox.right-
         this.firstChild.offsetWidth)/2 -8
             +window.scrollX+'px';
@@ -369,8 +383,21 @@ vis.append('svg:rect')
   }
 
   // }); });
-
-  function tick() {
+  function tick(e) {
+    var g = 30 * e.alpha; //e.alpha = 0.1 maximum
+    nodeData.forEach(function(nd){
+      if(nd.x-nd.px > 10){console.log(nd.x-nd.px, nd.y-nd.py)};
+      if(!nd.dragging){
+        nd.y += g * Math.max(-1, Math.min(1, 
+          nd.parentsIx.reduce(function(prev, idx){
+            return prev+Math.exp(-(nd.y-nodeData[idx].y)/100.)
+          }, 0.) -
+          nd.childrenIx.reduce(function(prev, idx){
+            return prev+Math.exp((nd.y-nodeData[idx].y)/100.)
+          }, 0.)
+          ));
+      }
+    })
     // link.attr("x1", function(d) { return d.source.x; })
     //     .attr("y1", function(d) { return d.source.y; })
     //     .attr("x2", function(d) { return d.target.x; })

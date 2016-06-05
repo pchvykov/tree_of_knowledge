@@ -185,7 +185,15 @@ this.nodeMouseup = function(d) { //Create new link:
 
     if (mouseup_node != mousedown_node) { 
       d3.event.stopPropagation(); //prevent anything else from happening
-      tree.addLink({source: mousedown_node, target: mouseup_node});
+      if( tree.force.links().every(lk => 
+        !((lk.source===mousedown_node || lk.target===mousedown_node) &&
+        (lk.source===mouseup_node || lk.target===mouseup_node)))){
+          tree.addLink({source: mousedown_node, target: mouseup_node});
+        }
+      else{
+        alert("Can't have double links!");
+        drag_line.attr("class", "drag_line_hidden");
+      }
     }
     // enable zoom and drag:
     // tree.vis.call(zoom);
@@ -198,9 +206,11 @@ this.nodeMouseup = function(d) { //Create new link:
 };
 //fix links/nodes on hover to make them easier to select:
 this.nodeMouseover = function(d){
-  d3.select(this)
-      .classed("fixed",d.fixed=true);
-  this.parentNode.tooltip.classed("show",true);
+  if(!d.dragging){
+    d3.select(this)
+        .classed("fixed",d.fixed=true);
+    this.parentNode.tooltip.classed("show",true);
+  }
 }
 
 this.nodeMouseout = function(d){

@@ -15,8 +15,8 @@ if (Meteor.isServer){
     //   {$set: {importance:10}}, {multi:true}));
     // Links.update({strength: {$in:["",null,10]}}, 
     //   {$set: {strength:5}}, {multi:true});
-    Links.update({type: {$in:["connection"]}}, 
-      {$set: {type:"related"}}, {multi:true});
+    // Links.update({type: {$in:["connection"]}}, 
+    //   {$set: {type:"related"}}, {multi:true});
     db.publish()
   })
 }
