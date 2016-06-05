@@ -49,13 +49,13 @@ vis.append('svg:rect')
   var nodeData, linkData;
   var force = d3.layout.force()
       .size(treeDim)
-      .gravity(0.1)
+      .gravity(0.03)
       // .nodes(nodeData)
       // .links(linkData)
       // .linkDistance(5)
       // .charge(-80)
       // .chargeDistance(250) //change with rescaling!
-      .friction(0.5)
+      .friction(0.9)
       .on("tick", tick)
       .on("end", function(){
           Meteor.call("updateCoord",force.nodes())
@@ -122,6 +122,7 @@ vis.append('svg:rect')
           .map(lk => 
             nodeData.findIndex(ndDat => ndDat._id==lk.target));
     });
+
     //replace node id-s in links with pointers to nodes
     //note: link.source prop used to distinguish links and nodes
     linkData.forEach(function(lk, idx){
@@ -386,9 +387,9 @@ vis.append('svg:rect')
   function tick(e) {
     var g = 30 * e.alpha; //e.alpha = 0.1 maximum
     nodeData.forEach(function(nd){
-      if(nd.x-nd.px > 10){console.log(nd.x-nd.px, nd.y-nd.py)};
-      if(!nd.dragging){
-        nd.y += g * Math.max(-1, Math.min(1, 
+      // if(nd.x-nd.px > 10){console.log(nd.x, nd.y)};
+      // if(!nd.dragging){
+        nd.y += g * Math.max(-2, Math.min(2, 
           nd.parentsIx.reduce(function(prev, idx){
             return prev+Math.exp(-(nd.y-nodeData[idx].y)/100.)
           }, 0.) -
@@ -396,7 +397,7 @@ vis.append('svg:rect')
             return prev+Math.exp((nd.y-nodeData[idx].y)/100.)
           }, 0.)
           ));
-      }
+      // }
     })
     // link.attr("x1", function(d) { return d.source.x; })
     //     .attr("y1", function(d) { return d.source.y; })

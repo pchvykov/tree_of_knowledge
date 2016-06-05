@@ -9,11 +9,12 @@
 var updateDB = function(dat){
   // console.log("in helper", dat.node);
   if(dat.node){
-    var obj = dat.node;
+    var obj = {};//dat.node;
     obj.title = $('#title').val();
     obj.type = $('#type').val();
     obj.importance = $('#importance').val();
     obj.text = $('#content').val();
+    obj._id=dat.node._id;
     // console.log("sourceID", this.sourceID);
     //if adding a new linked node:
     if (dat.sourceID){
@@ -41,11 +42,43 @@ var updateDB = function(dat){
       });
   }
   else if(dat.link){
-    var obj = dat.link;
+    var obj = {};//dat.link;
     obj.type = $('#type').val();
     obj.strength = $('#importance').val();
     obj.text = $('#content').val();
     obj.oriented = $('#oriented').is(":checked");
+    obj._id=dat.link._id;
+    if($('#flip').is(":checked")){
+      obj.source=dat.link.target;
+      obj.target=dat.link.source;
+      dat.link.source=obj.source;
+      dat.link.target=obj.target;
+      $('#flip').prop("checked",false);
+    }
+    else{
+      obj.source=dat.link.source;
+      obj.target=dat.link.target;
+    }
+
+    //check for new circular references:
+    if(obj.oriented){
+      var nodeData = dat.gui.tree.force.nodes();
+      var src = nodeData.find(function(nd){return nd._id == obj.source});
+      var trg = nodeData.find(function(nd){return nd._id == obj.target});
+      var checkChildren = function(nd){
+        return nd.childrenIx.reduce(
+          function(prev,ix){
+            if(prev) return true;
+            else if(nd===trg && src===nodeData[ix]) return false;
+            else return (src===nodeData[ix]) ||
+            (checkChildren(nodeData[ix]))
+          }, false)
+      }
+      if(checkChildren(trg)){
+        notify("circular reference detected!");
+        // return "fail"; //disallow circular references
+      }
+    }
 
     //update the database entry:
     Meteor.call("updateLink", obj,
@@ -66,7 +99,7 @@ var editorEvents = {
     e.preventDefault();
     // console.log(this);
     // node = Session.get('newNode');
-    updateDB(this);
+    if(updateDB(this)=="fail") return;
 
     // Modal.hide('nodeOptions');
     Blaze.remove(this.gui.editPopup);

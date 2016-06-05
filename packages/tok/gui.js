@@ -8,6 +8,7 @@ this.contentPopup=null;
 this.editPopup=null;
 this.selected = null;
 
+Session.set('clipBoard',null);
 // mouse event vars
 var mousedown_link = null,
     mousedown_node = null,
@@ -146,8 +147,8 @@ this.linkDblClick = function(d){
   clearTimeout(clickTimer); clickTimer=null;
   var lk={};
   for(var attr in d) lk[attr] = d[attr];
-  lk.source = d.source._id;
-  lk.target = d.target._id;
+  lk.source = lk.source._id;
+  lk.target = lk.target._id;
   // Modal.show('linkOptions',{
   //   link: lk,
   //   tree: tree
@@ -222,14 +223,18 @@ this.nodeMouseout = function(d){
 
 }
 this.linkMouseover=function(d){
-  d.source.fixed=true;
-  d.target.fixed=true;
-  d3.select(this).classed("fixed",true);
+  if(!(d.source.dragging || d.target.dragging)){
+    d.source.fixed=true;
+    d.target.fixed=true;
+    d3.select(this).classed("fixed",true);
+  }
 }
 this.linkMouseout=function(d){
-  d.source.fixed=false;
-  d.target.fixed=false;
-  d3.select(this).classed("fixed",false);
+  if(!(d.source.dragging || d.target.dragging)){
+    d.source.fixed=false;
+    d.target.fixed=false;
+    d3.select(this).classed("fixed",false);
+  }
 }
 
 this.mousemove = function() {
@@ -290,9 +295,22 @@ this.keydown = function() {
         gui.selected = null;
         gui.hideContent();
         // tree.redraw();
-      }
-      break;
-    }
+      }break}
+    case 67: { if(d3.event.ctrlKey){//Ctrl+C - copy object data
+        var obj={};
+        for(var attr in gui.selected) { 
+          if(["source","target","_id","x","y","px","py","index"].indexOf(attr)<0){
+            obj[attr] = gui.selected[attr];
+          }
+        }
+        console.log(obj);
+        Session.set('clipBoard',obj);
+      }break}
+    case 86: { if(d3.event.ctrlKey){//Ctrl+V - paste obj data, not saved to DB!!
+        var obj=Session.get('clipBoard');
+        for(var attr in obj) gui.selected[attr]=obj[attr];
+        notify("Double-click to save");
+      }break}
   }
 }
 

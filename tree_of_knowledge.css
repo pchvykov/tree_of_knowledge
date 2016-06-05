@@ -5,6 +5,16 @@
 	/*width:calc(100%+15px);*/
 	/*height:auto;*/
 }
+@keyframes notify{
+	from{opacity: 1}
+	to{opacity: 0}
+}
+.notify{
+	opacity: 0;
+	color: red;
+	animation-name: notify;
+	animation-duration:6s;
+}
 
 /*.node {
   stroke: #fff;

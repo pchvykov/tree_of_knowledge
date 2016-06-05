@@ -6,7 +6,7 @@
 --may be find a library for these?:
 --make links a group and allow double lines
 --arrow heads and exact connection points on nodes
-link orientation and weight and d3 force behavior
+--link orientation and weight and d3 force behavior
 overall styling
 images support
 tree backup
@@ -40,8 +40,9 @@ Tooltips pros/cons:
 
 UI:--------------
 Ctrl+... - editing controls
- +Del (or +Bcksp) - delete node
+ +Del (or +Bcksp) - delete selected node/link
  +Click & drag - create new link
 Shift+Enter in text edit box - update DB
 Dbl-Click - create/edit node
-Click - select node
+Click - select node/link
+Ctrl+C and Ctrl+V - copy and paste node/link data (doesn't not save automatically)
