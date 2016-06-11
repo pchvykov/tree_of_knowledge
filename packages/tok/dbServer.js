@@ -19,6 +19,12 @@ treeData = function(Nodes, Links){
       console.log("nodes count:", Nodes.find({}).count());
       console.log("links count:", Links.find({}).count());
     };
+  this.saveJSON = function(path){
+    var bckup={};
+    bckup.nodes=Nodes.find().fetch();
+    bckup.links=Links.find().fetch();
+    console.log(bckup);
+  }
   this.clear = function(){
     console.log("deleting everything!")
     //Clear all entries in current collection:

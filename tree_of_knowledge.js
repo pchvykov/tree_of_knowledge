@@ -59,9 +59,10 @@ if (Meteor.isClient) {
   Template.graph.events({
     'click #bckup': function(e){
       e.preventDefault();
+      db.saveJSON("");
       // var spawn = require('child_process').spawn;
 
-      //   collection.insert(docs, {safe:true}, function(err, result) {
+      //   Nodes.insert(docs, {safe:true}, function(err, result) {
       //     var args = ['--db', 'mydb', '--collection', 'test']
       //       , mongodump = spawn('/usr/local/bin/mongodump', args);
       //     mongodump.stdout.on('data', function (data) {

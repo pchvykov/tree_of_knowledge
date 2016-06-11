@@ -22,3 +22,7 @@ standard-minifier-css
 standard-minifier-js
 mrt:mathjax
 d3
+hitchcott:app-dump
+accounts-ui
+accounts-password
+twbs:bootstrap #for css formats

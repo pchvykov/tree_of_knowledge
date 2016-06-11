@@ -191,14 +191,14 @@ vis.append('svg:rect')
     newNodes.each(function(d, idx){
       var newTT=d3.select('#allTooltips')
           .append("xhtml:div")
-          .attr("class",'tooltip');
+          .attr("class",'tooltipO');
       newTT.datum(this) //store node DOM el't in datum
           .append("xhtml:span") 
           .attr("class",'inner');
       this.tooltip=newTT; //newTT - d3 elt, this - DOM elt
     })
 
-    d3.selectAll('.tooltip .inner')
+    d3.selectAll('.tooltipO .inner')
           .text(function(d){return d3.select(d).datum().title});
 
     node.exit().each(function(){this.tooltip.remove();})
@@ -291,13 +291,13 @@ vis.append('svg:rect')
 
   //Position tooltip divs next to their nodes:
   function positionTooltips(){
-    d3.selectAll('.tooltip').each(function(d,idx){
+    d3.selectAll('.tooltipO').each(function(d,idx){
       // var bbox=this.parentNode.parentNode.getBoundingClientRect();
       var bbox=d.getBoundingClientRect(); //node bbox
       this.style.left=(bbox.left+bbox.right-
-        this.firstChild.offsetWidth)/2 -8
+        this.firstChild.offsetWidth)/2 
             +window.scrollX+'px';
-      this.style.top=bbox.top
+      this.style.top=bbox.top-10
             +window.scrollY+'px';
         // this.firstChild.offsetHeight -16+'px';
     })
