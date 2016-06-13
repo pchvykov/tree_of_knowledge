@@ -4,7 +4,7 @@ treeData = function(Nodes, Links){
 	console.log("nodes count:", Nodes.find({}).count());
 	console.log("links count:", Links.find({}).count());
 
-	this.loadJSON = function(graph){
+  this.loadJSON = function(graph){
       console.log("loading collection from json")
       //Clear all entries in current collection:
       Nodes.remove({});
@@ -47,7 +47,7 @@ treeData = function(Nodes, Links){
       onReady();
     })});
   }
-
+}
   //methods for calls from the client:
   Meteor.methods({
     updateCoord: function(nodes){
@@ -65,7 +65,7 @@ treeData = function(Nodes, Links){
     updateNode: function(node, fromID, link){
       if(!node._id){ //add new node
         var ndID = Nodes.insert(node);
-        // console.log("fromID",fromID);
+        console.log("newID",ndID);
         if(fromID){
           link.source=fromID; link.target=ndID;
           var lkID = Links.insert(link);
@@ -112,6 +112,5 @@ treeData = function(Nodes, Links){
     }
   });
 
-}
 
 
