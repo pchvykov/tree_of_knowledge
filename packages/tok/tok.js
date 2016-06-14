@@ -104,8 +104,8 @@ vis.append('svg:rect')
   if(force.nodes().length >0) Meteor.call("updateCoord",force.nodes())
   db.subscribe(function(){
     console.log("redrawing");
-    linkData=db.Links.find({}).fetch();
-    nodeData=db.Nodes.find({}).fetch();
+    linkData=Links.find({}).fetch();
+    nodeData=Nodes.find({}).fetch(); //contains only published data
 
     nodeData.forEach(function(nd){
       //initialize all node velocities to 0:
@@ -385,6 +385,7 @@ vis.append('svg:rect')
 
   // }); });
   function tick(e) {
+    //Include the orienting forces:
     var g = 30 * e.alpha; //e.alpha = 0.1 maximum
     nodeData.forEach(function(nd){
       // if(nd.x-nd.px > 10){console.log(nd.x, nd.y)};
@@ -403,6 +404,8 @@ vis.append('svg:rect')
     //     .attr("y1", function(d) { return d.source.y; })
     //     .attr("x2", function(d) { return d.target.x; })
     //     .attr("y2", function(d) { return d.target.y; });
+
+    //Poistion all points on the links:
     link.attr("points", function(d){
       return d.source.x+','+d.source.y+' '+
           (d.source.x+d.target.x)/2+','+ //where to put the arrowhead

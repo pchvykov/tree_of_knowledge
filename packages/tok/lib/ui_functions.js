@@ -33,5 +33,4 @@ autoSizeTextarea = function(text, parent) {
     // text.select();
     resize();
 }
-console.log("ui_functions");
 //====================================================

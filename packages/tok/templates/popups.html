@@ -35,19 +35,18 @@
 <!-- Content popup: -->
 <template name="nodeContent">
   <div id="contentPopup">
+    <a href="#" id="close" style="float:right">&times;</a>
     {{#mathjax}}
     <h2>{{selected.title}}
     <!-- <button aria-label="close" style="float: right">&times;</button> -->
-    <a href="#" id="close" style="float:right">&times;</a>
     </h2>
     {{#with selected}}
-    <div id="popupBody">
+    <div id="nodeBody">
     <h3>
     {{type}}
     &emsp;
     {{importance}}
     </h3>
-    <br>
     <p style="white-space: pre-wrap">
       {{text}}
     </p>
@@ -97,17 +96,15 @@
 <!-- Link popup: -->
 <template name="linkContent">
   <div id="contentPopup">
-    <h2><a href="#" id="close" style="float:right">&times;</a>
-    </h2>
+    <a href="#" id="close" style="float:right">&times;</a>
     {{#mathjax}}
     {{#with selected}}
-    <div id="popupBody">
+    <div id="linkBody">
     <h3>
     {{type}}
     &emsp;
     {{strength}}
     </h3>
-    <br>
     <p style="white-space: pre-wrap">
       {{text}}
     </p>

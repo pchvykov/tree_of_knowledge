@@ -14,6 +14,7 @@ var updateDB = function(dat){
     obj.type = $('#type').val();
     obj.importance = $('#importance').val();
     obj.text = $('#content').val();
+    obj.x=dat.node.x; obj.y=dat.node.y;
     obj._id=dat.node._id;
     // console.log("sourceID", this.sourceID);
     //if adding a new linked node:

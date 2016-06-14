@@ -16,6 +16,10 @@
 	animation-duration:6s;
 }
 
+body {
+  font: 16px sans-serif;
+}
+
 /*.node {
   stroke: #fff;
   stroke-width: 1.5px;

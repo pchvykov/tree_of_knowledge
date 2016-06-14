@@ -1,6 +1,6 @@
-treeData = function(Nodes, Links){
-  this.Nodes=Nodes;
-  this.Links=Links;
+treeData = function(){
+  // this.Nodes=Nodes;
+  // this.Links=Links;
 	console.log("nodes count:", Nodes.find({}).count());
 	console.log("links count:", Links.find({}).count());
 
@@ -41,13 +41,14 @@ treeData = function(Nodes, Links){
   	});
   };
 
-  this.subscribe = function(onReady){
+  this.subscribe = function(onReady){ //the 1 client method
     Meteor.subscribe("allLinks",function(){
     Meteor.subscribe("allNodes",function(){
       onReady();
     })});
   }
 }
+
   //methods for calls from the client:
   Meteor.methods({
     updateCoord: function(nodes){
@@ -63,9 +64,11 @@ treeData = function(Nodes, Links){
     //replace data entries in DB with ones provided 
     //(leave others unchanged):
     updateNode: function(node, fromID, link){
+      console.log(node);
       if(!node._id){ //add new node
+        delete node._id;
         var ndID = Nodes.insert(node);
-        console.log("newID",ndID);
+        console.log(Nodes.find().fetch())
         if(fromID){
           link.source=fromID; link.target=ndID;
           var lkID = Links.insert(link);
@@ -85,7 +88,10 @@ treeData = function(Nodes, Links){
     },
     updateLink: function (link) {
       // console.log("added link in method!", link);
-      if(!link._id) return Links.insert(link);
+      if(!link._id){
+        delete link._id;
+        return Links.insert(link);
+      }
       else{
         var attr = {};
         for (var attrname in link) { 
@@ -111,6 +117,4 @@ treeData = function(Nodes, Links){
       Links.remove(lk);
     }
   });
-
-
 

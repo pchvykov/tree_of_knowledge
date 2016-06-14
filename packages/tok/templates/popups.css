@@ -13,13 +13,23 @@
     /*font-size: 1em;*/
     z-index: 2001;
 }
-#contentPopup #popupBody {
-	height: calc(100% - 50px);
+#contentPopup #nodeBody {
+    height: calc(100% - 50px);
+    width: 100%;
+    overflow-y: auto;
+}
+#contentPopup #linkBody {
+	height: 100%;
 	width: 100%;
     overflow-y: auto;
 }
 h2{
 	margin-top: 5px;
+}
+#close {
+    position: absolute;
+    right: 0.8em;
+    font-size: 3em;
 }
 
 #editPopup {
