@@ -37,6 +37,12 @@ Tooltips pros/cons:
 -SVG text		smooth move/zoom		no mathjax, must resize
 -foreign div		mathjax, easy styling		must update
 
+pros: Creating new collection ----v---- name labels in one collection
+clean and complete seperation
+if anything goes wrong, delete coll
+faster publish
+					meteor-friendly
+					easy to combine trees
 
 UI:--------------
 Ctrl+... - editing controls

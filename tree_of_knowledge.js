@@ -1,7 +1,7 @@
-var Graphs = new Meteor.Collection("graphList"); //available graphs
+// var Graphs = new Meteor.Collection("graphList"); //available graphs
 Nodes=0, Links=0; //Client and server Globals
 var db; var graph; var svg;
-var currColl="test0";
+var currColl=null;
 notify = function(text){ //notification messages
   // console.log("notify: ",text);
   $('#notifications').text(text);
@@ -14,6 +14,7 @@ notify = function(text){ //notification messages
 // Server-side code:============================
 if (Meteor.isServer){
   Meteor.startup(function(){
+    console.log("GraphList:", Graphs.find().fetch())
     var allCollections = function () { //return all collections
         var Future = Npm.require('fibers/future'),
             future = new Future(),
@@ -27,6 +28,8 @@ if (Meteor.isServer){
         );
         return future.wait();
     };
+
+    var collLoaded
     var collList=allCollections();
     console.log("Collections:", collList);
 
@@ -40,7 +43,7 @@ if (Meteor.isServer){
     //   {$set: {strength:5}}, {multi:true});
     // Links.update({type: {$in:["connection"]}}, 
     //   {$set: {type:"related"}}, {multi:true});
-    Graphs.remove({});
+    // Graphs.remove({});
 
 
     // db.publish()
@@ -50,20 +53,25 @@ if (Meteor.isServer){
   Meteor.methods({
     createCollection: function(name){
       Graphs.insert({'title': name});
-      // console.log(Graphs.find().fetch())
+      console.log(Graphs.find().fetch())
       // Fiber(function(){
       // Meteor.defer(function() {
-      Nodes = new Meteor.Collection(name+"_Nodes");
-      Links = new Meteor.Collection(name+"_Links");
+      if(name!=currColl){
+        console.log("Loading new collection");
+        Nodes = new Meteor.Collection(name+"_Nodes"); //Server
+        Links = new Meteor.Collection(name+"_Links");
        // Nodes.insert({x: 0.0, y: 0.0});
-      db = new treeData();
-      db.publish();
+        db = new treeData();
+        db.publish(); //not necessary after first time
+        currColl=name;
+      }
       // })
     // }).run();
     },
     deleteCollection: function(){
-      // Nodes.rawCollection().drop();
-      // Links.rawCollection().drop();
+      Nodes.rawCollection().drop();
+      Links.rawCollection().drop();
+      //myMailbox._dropCollection()
     }
   })
 }
@@ -85,7 +93,7 @@ if (Meteor.isClient) {
         .attr("height", height); //Set SVG attributes
     $(".canvas").width(width);
 
-    showGraph(currColl);
+    showGraph("test0");
   });
 
   Template.graph.helpers({
@@ -113,9 +121,8 @@ if (Meteor.isClient) {
       //   });      
     },
     'click #new': function(e){
-      console.log("new");
-      currColl=prompt("New graph name (no spaces)", "test");
-      showGraph(currColl);
+      var name=prompt("New graph name (no spaces)", "test");
+      showGraph(name);
     },
     'click #delete': function(e){
       var result = confirm("Delete current tree?");
@@ -128,8 +135,9 @@ if (Meteor.isClient) {
   function showGraph(name){
     if (name) {
       Meteor.call("createCollection",name, function(){
-        Nodes = new Meteor.Collection(name+"_Nodes");
+        Nodes = new Meteor.Collection(name+"_Nodes"); //Client
         Links = new Meteor.Collection(name+"_Links");
+        currColl=name;
           
         db = new treeData();
         Session.set('lastUpdate', new Date() );
