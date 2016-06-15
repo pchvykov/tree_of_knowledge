@@ -16,6 +16,7 @@ var updateDB = function(dat){
     obj.text = $('#content').val();
     obj.x=dat.node.x; obj.y=dat.node.y;
     obj._id=dat.node._id;
+    obj.graph=Session.get('currGraph');
     // console.log("sourceID", this.sourceID);
     //if adding a new linked node:
     if (dat.sourceID){
@@ -49,6 +50,7 @@ var updateDB = function(dat){
     obj.text = $('#content').val();
     obj.oriented = $('#oriented').is(":checked");
     obj._id=dat.link._id;
+    obj.graph=Session.get('currGraph');
     if($('#flip').is(":checked")){
       obj.source=dat.link.target;
       obj.target=dat.link.source;

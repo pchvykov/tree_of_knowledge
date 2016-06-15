@@ -13,6 +13,21 @@ tree backup
 nodes fixing?
 
 --popup-modal css - inheret editPopup styling
+In the middle of adding new collections:
+-stop old publish before creating new one
+-see what DOM elements need to be deleted by hand (if any) (check tooltips)
+-test that new and edited nodes and links end up in the right graph
+-get select, new and delete callbacks working and notifying
+-get the title and fonts to all look good
+-may be: allow renaming and duplicating graphs?
+saving and backup:
+-save json text file for the currGraph on the server (dated) with one click
+-also get the "download" working - can just do the entire collection..
+-figure out some way to do restores from both
+
+
+
+
 --center tooltips
 --edited node highlighting
 --remove dependencies - bootstrap, tip
