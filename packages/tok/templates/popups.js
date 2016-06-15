@@ -32,7 +32,8 @@ var updateDB = function(dat){
         };
       var link = {
         type: lkType(obj.type),
-        strength: 10
+        strength: 10,
+        graph: Session.get('currGraph')
       };
     };
     //update the database entry:

@@ -298,7 +298,7 @@ this.keydown = function() {
       }break}
     case 67: { if(d3.event.ctrlKey){//Ctrl+C - copy object data
         var obj={};
-        for(var attr in gui.selected) { 
+        for(var attr in gui.selected) { //copy all but these prop-s:
           if(["source","target","_id","x","y","px","py","index"].indexOf(attr)<0){
             obj[attr] = gui.selected[attr];
           }
