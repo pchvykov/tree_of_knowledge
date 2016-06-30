@@ -7,20 +7,8 @@
 <body>
   {{> graph}}
 
-<!--   {{#mathjax}}
-<p>Let $(a_n)$, $(b_n)$ and $(c_n)$ be series
-   of real numbers with $a_n \leq b_n\leq c_n$
-   for each $n$. Supposing that $(a_n)$ and $(c_n)$
-   are convergent to the same limit, $(b_n)$
-   is also convergent, and moreover</p>
-<p>
-  <!- this equation will be displayed ->
-  $$
-  \lim a_n=\lim b_n=\lim c_n.
-  $$
-</p>
-{{/mathjax}} -->
-{{> appDumpUI advanced=true}}
+
+<!-- {{> appDumpUI advanced=true}} -->
 </body>
 
 <template name="graph">
@@ -43,7 +31,10 @@
   &emsp;
   <span> Local:
   <input type="button" id="cltBckup" value="Download" />
-  <input type="button" id="cltRestore" value="Upload" />
+  <label class="fileContainer">
+      <input type="button" value="Upload" /> <!-- just for show -->
+      <input type="file" id="cltRestore" />
+  </label>
   </span>
 	</h3>
 	<div class="canvas" id="graphCanvas">

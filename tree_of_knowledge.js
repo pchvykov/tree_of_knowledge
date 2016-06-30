@@ -50,6 +50,9 @@ if (Meteor.isServer){
     // Links.update({type: {$in:["connection"]}}, 
     //   {$set: {type:"related"}}, {multi:true});
     // Graphs.remove({});
+    // console.log(
+    //   Nodes.remove({graph:{$exists:false}}),
+    //   Links.remove({graph:{$exists:false}}))
 
     db.publish();
     Meteor.publish("srvBckup", function () {
@@ -58,23 +61,7 @@ if (Meteor.isServer){
   })
 
   Meteor.methods({
-    // createCollection: function(name){
-    //   // Graphs.insert({'title': name});
-    //   if(name!=currColl){
-    //     console.log("Loading new collection");
-    //     Nodes = new Meteor.Collection(name+"_Nodes"); //Server
-    //     Links = new Meteor.Collection(name+"_Links");
-    //    // Nodes.insert({x: 0.0, y: 0.0});
-    //     db = new treeData();
-    //     db.publish(); //not necessary after first time
-    //     currColl=name;
-    //   }
-    // },
-    // deleteCollection: function(){
-    //   Nodes.rawCollection().drop();
-    //   Links.rawCollection().drop();
-    //   //Nodes._dropCollection()
-    // },
+    
     listGraphs: function(){ //list all available graphs
       //console.log("graphs!!!",Nodes.rawCollection().distinct("graph"));
       //scan the Nodes collection for unique "graph" values:
@@ -91,7 +78,7 @@ if (Meteor.isServer){
       Links.remove({graph: name});
       Nodes.remove({graph: name});
     },
-    backupGraph: function(name, note){
+    backupGraph: function(name, note, srv){
       var bck={
         nodes: //JSON.stringify(
           Nodes.find({graph:name}).fetch(),
@@ -100,12 +87,16 @@ if (Meteor.isServer){
         date: new Date(),
         graph: name,
         note: note,
-        count: (Backup.find().count()+1)
+        nodeCount: Nodes.find({graph:name}).count(), 
+        linkCount: Links.find({graph:name}).count(),
+        graphNumber: (Backup.find().count()+1)
       }
-      return Backup.insert(bck);
+      if(srv) return Backup.insert(bck); //server backup
+      else return bck; //client backup
     },
-    restoreGraph: function(bckCnt){
-      var grObj=Backup.find({count:bckCnt}).fetch();
+    restoreGraph: function(bckCnt, srv){
+      if(srv) var grObj=Backup.find({graphNumber:bckCnt}).fetch(); //server restore
+      else var grObj = [bckCnt]; //client restore
       // console.log(bckCnt, grObj, grObj.length);
       if(grObj.length==0){return false;}
       var grList=Meteor.call("listGraphs");
@@ -203,23 +194,26 @@ if (Meteor.isClient) {
               text: name,
               selected: 'selected'
           }));
+          showGraph(name);
           notify("created new graph");
         }
-        else $('#availGraphs').val(name);
-        showGraph(name);
+        else {
+          $('#availGraphs').val(name);
+          showGraph(name);}
       }
     },
     'click #rename': function(e){
       if(graph.gui.editPopup){
         notify("finish editing first");
         return;}
-      var newName = prompt("Enter new graph name:");
+      var newName = prompt("Enter new graph name:",Session.get("currGraph"));
       Meteor.call("listGraphs", function(err, list){
         if(list.indexOf(newName)>-1){notify("name already exists");
          return;}
         Meteor.call("renameGraph",Session.get("currGraph"),newName,
           function(){
             notify("Graph renamed, refresh the page to finish");
+            Session.set("currGraph",newName);
           });
       });
     },
@@ -233,7 +227,8 @@ if (Meteor.isClient) {
     'click #srvBckup': function(e){
       e.preventDefault();
       var note=prompt("Backup note:");
-      Meteor.call("backupGraph",Session.get("currGraph"),note);     
+      if(!note){notify("backup cancelled"); return}
+      Meteor.call("backupGraph",Session.get("currGraph"),note,true);     
     },
     'click #srvRestore': function(e){
       e.preventDefault();
@@ -241,33 +236,70 @@ if (Meteor.isClient) {
         notify("finish editing first");
         return;}
       Meteor.subscribe("srvBckup",function(){ //backup DB
-        //ask user for count in Backup collection:
+        //show the backup collection and and 
+        //ask user for graphNumber in Backup collection:
         console.log("Backups collection:",Backup.find().fetch())
         var list=Backup.find({},{fields: {
-          graph: true, date:true, note:true, count:true, _id:false
+          graph: true, date:true, note:true, graphNumber:true, 
+          nodeCount:true, _id:false //, linkCount:true
         }}).fetch();
         var restID=prompt(JSON.stringify(list,null,2)+
-          "\n enter COUNT of graph to restore:");
+          "\n enter graphNumber of graph to restore:");
         if(!restID) return;
           // "Backup ID of graph to restore (check console for list)");
         //copy backup into Nodes and Links collections and show:
-        Meteor.call("restoreGraph",Number(restID),function(err,name){
-          if(!name){ alert("Invalid backup count"); return;}
+        Meteor.call("restoreGraph",Number(restID),true,function(err,name){
+          if(!name){ alert("Invalid backup number"); return;}
           $('#availGraphs').append($('<option>', {
               value: name,
               text: name,
               selected: 'selected'
           }));
-          notify("restored graph "+name);
           showGraph(name);
+          notify("restored graph "+name);
         })
       })     
     },
-    'click #cltBckup': function(){
-
+    'click #cltBckup': function(e){
+      e.preventDefault();
+      var note=prompt("Backup note (included in filename):");
+      if(!note){notify("backup cancelled"); return}
+      Meteor.call("backupGraph",Session.get("currGraph"),note,false,
+        function(err, bckObj){
+          var date = new Date();
+          var file = new File([JSON.stringify(bckObj,null,2)],
+            date.getFullYear().toString()+(date.getMonth()+1)+date.getDate()+
+            '-'+date.getHours()+';'+date.getMinutes()+';'+date.getSeconds()+
+            '-'+bckObj.graph+'-'+bckObj.note,
+            {type: "application/json"});//"text/plain;charset=utf-8"});
+          saveAs(file);
+        });  
     },
-    'click #cltRestore': function(){
-      
+    'change #cltRestore': function(event){
+      // var tmppath = URL.createObjectURL(event.target.files[0]);
+      // console.log(tmppath, event.target.files);
+      // $("img").fadeIn("fast").attr('src',tmppath);
+      if(graph.gui.editPopup){
+        notify("finish editing first");
+        return;}
+      var r = new FileReader();
+      //register callback on file load:
+      r.onload = function(e){
+        var bckObj = JSON.parse(e.target.result);
+        // console.log(bckObj);
+        Meteor.call("restoreGraph",bckObj,false,function(err,name){
+          if(!name){ alert("Invalid file chosen"); return;}
+          $('#availGraphs').append($('<option>', {
+              value: name,
+              text: name,
+              selected: 'selected'
+          }));
+          showGraph(name);
+          notify("restored graph "+name);
+        })
+      }
+      //trigger file load:
+      r.readAsText(event.target.files[0]);
     }
   });
 
@@ -280,30 +312,5 @@ if (Meteor.isClient) {
     graph.redraw();//subscribe to and show the "currGraph"
     $('#pgTitle').text("Graph "+name);
   }
-
-  // function showGraph(name){
-  //   if (name) {
-  //     Meteor.call("createCollection",name, function(){
-  //       Nodes = new Meteor.Collection(name+"_Nodes"); //Client
-  //       Links = new Meteor.Collection(name+"_Links");
-  //       currColl=name;
-          
-  //       db = new treeData();
-  //       Session.set('lastUpdate', new Date() );
-  //       //Clear old DOM:
-  //       var myNode = document.getElementById("graphSVG");
-  //       while (myNode.firstChild) {
-  //           myNode.removeChild(myNode.firstChild);
-  //       }
-  //       myNode = document.getElementById("allTooltips");
-  //       while (myNode.firstChild) {
-  //           myNode.removeChild(myNode.firstChild);
-  //       }
-  //       graph = new ToK(svg, db);    
-  //       notify("ready!");
-  //       });
-  //       // showGraph(name);
-  //   }
-  // }
 
 };
