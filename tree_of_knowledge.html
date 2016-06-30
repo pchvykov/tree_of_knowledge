@@ -25,16 +25,27 @@
 
 <template name="graph">
 	<h2>
-  Test tree 
+  <span id="pgTitle"> </span>
   <select id="availGraphs"></select>
-  <br>
   <!-- <form id="ribbon"> -->
-	<input type="button" id="bckup" value="Backup Tree" />
-  <input type="button" id="new" value="new"/>
-  <input type="button" id="delete" value="delete"/>
   &emsp;
   <span id="notifications"></span>
-	</h2>
+  </h2>
+  <h3>
+  <input type="button" id="new" value="new"/>
+  <input type="button" id="rename" value="rename"/>
+  <input type="button" id="delete" value="delete"/>
+  &emsp;
+  <span> Server:
+  <input type="button" id="srvBckup" value="Backup" />
+  <input type="button" id="srvRestore" value="Restore" />
+  </span>
+  &emsp;
+  <span> Local:
+  <input type="button" id="cltBckup" value="Download" />
+  <input type="button" id="cltRestore" value="Upload" />
+  </span>
+	</h3>
 	<div class="canvas" id="graphCanvas">
 		<svg id="graphSVG"></svg>
     {{#mathjax}}

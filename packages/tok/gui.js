@@ -72,6 +72,7 @@ this.showContent = function(d){
 }
 
 //Edit object content in a popup:
+//see popups.js for calls to updating DB
 this.showEditor = function(d, srcID){
   if(gui.editPopup) return;
   if(d.source){

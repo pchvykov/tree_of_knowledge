@@ -3,6 +3,7 @@ treeData = function(){
   // this.Links=Links;
 	console.log("nodes count:", Nodes.find({}).count());
 	console.log("links count:", Links.find({}).count());
+  db=this;
 
   this.loadJSON = function(graph){
       console.log("loading collection from json")
@@ -20,9 +21,10 @@ treeData = function(){
       console.log("links count:", Links.find({}).count());
     };
   this.saveJSON = function(path){
-    var bckup={};
-    bckup.nodes=Nodes.find().fetch();
-    bckup.links=Links.find().fetch();
+    var bckup={
+      nodes: Nodes.find().fetch(),
+      links: Links.find().fetch()
+    };
     console.log(bckup);
   }
   this.clear = function(){
@@ -32,18 +34,19 @@ treeData = function(){
     Links.remove({});
   }
 
-  this.publish = function(name){
-  	Meteor.publish("allNodes", function () {
+  this.publish = function(){
+  	Meteor.publish("allNodes", function (name) {
+      // console.log("publish", Nodes.find({graph:name}).count());
   	  return Nodes.find({graph:name});
   	});
-  	Meteor.publish("allLinks", function () {
+  	Meteor.publish("allLinks", function (name) {
   	  return Links.find({graph:name});
   	});
   };
 
   this.subscribe = function(onReady){ //the 1 client method
-    Meteor.subscribe("allLinks",function(){
-    Meteor.subscribe("allNodes",function(){
+    db.lkSubscr=Meteor.subscribe("allLinks",Session.get("currGraph"),function(){
+    db.ndSubscr=Meteor.subscribe("allNodes",Session.get("currGraph"),function(){
       onReady();
     })});
   }
@@ -68,8 +71,8 @@ Meteor.methods({
     if(!node._id){ //add new node
       delete node._id;
       var ndID = Nodes.insert(node);
-      console.log(Nodes.find().fetch())
-      if(fromID){
+      // console.log(Nodes.find().fetch())
+      if(fromID){ //if linked node, also insert link
         link.source=fromID; link.target=ndID;
         var lkID = Links.insert(link);
         return [ndID, lkID];

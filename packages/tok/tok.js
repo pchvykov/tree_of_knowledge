@@ -83,7 +83,7 @@ vis.append('svg:rect')
   //export local variables:
   this.force = force;
   this.vis = vis;
-  var gui = new GUI(this);
+  var gui = new GUI(this); this.gui=gui;
   vis.on("mousemove", gui.mousemove)
     .on("mouseup", gui.mouseup, false)
     .on("dblclick", gui.dblclick, false);
@@ -97,16 +97,19 @@ vis.append('svg:rect')
   d3.select(window)
       .on("keydown", gui.keydown);
 
-
   // pull data from server and redraw force layout
   this.redraw = function() {
-    //store current node coordinates to restart from same position:
+  //store current node coordinates to restart from same position:
   if(force.nodes().length >0) Meteor.call("updateCoord",force.nodes())
+  if(db.ndSubscr){
+    db.ndSubscr.stop();//clear client collections
+    db.lkSubscr.stop();
+  }
   db.subscribe(function(){
     console.log("redrawing");
     linkData=Links.find({}).fetch();
     nodeData=Nodes.find({}).fetch(); //contains only published data
-
+    // console.log(nodeData.length);
     nodeData.forEach(function(nd){
       //initialize all node velocities to 0:
       // nd.x=treeDim[0]/2; nd.y=treeDim[1]/2;
@@ -286,7 +289,7 @@ vis.append('svg:rect')
     force.alpha(0.06);
   })
   }
-    
+
   this.redraw();
 
   //Position tooltip divs next to their nodes:
