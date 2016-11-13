@@ -215,7 +215,7 @@ vis.append('svg:rect')
     force.charge(function(d){return -Math.pow(d.importance/2,3)})
 
     //re-render all math - in the entire page!
-    if(typeof MathJax !== 'undefined') MathJax.Hub.Queue(["Typeset", MathJax.Hub]); 
+    if(typeof MathJax.Hub !== 'undefined') MathJax.Hub.Queue(["Typeset", MathJax.Hub]); 
     Session.set('lastUpdate', new Date() );
 
     //For links-----------------------
@@ -342,7 +342,7 @@ vis.append('svg:rect')
     gui.showEditor(nd);
   }
   this.deleteNode = function(nd){
-    Meteor.call("deleteNode",nd._id);
+    Meteor.call("deleteNode",nd._id); //call to DB
     // spliceLinksForNode(nd);
     tree.redraw();
   }

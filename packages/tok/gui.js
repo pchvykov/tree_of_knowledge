@@ -71,11 +71,11 @@ this.showContent = function(d){
   tree.updateSelection(); 
 }
 
-//Edit object content in a popup:
+//Edit/add object content in a popup:
 //see popups.js for calls to updating DB
 this.showEditor = function(d, srcID){
-  if(gui.editPopup) return;
-  if(d.source){
+  if(gui.editPopup) return; //do nothing if already editing
+  if(d.source){ //if a link is selected... edit:
     if(srcID) console.error("wrong inputs for showEditor");
     gui.editPopup=Blaze.renderWithData(Template.linkOptions, 
       {
@@ -83,14 +83,15 @@ this.showEditor = function(d, srcID){
         gui:gui
       }, tree.svg.node().parentNode);
   }
-  else{
+  else{ //else, it's a node...
     gui.editPopup=Blaze.renderWithData(Template.nodeOptions, 
       {
         node:d,
-        sourceID: srcID,
+        sourceID: srcID, //only present when adding linked node
         gui:gui
       }, tree.svg.node().parentNode);
   }
+  //popup positioning:
   var offset = tree.svg.node().getBoundingClientRect();
   $('#editPopup').offset({
     top:offset.top+Math.round(tree.canvasSize[1]/3)+30+window.scrollY, 

@@ -69,6 +69,6 @@ Ctrl+... - editing controls
 Shift+Enter in text edit box - update DB
 Dbl-Click - create/edit node
 Click - select node/link
-Ctrl+C and Ctrl+V - copy and paste node/link data onto another one (replaces whatever is there; doesn't not save automatically)
-Ctrl+Z and Ctrl+Y - undo/redo when in text-editor box
+Ctrl+C and Ctrl+V - copy and paste node/link data onto another one (replaces whatever is there; does not save automatically)
+Ctrl+Z and Ctrl+Y - undo/redo when in text-editor box (built-in)
 
