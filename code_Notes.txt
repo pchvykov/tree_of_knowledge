@@ -1,0 +1,5 @@
+Install build tools for npm:
+meteor npm install --global --production windows-build-tools
+
+Meteor packages at:
+E:\Users\pchvykov\AppData\Local\.meteor\packages
