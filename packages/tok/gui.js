@@ -75,7 +75,7 @@ this.showContent = function(d){
 //see popups.js for calls to updating DB
 this.showEditor = function(d, srcID){
   if(gui.editPopup) return;
-  if(d.source){
+  if(d.source){ //if a link is selected... edit
     if(srcID) console.error("wrong inputs for showEditor");
     gui.editPopup=Blaze.renderWithData(Template.linkOptions, 
       {

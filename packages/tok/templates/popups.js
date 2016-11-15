@@ -28,12 +28,14 @@ var updateDB = function(dat){
               case "statement": return "theorem";
               case "example": return "specialCase";
               case "empirical": return "connection";
+              case "derivation": return "theorem";
           }
         };
       var link = {
         type: lkType(obj.type),
         strength: 10,
-        graph: Session.get('currGraph')
+        graph: Session.get('currGraph'),
+        oriented: obj.type=='derivation'
       };
     };
     //update the database entry:
