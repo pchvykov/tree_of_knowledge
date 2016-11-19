@@ -4,10 +4,20 @@ body {
   width: 960px;
   height: 500px;
 }
+#runButton {
+  fill:grey;
+  stroke:black;
+  stroke-width:3px;
+  font-size:20px;
+  cursor:default;
+}
+#runButton:hover{
+  fill:red;
+}
 
 .node {
   fill: #000;
-  stroke-width: 2px;
+  /*stroke-width: 3px;*/
   /*cursor: crosshair;*/
 }
 

@@ -148,8 +148,9 @@ if (Meteor.isClient) {
 
     //Create canvas:
     Session.set('lastUpdate', new Date() );
-    var width = $(window).width(),
+    var width = $(window).innerWidth()-35,//$("body").prop("clientWidth"),
     height = 700;//$(window).height(); //SVG size
+    console.log(width);
 
     svg = d3.select("#graphSVG")
         .attr("width", width)

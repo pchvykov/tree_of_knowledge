@@ -105,10 +105,12 @@ this.showEditor = function(d, srcID){
 }
 //Mouse actions - set to bubble up form deepest-level SVGs
 //node events executed first:
-this.nodeClick = function(d){  
+this.nodeClick = function(d){
+  //manual double click implementation:
   if(!clickTimer){ clickTimer= setTimeout(function(){
+    //Single click callback
     clickTimer=null;
-    if (d == gui.selected) {
+    if (d == gui.selected) { //if un-selecting
       gui.hideContent();
       gui.selected = null;
       //update which nodes/links show up as selected:
@@ -118,16 +120,21 @@ this.nodeClick = function(d){
       gui.showContent(d);
     }
     console.log("selected node:", gui.selected);  
-    }, 200);}
+    }, 300);}
+  else{ //if double-clicking
+    clearTimeout(clickTimer); clickTimer=null;
+    gui.showEditor(d); 
+  }
 }
-this.nodeDblClick = function(d){
-  // Modal.show('nodeOptions',{
-  //   node: d,
-  //   tree: tree
-  // });
-  clearTimeout(clickTimer); clickTimer=null;
-  gui.showEditor(d);  
-}
+// this.nodeDblClick = function(d){
+//   // Modal.show('nodeOptions',{
+//   //   node: d,
+//   //   tree: tree
+//   // });
+//   console.log("dblclick!!!");
+//   clearTimeout(clickTimer); clickTimer=null;
+//   gui.showEditor(d);  
+// }
 this.linkMousedown = function(d) { //easier to catch than Click
   if(!clickTimer){ clickTimer= setTimeout(function(){
     clickTimer=null;
@@ -211,7 +218,8 @@ this.nodeMouseover = function(d){
   if(!d.dragging){
     d3.select(this)
         .classed("fixed",d.fixed=true);
-    this.parentNode.tooltip.classed("show",true);
+    if(this.parentNode.tooltip) 
+      this.parentNode.tooltip.classed("show",true);
   }
 }
 
@@ -219,7 +227,8 @@ this.nodeMouseout = function(d){
   if(!d.dragging){
     d3.select(this)
         .classed("fixed",d.fixed=false);
-    this.parentNode.tooltip.classed("show",false);
+    if(this.parentNode.tooltip) 
+      this.parentNode.tooltip.classed("show",false);
   }
 
 }

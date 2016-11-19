@@ -13,6 +13,7 @@ ToK = function(svg, db) {
   var tree=this;
   this.svg=svg;
 
+  var forceRun=false;
   var color = d3.scale.category20();
   //size of the displayed portion:
   var width = svg.attr("width"),
@@ -42,7 +43,7 @@ ToK = function(svg, db) {
 vis.append('svg:rect')
     .attr('width', treeDim[0])
     .attr('height', treeDim[1])
-    .attr('fill', 'white');
+    .attr('fill', '#EEE'); //make slightly grey s.t. it's visible
 
 
   // init force layout
@@ -65,8 +66,9 @@ vis.append('svg:rect')
   // var bckgnd = vis.append('svg:g');
   this.drag_line = vis.append('svg:g');
 
+/////// SVG shapes definitions //////////////
   //Arrowhead markers definition:
-    svg.append("defs").append("marker")
+  svg.append("defs").append("marker")
     .attr("id", "arrowHead")
     .attr("viewBox", "0 0 10 10")
     .attr("refX", 1)
@@ -79,6 +81,22 @@ vis.append('svg:rect')
     .attr("fill", "context-stroke")
     // .style("fill", "#999")
     .style("opacity", "0.5");
+
+  svg.select("defs").append("circle")
+      .attr("id", "circleNode")
+      .attr("r",1)
+
+  svg.select("defs").append("polygon")
+      .attr("id", "andNode")
+      .attr("points","-1,-0.2 0,0.8 1,-0.2")  
+
+  //function to select node shape:
+  var nodeShape = function(ndType){
+    if(ndType=="derivation") 
+      return "#andNode"
+    else return "#circleNode"
+  }
+///////////////////////////////////////////////
 
   //export local variables:
   this.force = force;
@@ -138,6 +156,7 @@ vis.append('svg:rect')
     // console.log("links here", linkData)    
 
     //update data on d3 objects (SVGs), bind using _id:
+    //node.enter() is a selection of all the new nodes
     node = node.data(nodeData, function(d){return d._id});
         
     //create group for each node:
@@ -145,14 +164,16 @@ vis.append('svg:rect')
         .attr("class","node-outer")
         // .attr("id",function(d){return d._id}) //for selection
         .call(gui.nodeDrag);
-    newNodes.append("circle")
+
+    //choose node shape:
+    newNodes.append("use")//append("circle").attr("r",1)
         .attr("class", "node") //styling
         .on("mouseover", gui.nodeMouseover)
         .on("mouseout", gui.nodeMouseout)
         .on("mousedown",gui.nodeMousedown, false) //callbacks
         .on("mouseup", gui.nodeMouseup, false) //bubble event propagation
         .on("click", gui.nodeClick,false)
-        .on("dblclick", gui.nodeDblClick,false)
+        // .on("dblclick", gui.nodeDblClick, false) //implemented in click callback
         .transition()
         .duration(750)
         .ease("elastic")
@@ -192,6 +213,7 @@ vis.append('svg:rect')
 
     //Tooltips as divs in the body, with reference to node SVG:
     newNodes.each(function(d, idx){
+      if(d.type == "derivation") return; //no tooltips for derivations
       var newTT=d3.select('#allTooltips')
           .append("xhtml:div")
           .attr("class",'tooltipO');
@@ -204,14 +226,21 @@ vis.append('svg:rect')
     d3.selectAll('.tooltipO .inner')
           .text(function(d){return d3.select(d).datum().title});
 
-    node.exit().each(function(){this.tooltip.remove();})
+    node.exit().each(function(){if(this.tooltip) this.tooltip.remove();})
     node.exit().select('.node')
         .transition()
-        .attr("r", 0);
+        .attr("transform","scale(0)")
+        // .attr("r", 0);
     node.exit().remove();
     //Formatting interactions:
     node.select('.node')
-        .attr("r", function(d){return d.importance}) //radius
+        .attr("xlink:href", d => nodeShape(d.type))
+        // .attr("width", d => d.importance)
+        // .attr("height", d=> d.importance)
+        .attr("transform", d => "scale("+d.importance+")")
+        //work-around to keep stroke-width independent of size:
+        .attr("stroke-width",d => 3/d.importance)
+        // .attr("r", function(d){return d.importance}) //radius
     force.charge(function(d){return -Math.pow(d.importance/2,3)})
 
     //re-render all math - in the entire page!
@@ -291,6 +320,24 @@ vis.append('svg:rect')
   }
 
   this.redraw();
+
+  //Make a "RUN" button (to keep relaxing the graph):
+  var runBt= svg.append('svg:g')
+      .attr('id','runButton')
+      .attr("transform",
+        "translate("+(width-50)+','+2.5+')')
+      .on('mousedown',()=>{
+        forceRun=true;
+        force.alpha(0.1);
+        // force.restart();
+      },true)
+      .on('mouseup',()=>{forceRun=false;},true)
+      // .attr("x",width-50).attr("y",10)
+  runBt.append('rect')
+      .attr("width",40).attr("height",30)
+      
+  runBt.append('svg:text').text('>>>')
+      .attr('x',3).attr('y',"1em")
 
   //Position tooltip divs next to their nodes:
   function positionTooltips(){
@@ -389,11 +436,13 @@ vis.append('svg:rect')
   // }); });
   function tick(e) {
     //Include the orienting forces:
+    //(position below parent nodes and above child nodes)
+    if(forceRun) force.alpha(0.1);
     var g = 30 * e.alpha; //e.alpha = 0.1 maximum
     nodeData.forEach(function(nd){
       // if(nd.x-nd.px > 10){console.log(nd.x, nd.y)};
       // if(!nd.dragging){
-        nd.y += g * Math.max(-2, Math.min(2, 
+        var tmp= g * Math.max(-2, Math.min(2, //between [-2,2]
           nd.parentsIx.reduce(function(prev, idx){
             return prev+Math.exp(-(nd.y-nodeData[idx].y)/100.)
           }, 0.) -
@@ -401,6 +450,8 @@ vis.append('svg:rect')
             return prev+Math.exp((nd.y-nodeData[idx].y)/100.)
           }, 0.)
           ));
+        // console.log(tmp);
+        nd.y += tmp;
       // }
     })
     // link.attr("x1", function(d) { return d.source.x; })
