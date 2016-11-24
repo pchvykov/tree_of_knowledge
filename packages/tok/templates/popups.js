@@ -153,8 +153,14 @@ var rendered = function(){
       var containeR = document.getElementById('editPopup');
       var cont_scroll = containeR.scrollTop / (containeR.scrollHeight - containeR.clientHeight);
       updateDB(dat);
-      $('#contentPopup #popupBody')
-        .scrollTop(cont_scroll*document.getElementById('popupBody').scrollHeight);
+      if(document.getElementById('nodeBody')){
+        $('#contentPopup #nodeBody')
+          .scrollTop(cont_scroll*document.getElementById('nodeBody').scrollHeight);
+      }
+      else if(document.getElementById('linkBody')){
+        $('#contentPopup #linkBody')
+          .scrollTop(cont_scroll*document.getElementById('linkBody').scrollHeight);
+      }
     }
   });
 };
