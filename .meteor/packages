@@ -21,8 +21,8 @@ pchvykov:tok
 standard-minifier-css
 standard-minifier-js
 mrt:mathjax
-d3
 hitchcott:app-dump
 accounts-ui
 twbs:bootstrap 			#for some css formats
 pfafman:filesaver
+d3

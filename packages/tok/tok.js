@@ -435,14 +435,17 @@ vis.append('svg:rect')
 
   // }); });
   function tick(e) {
+    //keep running while RUN is held down:
+    if(forceRun) force.alpha(0.1);
     //Include the orienting forces:
     //(position below parent nodes and above child nodes)
-    if(forceRun) force.alpha(0.1);
+    //use exponential as soft ordering constraint (childern below parents)
+    //keep the whole thing within g*[-2,2] steps per tick range
     var g = 30 * e.alpha; //e.alpha = 0.1 maximum
     nodeData.forEach(function(nd){
       // if(nd.x-nd.px > 10){console.log(nd.x, nd.y)};
       // if(!nd.dragging){
-        var tmp= g * Math.max(-2, Math.min(2, //between [-2,2]
+        nd.y += g * Math.max(-2, Math.min(2, //between [-2,2]
           nd.parentsIx.reduce(function(prev, idx){
             return prev+Math.exp(-(nd.y-nodeData[idx].y)/100.)
           }, 0.) -
@@ -450,10 +453,9 @@ vis.append('svg:rect')
             return prev+Math.exp((nd.y-nodeData[idx].y)/100.)
           }, 0.)
           ));
-        // console.log(tmp);
-        nd.y += tmp;
       // }
     })
+
     // link.attr("x1", function(d) { return d.source.x; })
     //     .attr("y1", function(d) { return d.source.y; })
     //     .attr("x2", function(d) { return d.target.x; })
@@ -469,10 +471,27 @@ vis.append('svg:rect')
 
     //position the node group:
     node.attr("transform",function(d){
-      return ("translate("+d.x+','+d.y+')')});
+      //Rotate the "derivation" triangles along the flow:
+      if(d.type == "derivation" && d.parentsIx.length>0 && d.childrenIx.length>0){
+        var rot = 180/Math.PI*Math.atan2((d.parentsIx.reduce((prev,idx) => 
+          prev+nodeData[idx].x, 0.)/d.parentsIx.length - //average x of parents
+        d.childrenIx.reduce((prev,idx) => 
+          prev+nodeData[idx].x, 0.)/d.childrenIx.length), //average x of children
+        -(d.parentsIx.reduce((prev,idx) => 
+          prev+nodeData[idx].y, 0.)/d.parentsIx.length -
+        d.childrenIx.reduce((prev,idx) => 
+          prev+nodeData[idx].y, 0.)/d.childrenIx.length)) //y between parents and children c.o.m.
+        // console.log(d._id,rot);
+        return ("translate("+d.x+','+d.y+
+          ') rotate('+rot+')')
+      }
+      else  return ("translate("+d.x+','+d.y+')')
+    });
     // attr("x", function(d) { return d.x; })
     //     .attr("y", function(d) { return d.y; });
     positionTooltips();
+
+
   }
 
   // rescale g
