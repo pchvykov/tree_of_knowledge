@@ -471,7 +471,7 @@ vis.append('svg:rect')
 
     //position the node group:
     node.attr("transform",function(d){
-      //Rotate the "derivation" triangles along the flow:
+      //translate and Rotate the "derivation" triangles along the flow:
       if(d.type == "derivation" && d.parentsIx.length>0 && d.childrenIx.length>0){
         var rot = 180/Math.PI*Math.atan2((d.parentsIx.reduce((prev,idx) => 
           prev+nodeData[idx].x, 0.)/d.parentsIx.length - //average x of parents
@@ -485,6 +485,7 @@ vis.append('svg:rect')
         return ("translate("+d.x+','+d.y+
           ') rotate('+rot+')')
       }
+      //just translate everything else
       else  return ("translate("+d.x+','+d.y+')')
     });
     // attr("x", function(d) { return d.x; })
@@ -494,15 +495,48 @@ vis.append('svg:rect')
 
   }
 
-  // rescale g
+  // var ctrlDn=false;
+  // d3.select("body").on("keydown", function () {
+  //     ctrlDn = d3.event.ctrlKey;
+  // });
+
+  // d3.select("body").on("keyup", function () {
+  //     ctrlDn = false;
+  // });
+
+  // var zoomScale=1, prevScale=1;
+  // rescale g (pan and zoom)
   function rescale() {
     var transl=d3.event.translate;
     var scale = d3.event.scale;
-    // console.log("translate", transl, [transl[0]+transl0[0],transl[1]+transl0[1]]);
-    vis.attr("transform",
-        "translate(" + transl + ")"
-        + " scale(" + scale + ")");
-    positionTooltips();
+    // dScale=scale-prevScale; prevScale=scale;
+    // console.log(scale, dScale)
+    // //change node/link size instead if ctrl is held down:
+    // //save to database on force.end, along with positions
+    // if(ctrlDn && gui.selected){
+    //   if(!gui.selected.source){//if not a link (so a node)
+    //   gui.selected.importance=parseFloat(gui.selected.importance,10)*(1+dScale);
+    //   console.log("importance",gui.selected.importance,dScale);
+    //   node.select('.node_selected')
+    //       //contingent on the size = importance field:
+    //       .attr("transform", d => "scale("+gui.selected.importance+")")
+    //       //work-around to keep stroke-width independent of size:
+    //       .attr("stroke-width",d => 3/d.importance)
+    //   force.charge(function(d){return -Math.pow(d.importance/2,3)})
+    //   }
+    //   else { //a link then
+
+    //   }
+
+    // }
+    // else{ //else, zoom and pan:
+      // zoomScale+=dScale;
+      // console.log("zoomscale",zoomScale)
+      vis.attr("transform",
+          "translate(" + transl + ")"
+          + " scale(" + scale + ")");
+      positionTooltips();
+    // }
   }
 
 }

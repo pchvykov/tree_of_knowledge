@@ -49,7 +49,7 @@ this.showContent = function(d){
   //delete existing popup window
   gui.hideContent();
   //show node info about gui.selected_node in a popup:
-  gui.selected = d; 
+  gui.selected = d; //node datum
   if(d.source){
     gui.contentPopup=Blaze.renderWithData(Template.linkContent, 
     gui, tree.svg.node().parentNode);
@@ -83,7 +83,7 @@ this.showEditor = function(d, srcID){
         gui:gui
       }, tree.svg.node().parentNode);
   }
-  else{
+  else{ //else it's a node
     gui.editPopup=Blaze.renderWithData(Template.nodeOptions, 
       {
         node:d,
@@ -106,26 +106,32 @@ this.showEditor = function(d, srcID){
 //Mouse actions - set to bubble up form deepest-level SVGs
 //node events executed first:
 this.nodeClick = function(d){
+  var hide=true;
+  if(d!=gui.selected){ //immediate response is not selected
+    gui.showContent(d);
+    hide = false;
+  }
   //manual double click implementation:
   if(!clickTimer){ clickTimer= setTimeout(function(){
     //Single click callback
     clickTimer=null;
-    if (d == gui.selected) { //if un-selecting
+    if (d == gui.selected && hide) { //if un-selecting
       gui.hideContent();
       gui.selected = null;
       //update which nodes/links show up as selected:
       tree.updateSelection(); 
     }
-    else {
-      gui.showContent(d);
-    }
+    // else {
+    //   gui.showContent(d);
+    // }
     console.log("selected node:", gui.selected);  
-    }, 300);}
+    }, 400);}
   else{ //if double-clicking
     clearTimeout(clickTimer); clickTimer=null;
     gui.showEditor(d); 
   }
 }
+//For some reason doesn't work on SVG "use" obeject:
 // this.nodeDblClick = function(d){
 //   // Modal.show('nodeOptions',{
 //   //   node: d,
@@ -136,9 +142,14 @@ this.nodeClick = function(d){
 //   gui.showEditor(d);  
 // }
 this.linkMousedown = function(d) { //easier to catch than Click
+  var hide=true;
+  if(d!=gui.selected){ //immediate response is not selected
+    gui.showContent(d);
+    hide = false;
+  }
   if(!clickTimer){ clickTimer= setTimeout(function(){
     clickTimer=null;
-  if (d == gui.selected) {
+  if (d == gui.selected && hide) {
     gui.hideContent();
     gui.selected = null;
     //update which nodes/links show up as selected:
@@ -148,7 +159,7 @@ this.linkMousedown = function(d) { //easier to catch than Click
     gui.showContent(d);
   }
   console.log("selected link:", gui.selected);
-  }, 300)};
+  }, 400)};
 }
 this.linkDblClick = function(d){
   d3.event.stopPropagation();

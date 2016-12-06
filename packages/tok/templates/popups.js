@@ -122,6 +122,7 @@ var editorEvents = {
   }
 };
 
+//initialize all boxes with node/link data:
 var rendered = function(){
   var dat= this.data;
   if(dat.node) {

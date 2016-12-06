@@ -1,47 +1,11 @@
---do not update link source/target on update
---creatin links behavior
---link mouseove and edited styling (+fixed?)
---link tooltips?
-
---may be find a library for these?:
---make links a group and allow double lines
---arrow heads and exact connection points on nodes
---link orientation and weight and d3 force behavior
+ToDo:
 overall styling
 images support
-tree backup
 nodes fixing?
+zoom behavior
 
---popup-modal css - inheret editPopup styling
-
-In the middle of adding new collections:
-+stop old publish before creating new one
-+see what DOM elements need to be deleted by hand (if any) (check tooltips)
--test that new and edited nodes and links end up in the right graph
--get select, new and delete callbacks working and notifying
--get the title and fonts to all look good
--may be: allow renaming and duplicating graphs?
-saving and backup:
--save json text file for the currGraph on the server (dated) with one click
--also get the "download" working - can just do the entire collection..
--figure out some way to do restores from both
--clean up code (tree... .js) from old implimentation, and clear up Collection from docs with no "graph" field
-..done..
-
-
-
-
---center tooltips
---edited node highlighting
---remove dependencies - bootstrap, tip
-
---remove lookback tooltip css
---adding new nodes without editing
---mathjax superscripts disappear
---mathjax re-render on update
---tooltip max-width control
---position tooltips
---show/hide on mouseover.
+Not ToDo:
+node size adjust with Ctrl-zoom: non-integer size values are confusing (can fix), updating DB is confusing (at force.end), need to disable zoom behavior (not sure how)
 
 
 
@@ -72,3 +36,6 @@ Click - select node/link
 Ctrl+C and Ctrl+V - copy and paste node/link data onto another one (replaces whatever is there; doesn't not save automatically)
 Ctrl+Z and Ctrl+Y - undo/redo when in text-editor box
 
+
+Marketing:--------------
+-a generalization of books (books are a special case of this - with linear tree)
