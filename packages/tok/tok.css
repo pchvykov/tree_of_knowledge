@@ -63,7 +63,7 @@ body {
   stroke: #f00;
 }
 
-.tooltipO{
+.tooltipO{ /*outer box*/
   width: 300px; /*max width*/
   position: absolute;
   pointer-events: none;
@@ -74,7 +74,7 @@ body {
     position: absolute; 
     bottom:16px;    
     padding: 3px; 
-    max-width: 50px;
+    max-width: 85px; /*text max size, constrained by tooltipO width*/
     display: inline-block;
     /*width: auto;*/
     word-wrap: break-word;
@@ -83,7 +83,7 @@ body {
     background: blueviolet; 
     border: 0px;    
     border-radius: 8px;     
-    opacity: 0.35; 
+    opacity: 0.45; /*opacity when not selected*/
     /*z-index: 1002;    */
 }
 
@@ -103,5 +103,5 @@ body {
 .tooltipO.show .inner{
   font: 1em sans-serif; 
   opacity: 0.8;
-  z-index: 1001;
+  z-index: 1001; /*bring to front*/
 }

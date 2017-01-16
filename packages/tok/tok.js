@@ -50,7 +50,7 @@ vis.append('svg:rect')
   var nodeData, linkData;
   var force = d3.layout.force()
       .size(treeDim)
-      .gravity(0.03)
+      .gravity(0)
       // .nodes(nodeData)
       // .links(linkData)
       // .linkDistance(5)
@@ -61,6 +61,8 @@ vis.append('svg:rect')
       .on("end", function(){
           Meteor.call("updateCoord",force.nodes())
         });
+
+  var grav=0.1;
     // console.log("chdist",force.chargeDistance());
 
   // var bckgnd = vis.append('svg:g');
@@ -286,7 +288,7 @@ vis.append('svg:rect')
         //at each junction, then remove backgnd line;
         //polyline to make long narrow triangle line
         case "theorem": 
-          $(this).removeAttr("stroke-dasharray");break;
+          $(this).css("stroke-dasharray","none");break;
         case "conjecture": 
           $(this).css("stroke-dasharray","10,3");break;
         case "related": 
@@ -437,12 +439,15 @@ vis.append('svg:rect')
   function tick(e) {
     //keep running while RUN is held down:
     if(forceRun) force.alpha(0.1);
-    //Include the orienting forces:
-    //(position below parent nodes and above child nodes)
-    //use exponential as soft ordering constraint (childern below parents)
-    //keep the whole thing within g*[-2,2] steps per tick range
+    
+    //create custom forces:
     var g = 30 * e.alpha; //e.alpha = 0.1 maximum
     nodeData.forEach(function(nd){
+      //Include the orienting forces:
+      //(position below parent nodes and above child nodes)
+      //use exponential as soft ordering constraint (childern below parents)
+      //keep the whole thing within g*[-2,2] steps per tick range
+
       // if(nd.x-nd.px > 10){console.log(nd.x, nd.y)};
       // if(!nd.dragging){
         nd.y += g * Math.max(-2, Math.min(2, //between [-2,2]
@@ -454,6 +459,10 @@ vis.append('svg:rect')
           }, 0.)
           ));
       // }
+      // var grav=0.1;
+      //include gravity (charge-independent):
+      nd.x -= grav*e.alpha*(nd.x-treeDim[0]/2);
+      nd.y -= grav*e.alpha*(nd.y-treeDim[1]/2);
     })
 
     // link.attr("x1", function(d) { return d.source.x; })

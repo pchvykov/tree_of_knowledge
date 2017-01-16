@@ -99,7 +99,12 @@ Meteor.methods({
     else{
       var attr = {};
       for (var attrname in link) { 
-        if(attrname!="_id") attr[attrname] = link[attrname]; 
+        if(attrname=="_id") continue;
+        if((attrname=="source" || attrname=="target") && 
+          typeof link[attrname] !== 'string'){
+          attr[attrname]=link[attrname]._id; continue;
+        }
+        attr[attrname] = link[attrname]; 
       };
       // console.log("attr",attr);
       var num = Links.update( { _id: link._id }, { $set: attr } );

@@ -140,7 +140,7 @@ if (Meteor.isClient) {
               text : item 
           }));
       });
-    currGraph=list[0];
+    currGraph=list[2];
 
     Session.set("currGraph",currGraph);
     $('#availGraphs').val(currGraph);

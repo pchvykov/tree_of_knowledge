@@ -301,10 +301,11 @@ this.dblclick = function(){
 
 this.keydown = function() {
   if (!gui.selected) return;
+  if(d3.event.ctrlKey){ //editing controls accessed by Ctrl
   switch (d3.event.keyCode) {
     case 8: // backspace
     case 46: { // delete
-      if(d3.event.ctrlKey){
+      
         //use "source" attribute to determine 
         //whether "selected" is a link:
         if (gui.selected.source) {
@@ -316,8 +317,8 @@ this.keydown = function() {
         gui.selected = null;
         gui.hideContent();
         // tree.redraw();
-      }break}
-    case 67: { if(d3.event.ctrlKey){//Ctrl+C - copy object data
+      break}
+    case 67: { //Ctrl+C - copy object data
         var obj={};
         for(var attr in gui.selected) { //copy all but these prop-s:
           if(["source","target","_id","x","y","px","py","index"].indexOf(attr)<0){
@@ -326,12 +327,30 @@ this.keydown = function() {
         }
         console.log(obj);
         Session.set('clipBoard',obj);
-      }break}
-    case 86: { if(d3.event.ctrlKey){//Ctrl+V - paste obj data, not saved to DB!!
+      break}
+    case 86: {//Ctrl+V - paste obj data, not saved to DB!!
         var obj=Session.get('clipBoard');
         for(var attr in obj) gui.selected[attr]=obj[attr];
         notify("Double-click to save");
-      }break}
+      break}
+    case 187: var grow=true;
+    case 189:{//Ctrl + (=/-) - increase or decrease node importance
+      var del=(grow ? 2:-2);
+      d3.event.preventDefault();
+      if(gui.selected.source){ //if link
+        var obj=gui.selected;
+        obj.strength = Math.max(Number(obj.strength)+del,2);
+        Meteor.call('updateLink',obj);
+      }
+      else{ //if node
+        var obj=gui.selected;
+        obj.importance = Math.max(Number(obj.importance)+del,2);
+        Meteor.call('updateNode',obj);
+      }
+    }
+    gui.tree.redraw();
+    break;
+    }
   }
 }
 

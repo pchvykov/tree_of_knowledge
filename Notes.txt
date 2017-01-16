@@ -1,8 +1,24 @@
 ToDo:
++fix gravity
++Link style changing on type change - immediate
++resize tooltips
++Ctrl + [+/-] - resize nodes
+Ctrl + L/R - orient link
+Ctrl + U/D - change type
+Select node/link on creation 
+Make example links oriented by default
+Set defauly link weight based on node importance
+Default links to oriented in general(?)
+Make "related" links easier to catch
+Small nodes force away from center??
+orienting links shouldn't change their length (currently makes them longer)
+add Link repulsion? (link-node repulsion?)
+"related" links weaker than theorems
+
 overall styling
 images support
 nodes fixing?
-zoom behavior
+zoom behavior (show/hide nodes)
 
 Not ToDo:
 node size adjust with Ctrl-zoom: non-integer size values are confusing (can fix), updating DB is confusing (at force.end), need to disable zoom behavior (not sure how)

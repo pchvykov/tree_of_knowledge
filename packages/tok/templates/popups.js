@@ -8,6 +8,7 @@
 //form field values; redraw tree and redesplay content
 var updateDB = function(dat){
   // console.log("in helper", dat.node);
+  //if adding a node:
   if(dat.node){
     var obj = {};//dat.node;
     obj.title = $('#title').val();
@@ -46,6 +47,7 @@ var updateDB = function(dat){
         if(res) dat.node._id=res[0];
       });
   }
+  //if adding a link:
   else if(dat.link){
     var obj = {};//dat.link;
     obj.type = $('#type').val();
