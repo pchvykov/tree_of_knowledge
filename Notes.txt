@@ -3,11 +3,11 @@ ToDo:
 +Link style changing on type change - immediate
 +resize tooltips
 +Ctrl + [+/-] - resize nodes
-Ctrl + L/R - orient link
-Ctrl + U/D - change type
-Select node/link on creation 
-Make example links oriented by default
-Set defauly link weight based on node importance
++Ctrl + O / R - orient link
++Ctrl + U/D - change type
++Select node/link on creation 
++Make example links oriented by default
++Set default link weight based on node importance
 Default links to oriented in general(?)
 Make "related" links easier to catch
 Small nodes force away from center??

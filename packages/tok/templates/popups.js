@@ -34,9 +34,9 @@ var updateDB = function(dat){
         };
       var link = {
         type: lkType(obj.type),
-        strength: 10,
+        strength: obj.importance,
         graph: Session.get('currGraph'),
-        oriented: obj.type=='derivation'
+        oriented: true //(obj.type=='derivation' || obj.type=='example')
       };
     };
     //update the database entry:
@@ -44,7 +44,8 @@ var updateDB = function(dat){
       obj, dat.sourceID, link,
       function(err,res){
         if(err) alert(err);
-        if(res) dat.node._id=res[0];
+        if(res){ dat.node._id=res[0];
+          dat.gui.showContent(dat.node);}
       });
   }
   //if adding a link:
@@ -92,13 +93,14 @@ var updateDB = function(dat){
     Meteor.call("updateLink", obj,
       function(err,res){
         if(err) alert(err);
-        if(res) dat.link._id=res;
+        if(res){ dat.link._id=res;
+          dat.gui.showContent(dat.link)
+        }
       });
   }
   else console.error("failed to update DB: no data given");
   dat.gui.tree.redraw();
   // dat.gui.tree.updateSelection();
-  dat.gui.showContent(obj);
   dat.gui.drag_line.attr("class", "drag_line_hidden");
 }
 
@@ -108,12 +110,11 @@ var editorEvents = {
     // console.log(this);
     // node = Session.get('newNode');
     if(updateDB(this)=="fail") return;
-
     // Modal.hide('nodeOptions');
     Blaze.remove(this.gui.editPopup);
     this.gui.editPopup=null;
     this.gui.drag_line.attr("class", "drag_line_hidden");
-    this.gui.tree.updateSelection();
+    // this.gui.tree.updateSelection();
   },
 
   'click #cancel':function(e){
@@ -128,6 +129,12 @@ var editorEvents = {
 var rendered = function(){
   var dat= this.data;
   if(dat.node) {
+    $.each(nodeTypes, function(key, value) {   
+         $('#type')
+             .append($("<option></option>")
+                        .attr("value",key)
+                        .text(value)); 
+    });
     if(dat.node.type){ $("#type").val(dat.node.type) }
     else{ //defaults
       $('#type').val('statement');
@@ -135,6 +142,12 @@ var rendered = function(){
     }
   };
   if(dat.link){
+    $.each(linkTypes, function(key, value) {   
+         $('#type')
+             .append($("<option></option>")
+                        .attr("value",key)
+                        .text(value)); 
+    });
     if(dat.link.type){
       $("#type").val(dat.link.type);
       $("#oriented").prop("checked",dat.link.oriented);

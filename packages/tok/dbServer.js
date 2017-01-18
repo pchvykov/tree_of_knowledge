@@ -56,7 +56,7 @@ treeData = function(){
 Meteor.methods({
 //update db to node locations sent from the client
   updateCoord: function(nodes){
-    if (Meteor.isClient) {notify("storing node locations");}
+    // if (Meteor.isClient) {notify("storing node locations");}
     nodes.forEach(function(nd, ix){
       // console.log(nd._id, nd.x);
       Nodes.update( { _id: nd._id }, { $set: { 

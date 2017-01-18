@@ -4,6 +4,19 @@
 //links and nodes are arrays in the d3.force
 //and link and node are visualized d3 object arrays (almost SVGs)
 
+//Globals: list of node and link types
+nodeTypes={'assumption':'Assumption',
+           'definition':'Definition',
+           'statement':'Statement',
+           'example':'Example',
+           'empirical':'Empirical',
+           'concept':'Concept',
+           'derivation':'Derivation'};
+linkTypes={'theorem':'Theorem',
+           'conjecture':'Conjecture',
+           'related':'Related',
+           'specialCase':'Special Case'};
+
   //Hierarchy of objects:
   //svg > outer > vis > bckgnd,drag_line,node,link
 
@@ -59,7 +72,8 @@ vis.append('svg:rect')
       .friction(0.9)
       .on("tick", tick)
       .on("end", function(){
-          Meteor.call("updateCoord",force.nodes())
+          Meteor.call("updateCoord",force.nodes());
+          notify('coordinates fixed');
         });
 
   var grav=0.1;
@@ -118,7 +132,7 @@ vis.append('svg:rect')
       .on("keydown", gui.keydown);
 
   // pull data from server and redraw force layout
-  this.redraw = function() {
+  this.redraw = function(postScript) { //execte postScrip() at the end
   //store current node coordinates to restart from same position:
   if(force.nodes().length >0) Meteor.call("updateCoord",force.nodes())
   if(db.ndSubscr){
@@ -318,6 +332,9 @@ vis.append('svg:rect')
         .links(linkData);
     force.start();
     force.alpha(0.06);
+
+    if(postScript){postScript();
+      console.log('redraw passed postScript function');} //run the passed function
   })
   }
 
@@ -400,7 +417,7 @@ vis.append('svg:rect')
     Meteor.call("deleteLink",lk._id);
     tree.redraw();
   }
-  this.updateSelection = function(){
+  this.updateSelection = function(){ //update the CSS classes appropriately
     if(gui.selected){
       link
         .classed("link_selected", function(d) { 

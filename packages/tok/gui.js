@@ -105,7 +105,7 @@ this.showEditor = function(d, srcID){
 }
 //Mouse actions - set to bubble up form deepest-level SVGs
 //node events executed first:
-this.nodeClick = function(d){
+this.nodeClick = function(d){ //select node:
   var hide=true;
   if(d!=gui.selected){ //immediate response is not selected
     gui.showContent(d);
@@ -301,7 +301,7 @@ this.dblclick = function(){
 
 this.keydown = function() {
   if (!gui.selected) return;
-  if(d3.event.ctrlKey){ //editing controls accessed by Ctrl
+  if(d3.event.ctrlKey){ //editing controls accessed by holding Ctrl
   switch (d3.event.keyCode) {
     case 8: // backspace
     case 46: { // delete
@@ -333,22 +333,60 @@ this.keydown = function() {
         for(var attr in obj) gui.selected[attr]=obj[attr];
         notify("Double-click to save");
       break}
-    case 187: var grow=true;
-    case 189:{//Ctrl + (=/-) - increase or decrease node importance
+    //Ctrl + (=/-) - increase or decrease node importance:
+    case 187: var grow=true; // =
+    case 189://-
       var del=(grow ? 2:-2);
+      var obj=gui.selected;
       d3.event.preventDefault();
-      if(gui.selected.source){ //if link
-        var obj=gui.selected;
+      if(obj.source){ //if link
         obj.strength = Math.max(Number(obj.strength)+del,2);
+        notify(obj.strength);
         Meteor.call('updateLink',obj);
       }
       else{ //if node
-        var obj=gui.selected;
         obj.importance = Math.max(Number(obj.importance)+del,2);
+        notify(obj.importance);
         Meteor.call('updateNode',obj);
       }
-    }
-    gui.tree.redraw();
+      gui.tree.redraw();
+      break;
+    //Ctrl+ U/D - switch type
+    case 38: var grow=true;//up
+    case 40: //down
+      var del=(grow ? 1:-1);
+      var obj=gui.selected;
+      d3.event.preventDefault();
+      if(obj.source){ //if link
+        var keys= Object.keys(linkTypes), ii=keys.indexOf(obj.type);
+        obj.type = keys[ii+del] || keys[ii]; //returns first unless falsy
+        notify(linkTypes[obj.type]);
+        Meteor.call('updateLink',obj);
+      }
+      else{ //if node
+        var keys= Object.keys(nodeTypes), ii=keys.indexOf(obj.type);
+        obj.type = keys[ii+del] || keys[ii]; //returns first unless falsy
+        notify(nodeTypes[obj.type]);
+        Meteor.call('updateNode',obj);
+      }
+      gui.tree.redraw();
+    break;
+
+    case 79: //Ctrl+O - orient link
+      d3.event.preventDefault();
+      if(!gui.selected.source) return; //check that link
+      var obj=gui.selected;
+      obj.oriented = !obj.oriented;
+      Meteor.call('updateLink',obj);
+      gui.tree.redraw();
+    break;
+    case 82: //Ctrl+R - reverse link
+      d3.event.preventDefault();
+      if(!gui.selected.source) return; //check that link
+      var obj=gui.selected, temp;
+      temp=obj.target; obj.target=obj.source; obj.source=temp;
+      Meteor.call('updateLink',obj);
+      gui.tree.redraw();
     break;
     }
   }
