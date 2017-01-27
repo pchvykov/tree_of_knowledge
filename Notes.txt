@@ -4,16 +4,17 @@ ToDo:
 +resize tooltips
 +Ctrl + [+/-] - resize nodes
 +Ctrl + O / R - orient link
-+Ctrl + U/D - change type
++Ctrl + Up/Down - change type
 +Select node/link on creation 
 +Make example links oriented by default
 +Set default link weight based on node importance
-Default links to oriented in general(?)
++Default links to oriented in general(?)
 Make "related" links easier to catch
-Small nodes force away from center??
-orienting links shouldn't change their length (currently makes them longer)
++Small nodes force away from center??
+-orienting links shouldn't change their length (currently makes them longer)
 add Link repulsion? (link-node repulsion?)
 "related" links weaker than theorems
++highlight child and parent nodes
 
 overall styling
 images support
@@ -28,6 +29,12 @@ node size adjust with Ctrl-zoom: non-integer size values are confusing (can fix)
 
 Launching online:
 (already good now) - remove the local mrt:mathjax and MathJax installations - let it use latest MathJax code directly from their server.
+
+Thoughts----------------------------------------------------------
+Type of node determined by:
+Graph structure: assumption
+Link label: example
+Node label: definition, empirical, concept
 
 Tooltips pros/cons:
 			pro				con
@@ -51,6 +58,10 @@ Dbl-Click - create/edit node
 Click - select node/link
 Ctrl+C and Ctrl+V - copy and paste node/link data onto another one (replaces whatever is there; doesn't not save automatically)
 Ctrl+Z and Ctrl+Y - undo/redo when in text-editor box
+Ctrl+ up/down - change link/node type
+Ctrl+ -/= - decrease / increase size
+Ctrl+ O - orient link
+Ctrl+ R - reverse link direction
 
 
 Marketing:--------------

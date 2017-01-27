@@ -34,6 +34,8 @@ body {
 .node.fixed {
   stroke: #f00;
 }
+.node.showSrc { stroke: #990; }
+.node.showTrg { stroke: #909; }
 
 .drag_line {
   stroke: #999;
@@ -62,6 +64,9 @@ body {
 .link.fixed{
   stroke: #f00;
 }
+.link.showSib{ stroke: #499; }
+.link.showChld{ stroke: #949; }
+.link.showPrnt{ stroke: #994; }
 
 .tooltipO{ /*outer box*/
   width: 300px; /*max width*/

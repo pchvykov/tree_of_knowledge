@@ -231,6 +231,18 @@ this.nodeMouseover = function(d){
         .classed("fixed",d.fixed=true);
     if(this.parentNode.tooltip) 
       this.parentNode.tooltip.classed("show",true);
+    //highlight links:
+    d3.selectAll('.link').classed('showSib',function(lkd){
+      if(lkd.source._id==d._id){
+        if(!lkd.oriented) return true;
+        d3.select(this).classed('showChld',true);
+      }
+      else if(lkd.target._id==d._id){
+        if(!lkd.oriented) return true;
+        d3.select(this).classed('showPrnt',true);
+      }
+      return false;
+    })
   }
 }
 
@@ -240,6 +252,7 @@ this.nodeMouseout = function(d){
         .classed("fixed",d.fixed=false);
     if(this.parentNode.tooltip) 
       this.parentNode.tooltip.classed("show",false);
+    d3.selectAll('.link').classed({'showSib':false,'showChld':false,'showPrnt':false});
   }
 
 }
@@ -247,6 +260,18 @@ this.linkMouseover=function(d){
   if(!(d.source.dragging || d.target.dragging)){
     d.source.fixed=true;
     d.target.fixed=true;
+    d3.selectAll('.node').filter(dat => dat._id==d.source._id)
+      .classed('showSrc',function(){
+        if(this.parentNode.tooltip) 
+          this.parentNode.tooltip.classed("show",true);
+        return true;
+      })
+    d3.selectAll('.node').filter(dat => dat._id==d.target._id)
+      .classed('showTrg',function(){
+        if(this.parentNode.tooltip) 
+          this.parentNode.tooltip.classed("show",true);
+        return true;
+      })
     d3.select(this).classed("fixed",true);
   }
 }
@@ -254,6 +279,8 @@ this.linkMouseout=function(d){
   if(!(d.source.dragging || d.target.dragging)){
     d.source.fixed=false;
     d.target.fixed=false;
+    d3.selectAll('.node').classed({'showSrc':false,'showTrg':false});
+    d3.selectAll('.tooltipO').classed('show',false);
     d3.select(this).classed("fixed",false);
   }
 }

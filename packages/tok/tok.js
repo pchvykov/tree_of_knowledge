@@ -464,6 +464,7 @@ vis.append('svg:rect')
       //(position below parent nodes and above child nodes)
       //use exponential as soft ordering constraint (childern below parents)
       //keep the whole thing within g*[-2,2] steps per tick range
+      //since forces are node, rather than link-based, they will change link lengths
 
       // if(nd.x-nd.px > 10){console.log(nd.x, nd.y)};
       // if(!nd.dragging){

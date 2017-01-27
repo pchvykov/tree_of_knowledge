@@ -140,7 +140,7 @@ if (Meteor.isClient) {
               text : item 
           }));
       });
-    currGraph=list[2];
+    currGraph=list[0]; //First graph to show
 
     Session.set("currGraph",currGraph);
     $('#availGraphs').val(currGraph);
