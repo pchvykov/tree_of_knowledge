@@ -69,6 +69,12 @@ Meteor.methods({
   //(leave others unchanged):
   updateNode: function(node, fromID, link){
     console.log(node);
+    //Check that node has the crucial properties:
+    if(!node.importance || !node.x || !node.y){
+      alert("failed to update node: missing info");
+      return null;
+    }
+
     if(!node._id){ //add new node
       delete node._id;
       var ndID = Nodes.insert(node);
@@ -91,6 +97,12 @@ Meteor.methods({
     }
   },
   updateLink: function (link) {
+    //Check that link has the crucial properties:
+    if(!link.strength){
+      alert("failed to update link: missing info");
+      return null;
+    }
+
     // console.log("added link in method!", link);
     if(!link._id){
       delete link._id;

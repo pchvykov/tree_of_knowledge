@@ -1,4 +1,8 @@
 ToDo:
+adjust newly created nodes/links
+undo/redo stack on server operations (https://github.com/JackAdams/meteor-undo-redo)
+link: implies in most cases
+
 +fix gravity
 +Link style changing on type change - immediate
 +resize tooltips

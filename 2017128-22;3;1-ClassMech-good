@@ -1,0 +1,1163 @@
+{
+  "nodes": [
+    {
+      "_id": "GqeBH45NPP2DJbWEw",
+      "title": "Least action",
+      "type": "statement",
+      "importance": "30",
+      "text": "",
+      "x": 2630.09265992713,
+      "y": 2457.8645037626256,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "H4y2eRv4ii5EsHuBy",
+      "title": "Non-inertial frames",
+      "type": "statement",
+      "importance": "10",
+      "text": "",
+      "x": 2431.134838575459,
+      "y": 2243.059826804447,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "szxoqm3EzEfD83C45",
+      "title": "Time => Energy",
+      "type": "example",
+      "importance": "10",
+      "text": "",
+      "x": 2744.4342042822227,
+      "y": 2635.452910305045,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "wds4BcvFkkgyhP5YF",
+      "title": "Space => momentum",
+      "type": "example",
+      "importance": "10",
+      "text": "",
+      "x": 2875.1698525343554,
+      "y": 2558.7262346067846,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "e7AcqRNJf2JRykaAn",
+      "title": "Static",
+      "type": "statement",
+      "importance": "10",
+      "text": "",
+      "x": 2161.1874652670226,
+      "y": 2648.7380266939736,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "nYKfuTtfLKQGCLC7k",
+      "title": "Hooke's law",
+      "type": "statement",
+      "importance": 16,
+      "text": "",
+      "x": 2211.9193342955973,
+      "y": 2350.714063611356,
+      "graph": "ClassMech",
+      "px": 2198.4011903746086,
+      "py": 2421.193738241654,
+      "parentsIx": [],
+      "childrenIx": [
+        7
+      ],
+      "index": 1,
+      "weight": 1,
+      "fixed": false,
+      "dragging": false
+    },
+    {
+      "_id": "gaQbFMDDRxszfZfxB",
+      "title": "",
+      "type": "derivation",
+      "importance": 20,
+      "text": "",
+      "x": 2255.3430104195186,
+      "y": 2419.7297144604586,
+      "graph": "ClassMech",
+      "px": 2235.9512195269313,
+      "py": 2535.2366460559188,
+      "parentsIx": [
+        3,
+        41
+      ],
+      "childrenIx": [
+        6
+      ],
+      "index": 42,
+      "weight": 3,
+      "fixed": false,
+      "dragging": false
+    },
+    {
+      "_id": "Q3KrgiouJiXveQHy2",
+      "title": "Simple Harmonic Oscillator",
+      "type": "statement",
+      "importance": 20,
+      "text": "",
+      "x": 2166.1881154849834,
+      "y": 2498.108626156617,
+      "graph": "ClassMech",
+      "px": 2156.836782760336,
+      "py": 2602.8073387146515,
+      "parentsIx": [
+        42
+      ],
+      "childrenIx": [
+        25
+      ],
+      "index": 6,
+      "weight": 2,
+      "fixed": false,
+      "dragging": false
+    },
+    {
+      "_id": "znSHJYAsYMZbxe8fb",
+      "title": "Friction",
+      "type": "statement",
+      "importance": 18,
+      "text": "",
+      "x": 2205.8103439635256,
+      "y": 2591.4753863270075,
+      "graph": "ClassMech",
+      "px": 2226.6666384244254,
+      "py": 2696.6635064281454,
+      "parentsIx": [],
+      "childrenIx": [
+        20,
+        21,
+        22
+      ],
+      "index": 42,
+      "weight": 3,
+      "fixed": false,
+      "dragging": false
+    },
+    {
+      "_id": "RgQqpiMi6QC4DHZdG",
+      "title": "Newton's laws",
+      "type": "assumption",
+      "importance": 30,
+      "text": "",
+      "x": 2388.2228748662455,
+      "y": 2359.6292280501207,
+      "graph": "ClassMech",
+      "px": 2443.2439451372793,
+      "py": 2565.526715297771,
+      "parentsIx": [],
+      "childrenIx": [
+        40,
+        38
+      ],
+      "index": 3,
+      "weight": 3,
+      "fixed": false,
+      "dragging": false
+    },
+    {
+      "_id": "pP6Aoo8c4vXJCyEkn",
+      "title": "Earth's gravitational constant",
+      "type": "epmirical",
+      "importance": "10",
+      "text": "$g = 9.8$",
+      "x": 2166.988162562101,
+      "y": 2839.8164919193914,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "qGtuKbLL4EzyDozBL",
+      "title": "Euler-Lagrange equations",
+      "type": "statement",
+      "importance": "20",
+      "text": "",
+      "x": 2491.0720681283774,
+      "y": 2254.014204265491,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "moxabx93DfhJ3mv53",
+      "title": "Spinning Top",
+      "type": "example",
+      "importance": "5",
+      "text": "",
+      "x": 2399.1367895763024,
+      "y": 2235.7698077773543,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "wYrdggkDJRCSDq4Pe",
+      "title": "Rigid Body motion",
+      "type": "statement",
+      "importance": "10",
+      "text": "",
+      "x": 2442.324575493549,
+      "y": 2226.30991272447,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "sHkwD3QbQamoJaAfo",
+      "title": "",
+      "type": "derivation",
+      "importance": "20",
+      "text": "",
+      "x": 2556.506260056217,
+      "y": 2340.230976708735,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "2HoF5jneaXpN77fJT",
+      "title": "Variational derivative",
+      "type": "statement",
+      "importance": "20",
+      "text": "",
+      "x": 2589.845232327906,
+      "y": 2231.5458159715813,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "P62zgaEtP3axPH5fQ",
+      "title": "Symmetries",
+      "type": "statement",
+      "importance": "20",
+      "text": "",
+      "x": 2727.007820588544,
+      "y": 2399.15785817252,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "Pr8bchgyx3gGw6CS8",
+      "title": "",
+      "type": "derivation",
+      "importance": "20",
+      "text": "",
+      "x": 2652.4360061536336,
+      "y": 2369.299227035006,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "HuPnEB8axbKYN6GHF",
+      "title": "Noether's Theorem",
+      "type": "statement",
+      "importance": "20",
+      "text": "",
+      "x": 2784.0421142629084,
+      "y": 2507.479511767306,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "inLc7wiGJicdsAHWu",
+      "title": "Hamiltonian",
+      "type": "statement",
+      "importance": "30",
+      "text": "",
+      "x": 2676.068094596162,
+      "y": 2706.926551372908,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "JofzHJzbcJ2oW89nm",
+      "title": "In fluids",
+      "type": "statement",
+      "importance": "10",
+      "text": "",
+      "x": 2124.7306581328658,
+      "y": 2626.06444383641,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "PeG7hXgujSSiCAtfB",
+      "title": "Rolling",
+      "type": "statement",
+      "importance": "10",
+      "text": "",
+      "x": 2345.001380437488,
+      "y": 2690.4981130162732,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "4R5GhmwmuD6cdyvP4",
+      "title": "",
+      "type": "derivation",
+      "importance": "10",
+      "text": "",
+      "x": 2096.866267938832,
+      "y": 2608.677817372358,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "kBpXvWrRANFiXRCNa",
+      "title": "Damped Harmonic Oscillator",
+      "type": "statement",
+      "importance": "10",
+      "text": "",
+      "x": 2066.6021211588177,
+      "y": 2654.2335874700652,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "idfcBrH5a3hHu5b7v",
+      "title": "Terminal velocity",
+      "type": "statement",
+      "importance": "5",
+      "text": "",
+      "x": 2096.0438723681755,
+      "y": 2813.0023416169815,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "FAKFbYbWNwoeNStZP",
+      "title": "Work",
+      "type": "statement",
+      "importance": "20",
+      "text": "$dW = \\int F \\cdot  dx$",
+      "x": 2404.9418463424686,
+      "y": 2660.868028089175,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "TzBRomg4hBWWyZD6s",
+      "title": "",
+      "type": "derivation",
+      "importance": "10",
+      "text": "",
+      "x": 2441.977527438491,
+      "y": 2671.3093233147156,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "HgdksGgTQWoRzitYq",
+      "title": "Kinetic Energy",
+      "type": "statement",
+      "importance": "15",
+      "text": "",
+      "x": 2501.1440935622745,
+      "y": 2683.5533677889484,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "xH3NGza95ziEs5q8P",
+      "title": "",
+      "type": "derivation",
+      "importance": "10",
+      "text": "",
+      "x": 2411.505160414541,
+      "y": 2752.9817072559867,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "JRXnpYsdensXdhEfD",
+      "title": "Potential Energy",
+      "type": "statement",
+      "importance": "15",
+      "text": "",
+      "x": 2485.355181288818,
+      "y": 2740.966255034912,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "T6urJbRPNQm3dugiv",
+      "title": "",
+      "type": "derivation",
+      "importance": "10",
+      "text": "",
+      "x": 2559.2815001796503,
+      "y": 2693.8029076989583,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "mKjzFc8CpTRYkbJr3",
+      "title": "Inelastic collisions",
+      "type": "example",
+      "importance": "5",
+      "text": "",
+      "x": 2929.4496078689376,
+      "y": 2625.5044554110837,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "jjNyoq7ebz9KR5gHe",
+      "title": "",
+      "type": "derivation",
+      "importance": "5",
+      "text": "",
+      "x": 2536.860407835138,
+      "y": 2794.603447993167,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "g5o55DWvbvkc8mMx3",
+      "title": "Cart rolling down hill",
+      "type": "example",
+      "importance": "5",
+      "text": "",
+      "x": 2525.192462427005,
+      "y": 2891.1809179993256,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "xaTmdch5qtjh9u5Nj",
+      "title": "motion from Constant force",
+      "type": "statement",
+      "importance": 14,
+      "text": "",
+      "x": 2376.015276058469,
+      "y": 2543.145062905059,
+      "graph": "ClassMech",
+      "px": 2291.615573730321,
+      "py": 2615.0054928239388,
+      "parentsIx": [
+        4
+      ],
+      "childrenIx": [
+        5,
+        33
+      ],
+      "index": 9,
+      "weight": 3,
+      "fixed": false,
+      "dragging": false
+    },
+    {
+      "_id": "mBZCtYDSBudjPTCsP",
+      "title": "",
+      "type": "derivation",
+      "importance": 6,
+      "text": "",
+      "x": 2113.9895513003353,
+      "y": 2758.942760812975,
+      "graph": "ClassMech",
+      "px": 2187.3888774818092,
+      "py": 2833.1284597570657,
+      "parentsIx": [
+        21,
+        5
+      ],
+      "childrenIx": [
+        26
+      ],
+      "index": 25,
+      "weight": 3,
+      "fixed": false,
+      "dragging": false
+    },
+    {
+      "_id": "75YvL9jSDCkugPqMC",
+      "title": "Ballistic motion",
+      "type": "statement",
+      "importance": 20,
+      "text": "",
+      "x": 2193.9193014860944,
+      "y": 2769.357213745435,
+      "graph": "ClassMech",
+      "px": 2241.419696393274,
+      "py": 2836.1417568467614,
+      "parentsIx": [
+        4
+      ],
+      "childrenIx": [
+        6,
+        42
+      ],
+      "index": 5,
+      "weight": 3,
+      "fixed": false,
+      "dragging": false
+    },
+    {
+      "_id": "4dhzCKQLWbniTeAYq",
+      "title": "throwing a ball",
+      "type": "example",
+      "importance": 11,
+      "text": "",
+      "x": 2191.970054769676,
+      "y": 2876.7164934013604,
+      "graph": "ClassMech",
+      "px": 2210.026962734978,
+      "py": 2898.4285098988457,
+      "parentsIx": [
+        41,
+        5
+      ],
+      "childrenIx": [],
+      "index": 42,
+      "weight": 2,
+      "fixed": false,
+      "dragging": false
+    },
+    {
+      "_id": "LwoDHfy8ytphaFnMZ",
+      "title": "Newton's Gravity",
+      "type": "statement",
+      "importance": 21,
+      "text": "",
+      "x": 2300.739207370381,
+      "y": 2674.382052313824,
+      "graph": "ClassMech",
+      "px": 2334.9001402798194,
+      "py": 2771.0814881113556,
+      "parentsIx": [],
+      "childrenIx": [
+        2
+      ],
+      "index": 1,
+      "weight": 1,
+      "fixed": false,
+      "dragging": false
+    },
+    {
+      "_id": "iRNAvms58Lb6vZTqQ",
+      "title": "Near planet surface",
+      "type": "statement",
+      "importance": 14,
+      "text": "",
+      "x": 2346.752732707817,
+      "y": 2727.2772291166007,
+      "graph": "ClassMech",
+      "px": 2373.4724791086214,
+      "py": 2815.155162892761,
+      "parentsIx": [
+        42
+      ],
+      "childrenIx": [
+        3,
+        26
+      ],
+      "index": 1,
+      "weight": 3,
+      "fixed": false,
+      "dragging": false
+    },
+    {
+      "_id": "QuWwsc9KbiAQiYub8",
+      "title": "",
+      "type": "derivation",
+      "importance": 14,
+      "text": "",
+      "x": 2282.900419074842,
+      "y": 2732.499976545316,
+      "graph": "ClassMech",
+      "px": 2300.0746777007034,
+      "py": 2792.4268967056114,
+      "parentsIx": [
+        42,
+        33
+      ],
+      "childrenIx": [
+        39
+      ],
+      "index": 2,
+      "weight": 3,
+      "fixed": false,
+      "dragging": false
+    },
+    {
+      "_id": "Cz2JsJ4yj4oneaNnE",
+      "title": "Hamilton's equations",
+      "type": "statement",
+      "importance": "20",
+      "text": "",
+      "x": 2700.927238853831,
+      "y": 2797.2782359214557,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "Cmos4CkRD8pRB5Wqo",
+      "title": "Lagrangian",
+      "type": "statement",
+      "importance": "20",
+      "text": "",
+      "x": 2626.191891577206,
+      "y": 2619.404761903255,
+      "graph": "ClassMech"
+    },
+    {
+      "_id": "YT5EzHxhKdsuuSM6h",
+      "title": "Elastic collisions",
+      "type": "statement",
+      "importance": 4,
+      "text": "",
+      "x": 2908.549454737189,
+      "y": 2731.3048053094954,
+      "graph": "ClassMech",
+      "px": 2860.313660221733,
+      "py": 2798.9202135754663,
+      "parentsIx": [
+        33
+      ],
+      "childrenIx": [],
+      "index": 34,
+      "weight": 1,
+      "fixed": false,
+      "dragging": false
+    },
+    {
+      "_id": "DAXPvpowgCyPE9wMB",
+      "title": "",
+      "type": "derivation",
+      "importance": 4,
+      "text": "",
+      "x": 2870.949738900212,
+      "y": 2667.766948660838,
+      "graph": "ClassMech",
+      "px": 2855.387606287771,
+      "py": 2773.4050990848214,
+      "parentsIx": [
+        2,
+        3
+      ],
+      "childrenIx": [
+        45
+      ],
+      "index": 33,
+      "weight": 3,
+      "fixed": false,
+      "dragging": false
+    }
+  ],
+  "links": [
+    {
+      "_id": "bboJPrN8P7eTWNaiq",
+      "type": "theorem",
+      "strength": "10",
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "LwoDHfy8ytphaFnMZ",
+      "target": "iRNAvms58Lb6vZTqQ",
+      "text": ""
+    },
+    {
+      "_id": "v8dLeZjZBev32XFuH",
+      "type": "specialCase",
+      "strength": "10",
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "iRNAvms58Lb6vZTqQ",
+      "target": "QuWwsc9KbiAQiYub8"
+    },
+    {
+      "_id": "zWvqXNNS6vsPxm2c5",
+      "type": "theorem",
+      "strength": "10",
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "QuWwsc9KbiAQiYub8",
+      "target": "75YvL9jSDCkugPqMC",
+      "text": ""
+    },
+    {
+      "_id": "4triTDqF9Dd77Rhie",
+      "type": "theorem",
+      "strength": 16,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "RgQqpiMi6QC4DHZdG",
+      "target": "gaQbFMDDRxszfZfxB"
+    },
+    {
+      "_id": "qNYYxbgeJ4CXm9Qdy",
+      "type": "specialCase",
+      "strength": 16,
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "nYKfuTtfLKQGCLC7k",
+      "target": "gaQbFMDDRxszfZfxB"
+    },
+    {
+      "_id": "vrwP7Qp4CBZ3uaGWK",
+      "type": "theorem",
+      "strength": 16,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "gaQbFMDDRxszfZfxB",
+      "target": "Q3KrgiouJiXveQHy2",
+      "text": ""
+    },
+    {
+      "_id": "iTx99r8WgvJKXKS9w",
+      "type": "theorem",
+      "strength": 14,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "RgQqpiMi6QC4DHZdG",
+      "target": "xaTmdch5qtjh9u5Nj",
+      "text": ""
+    },
+    {
+      "_id": "7qschAQBFSCM8WWcc",
+      "type": "theorem",
+      "strength": 6,
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "xaTmdch5qtjh9u5Nj",
+      "target": "QuWwsc9KbiAQiYub8"
+    },
+    {
+      "_id": "gpfidLp8f7aXDAubL",
+      "type": "specialCase",
+      "strength": 9,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "75YvL9jSDCkugPqMC",
+      "target": "4dhzCKQLWbniTeAYq",
+      "text": ""
+    },
+    {
+      "_id": "Yn8NwcHCtBt3DRgZu",
+      "type": "theorem",
+      "strength": 9,
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "pP6Aoo8c4vXJCyEkn",
+      "target": "4dhzCKQLWbniTeAYq"
+    },
+    {
+      "_id": "aqCm8DiGkxC6ssAho",
+      "type": "specialCase",
+      "strength": 4,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "qGtuKbLL4EzyDozBL",
+      "target": "moxabx93DfhJ3mv53",
+      "text": ""
+    },
+    {
+      "_id": "CeoeSgbhQYjNCZDRD",
+      "type": "theorem",
+      "strength": "10",
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "qGtuKbLL4EzyDozBL",
+      "target": "wYrdggkDJRCSDq4Pe",
+      "text": ""
+    },
+    {
+      "_id": "F9n9p3NM5GQpaQWwP",
+      "type": "theorem",
+      "strength": 10,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "GqeBH45NPP2DJbWEw",
+      "target": "sHkwD3QbQamoJaAfo"
+    },
+    {
+      "_id": "hPP26mLhj39bRcaHi",
+      "type": "theorem",
+      "strength": "10",
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "sHkwD3QbQamoJaAfo",
+      "target": "qGtuKbLL4EzyDozBL"
+    },
+    {
+      "_id": "y8uJF5G3eLqXawiyd",
+      "type": "theorem",
+      "strength": "10",
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "2HoF5jneaXpN77fJT",
+      "target": "sHkwD3QbQamoJaAfo",
+      "text": ""
+    },
+    {
+      "_id": "MHKDHbpPcC4EZ3MJv",
+      "type": "theorem",
+      "strength": "10",
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "qGtuKbLL4EzyDozBL",
+      "target": "H4y2eRv4ii5EsHuBy",
+      "text": ""
+    },
+    {
+      "_id": "FLkTtrnRSzxbKJiGg",
+      "type": "theorem",
+      "strength": "10",
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "GqeBH45NPP2DJbWEw",
+      "target": "P62zgaEtP3axPH5fQ",
+      "text": ""
+    },
+    {
+      "_id": "omZ9e4rdZ3SB5HuEc",
+      "type": "theorem",
+      "strength": 10,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "P62zgaEtP3axPH5fQ",
+      "target": "Pr8bchgyx3gGw6CS8"
+    },
+    {
+      "_id": "fDmpKuGF52FJG24P5",
+      "type": "theorem",
+      "strength": "10",
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "qGtuKbLL4EzyDozBL",
+      "target": "Pr8bchgyx3gGw6CS8"
+    },
+    {
+      "_id": "r29iLdkPwRqr8uPCd",
+      "type": "theorem",
+      "strength": "10",
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "Pr8bchgyx3gGw6CS8",
+      "target": "HuPnEB8axbKYN6GHF",
+      "text": ""
+    },
+    {
+      "_id": "JL64qto2qwqSEBsGN",
+      "type": "specialCase",
+      "strength": "10",
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "HuPnEB8axbKYN6GHF",
+      "target": "szxoqm3EzEfD83C45",
+      "text": ""
+    },
+    {
+      "_id": "9cZTzuXBavTi9eCAa",
+      "type": "specialCase",
+      "strength": "10",
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "HuPnEB8axbKYN6GHF",
+      "target": "wds4BcvFkkgyhP5YF",
+      "text": ""
+    },
+    {
+      "_id": "8p23kARH6p6b7yYmZ",
+      "type": "theorem",
+      "strength": "10",
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "znSHJYAsYMZbxe8fb",
+      "target": "e7AcqRNJf2JRykaAn",
+      "text": ""
+    },
+    {
+      "_id": "Mqu2zeSCSYHbnT7W6",
+      "type": "theorem",
+      "strength": "10",
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "znSHJYAsYMZbxe8fb",
+      "target": "JofzHJzbcJ2oW89nm",
+      "text": ""
+    },
+    {
+      "_id": "HbXJSCRzWRdFJ9JY6",
+      "type": "theorem",
+      "strength": "10",
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "znSHJYAsYMZbxe8fb",
+      "target": "PeG7hXgujSSiCAtfB",
+      "text": ""
+    },
+    {
+      "_id": "KoAp3TDdPtfFXHHkD",
+      "type": "theorem",
+      "strength": 10,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "JofzHJzbcJ2oW89nm",
+      "target": "4R5GhmwmuD6cdyvP4"
+    },
+    {
+      "_id": "weToLJ5bBtfiHMCMJ",
+      "type": "theorem",
+      "strength": "10",
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "Q3KrgiouJiXveQHy2",
+      "target": "4R5GhmwmuD6cdyvP4"
+    },
+    {
+      "_id": "m8S8GDETMBQ5cThbx",
+      "type": "theorem",
+      "strength": "10",
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "4R5GhmwmuD6cdyvP4",
+      "target": "kBpXvWrRANFiXRCNa",
+      "text": ""
+    },
+    {
+      "_id": "RZ3WGt2fbwQrFtKuP",
+      "type": "theorem",
+      "strength": 6,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "JofzHJzbcJ2oW89nm",
+      "target": "mBZCtYDSBudjPTCsP"
+    },
+    {
+      "_id": "T2Tsn347Bet2eDejJ",
+      "type": "theorem",
+      "strength": 6,
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "75YvL9jSDCkugPqMC",
+      "target": "mBZCtYDSBudjPTCsP"
+    },
+    {
+      "_id": "K9QrN3XiHZydAmMiG",
+      "type": "theorem",
+      "strength": 6,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "mBZCtYDSBudjPTCsP",
+      "target": "idfcBrH5a3hHu5b7v"
+    },
+    {
+      "_id": "SqzGHY2sPkzQYLSGr",
+      "type": "theorem",
+      "strength": 10,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "xaTmdch5qtjh9u5Nj",
+      "target": "TzBRomg4hBWWyZD6s"
+    },
+    {
+      "_id": "nCgmEcsxkRTZ38Ynw",
+      "type": "theorem",
+      "strength": "10",
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "FAKFbYbWNwoeNStZP",
+      "target": "TzBRomg4hBWWyZD6s"
+    },
+    {
+      "_id": "7KJKgCDmqb5QQcdjq",
+      "type": "theorem",
+      "strength": 10,
+      "graph": "ClassMech",
+      "oriented": false,
+      "source": "TzBRomg4hBWWyZD6s",
+      "target": "HgdksGgTQWoRzitYq"
+    },
+    {
+      "_id": "9jwLj6RHELNeNarwN",
+      "type": "theorem",
+      "strength": 10,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "iRNAvms58Lb6vZTqQ",
+      "target": "xH3NGza95ziEs5q8P"
+    },
+    {
+      "_id": "jGBuzJhx5rj4fMoC4",
+      "type": "theorem",
+      "strength": "10",
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "FAKFbYbWNwoeNStZP",
+      "target": "xH3NGza95ziEs5q8P"
+    },
+    {
+      "_id": "ST3dFbs2nxaS6c2vB",
+      "type": "theorem",
+      "strength": 10,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "xH3NGza95ziEs5q8P",
+      "target": "JRXnpYsdensXdhEfD"
+    },
+    {
+      "_id": "ATAhfcviXnQkDGeC5",
+      "type": "related",
+      "strength": "10",
+      "text": "",
+      "oriented": false,
+      "graph": "ClassMech",
+      "source": "szxoqm3EzEfD83C45",
+      "target": "inLc7wiGJicdsAHWu"
+    },
+    {
+      "_id": "3FPy6xMMLYH6YwhSG",
+      "type": "theorem",
+      "strength": 6,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "JRXnpYsdensXdhEfD",
+      "target": "T6urJbRPNQm3dugiv",
+      "text": ""
+    },
+    {
+      "_id": "YzyZaewkqiGdKor64",
+      "type": "theorem",
+      "strength": 6,
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "HgdksGgTQWoRzitYq",
+      "target": "T6urJbRPNQm3dugiv"
+    },
+    {
+      "_id": "hb7Xp46ZY5sWbzE5u",
+      "type": "theorem",
+      "strength": 6,
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "T6urJbRPNQm3dugiv",
+      "target": "inLc7wiGJicdsAHWu"
+    },
+    {
+      "_id": "7SGhXixpiwdspQBbo",
+      "type": "specialCase",
+      "strength": 4,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "wds4BcvFkkgyhP5YF",
+      "target": "mKjzFc8CpTRYkbJr3"
+    },
+    {
+      "_id": "W2HHDBgqxXYuzraG8",
+      "type": "theorem",
+      "strength": 4,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "szxoqm3EzEfD83C45",
+      "target": "DAXPvpowgCyPE9wMB"
+    },
+    {
+      "_id": "kDb9dR2sj2n6ruuvC",
+      "type": "theorem",
+      "strength": 4,
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "wds4BcvFkkgyhP5YF",
+      "target": "DAXPvpowgCyPE9wMB"
+    },
+    {
+      "_id": "cMdxjWdXEKW7WDSFh",
+      "type": "theorem",
+      "strength": 4,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "DAXPvpowgCyPE9wMB",
+      "target": "YT5EzHxhKdsuuSM6h",
+      "text": ""
+    },
+    {
+      "_id": "GvTFF2iqfg9yhqQpA",
+      "type": "theorem",
+      "strength": 4,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "JRXnpYsdensXdhEfD",
+      "target": "jjNyoq7ebz9KR5gHe"
+    },
+    {
+      "_id": "S9vM2KtCaGSGyAQMG",
+      "type": "theorem",
+      "strength": "5",
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "HgdksGgTQWoRzitYq",
+      "target": "jjNyoq7ebz9KR5gHe"
+    },
+    {
+      "_id": "gihtBjmvSPkWdD6nj",
+      "type": "theorem",
+      "strength": "5",
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "szxoqm3EzEfD83C45",
+      "target": "jjNyoq7ebz9KR5gHe"
+    },
+    {
+      "_id": "JMukN22sXPixXpp3t",
+      "type": "specialCase",
+      "strength": 4,
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "jjNyoq7ebz9KR5gHe",
+      "target": "g5o55DWvbvkc8mMx3"
+    },
+    {
+      "_id": "vPtFiPGXiqKghKjcQ",
+      "type": "theorem",
+      "strength": "5",
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "PeG7hXgujSSiCAtfB",
+      "target": "jjNyoq7ebz9KR5gHe"
+    },
+    {
+      "_id": "R4bcohRbAatjYkemW",
+      "type": "theorem",
+      "strength": "20",
+      "graph": "ClassMech",
+      "oriented": true,
+      "source": "inLc7wiGJicdsAHWu",
+      "target": "Cz2JsJ4yj4oneaNnE"
+    },
+    {
+      "_id": "s9bbJeTnEvo74Sy6Y",
+      "type": "theorem",
+      "strength": 14,
+      "graph": "ClassMech",
+      "oriented": false,
+      "source": "inLc7wiGJicdsAHWu",
+      "target": "Cmos4CkRD8pRB5Wqo"
+    },
+    {
+      "_id": "syGx7buwfsDNXfQAq",
+      "type": "theorem",
+      "strength": "20",
+      "text": "",
+      "oriented": false,
+      "graph": "ClassMech",
+      "source": "Cmos4CkRD8pRB5Wqo",
+      "target": "GqeBH45NPP2DJbWEw"
+    },
+    {
+      "_id": "TTMDtYTkEd22KgScH",
+      "type": "theorem",
+      "strength": 6,
+      "text": "",
+      "oriented": true,
+      "graph": "ClassMech",
+      "source": "T6urJbRPNQm3dugiv",
+      "target": "Cmos4CkRD8pRB5Wqo"
+    },
+    {
+      "_id": "xMnHrYGq5FEt2yqH2",
+      "type": "theorem",
+      "strength": "20",
+      "text": "",
+      "oriented": false,
+      "graph": "ClassMech",
+      "source": "qGtuKbLL4EzyDozBL",
+      "target": "RgQqpiMi6QC4DHZdG"
+    }
+  ],
+  "date": "2017-01-29T03:03:01.656Z",
+  "graph": "ClassMech",
+  "note": "good",
+  "nodeCount": 45,
+  "linkCount": 55,
+  "graphNumber": 3
+}
