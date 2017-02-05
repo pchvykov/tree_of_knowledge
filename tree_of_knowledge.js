@@ -40,7 +40,7 @@ if (Meteor.isServer){
     // db.loadJSON(JSON.parse(Assets.getText("miserables.json")));
     // db.clear(); 
     // Nodes.insert({x: 0.0, y: 0.0});
-    console.log("updated #",
+    // console.log("updated #",
     //   Nodes.update({}, {$set: {graph:"test0"}}, {multi:true}),
     //   Links.update({}, {$set: {graph:"test0"}}, {multi:true}));
     // Nodes.update({importance: {$in:["",null,10]}}, 
@@ -49,11 +49,11 @@ if (Meteor.isServer){
     //   {$set: {strength:5}}, {multi:true});
     // Links.update({type: {$in:["connection"]}}, 
     //   {$set: {type:"related"}}, {multi:true});
-    Nodes.update({$and: [{x: NaN}, {graph: "ClassMech"}]}, 
-      {$set: {x:1000}}, {multi:true}),
-    Nodes.update({$and: [{y: NaN}, {graph: "ClassMech"}]}, 
-      {$set: {y:1000}}, {multi:true}),
-    Nodes.find({graph:"ClassMech"}).fetch() )
+    // Nodes.update({$and: [{x: NaN}, {graph: "ClassMech"}]}, 
+    //   {$set: {x:1000}}, {multi:true}),
+    // Nodes.update({$and: [{y: NaN}, {graph: "ClassMech"}]}, 
+    //   {$set: {y:1000}}, {multi:true}),
+    // Nodes.find({graph:"ClassMech"}).fetch() )
     // return;
     // Graphs.remove({});
     // console.log(

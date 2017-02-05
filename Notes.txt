@@ -1,5 +1,5 @@
 ToDo:
-adjust newly created nodes/links
+possibility to adjust newly created nodes/links
 undo/redo stack on server operations (https://github.com/JackAdams/meteor-undo-redo)
 link: implies in most cases
 

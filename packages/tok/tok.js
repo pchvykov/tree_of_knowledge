@@ -311,13 +311,17 @@ vis.append('svg:rect')
         default: console.error("unrecognized link type:", d.type, d);
       }
     })
-    force.linkDistance(function(d){ //ensure that links are visible
-      return (parseFloat(d.source.importance)+
-        parseFloat(d.target.importance))*1.2;
+    // force.linkDistance(function(d){ //ensure that links are visible
+    //   return (parseFloat(d.source.importance)+
+    //     parseFloat(d.target.importance))*1.2;
+    // })
+    //   .linkStrength(function(d){
+    //     return 0;//d.strength/10;
+    //   })
+    linkData.forEach(function(lk){ //ensure that links are visible
+      lk.distance = (parseFloat(lk.source.importance)+
+        parseFloat(lk.target.importance))*1.2;
     })
-      .linkStrength(function(d){
-        return d.strength/10;
-      })
 
     //show the selection correctly:
     tree.updateSelection();
@@ -329,7 +333,7 @@ vis.append('svg:rect')
 
     //Update the force graph:
     force.nodes(nodeData)
-        .links(linkData);
+        // .links(linkData); //implemented by hand
     force.start();
     force.alpha(0.06);
 
@@ -478,9 +482,21 @@ vis.append('svg:rect')
           ));
       // }
       // var grav=0.1;
+
       //include gravity (charge-independent):
       nd.x -= grav*e.alpha*(nd.x-treeDim[0]/2);
       nd.y -= grav*e.alpha*(nd.y-treeDim[1]/2);
+    })
+
+    //Link forces:
+    linkData.forEach(function(lk){
+      var dx=(lk.target.x - lk.source.x);
+      var dy=(lk.target.y - lk.source.y);
+      var scale=g*lk.strength/2000 * (1 - 
+        lk.distance / Math.sqrt(dx*dx + dy*dy));
+      dx*=scale; dy*=scale;
+      lk.source.x+=dx; lk.source.y+=dy;
+      lk.target.x-=dx; lk.target.y-=dy;
     })
 
     // link.attr("x1", function(d) { return d.source.x; })
