@@ -37,6 +37,8 @@ body {
 .node.showSrc { stroke: #990; }
 .node.showTrg { stroke: #909; }
 
+#andNode { opacity: 0.6 }
+
 .drag_line {
   stroke: #999;
   stroke-width: 5;
@@ -50,23 +52,32 @@ body {
 }
 
 .link {
-  stroke: #999;
+  stroke: #000;
+  stroke-opacity: 0.4;
   /*stroke-width: 5;*/
   /*cursor: crosshair;*/
 }
-
-.link_selected {
-  stroke: #ff7f0e;
+.link.long{ stroke-opacity: 0.2 }
+.link.link_selected {
+  stroke: #ff7f0e; 
+  stroke-opacity: 1; 
 }
-.link_edited {
-  stroke: #00f;
+.link.link_edited {
+  stroke: #00f; 
+  stroke-opacity: 1; 
 }
 .link.fixed{
-  stroke: #f00;
+  stroke: #f00; 
+  stroke-opacity: 1; 
 }
-.link.showSib{ stroke: #499; }
-.link.showChld{ stroke: #949; }
-.link.showPrnt{ stroke: #994; }
+.link.showSib{ stroke: #499; 
+  stroke-opacity: 1; }
+.link.showChld{ 
+  stroke: #949; 
+  stroke-opacity: 1; }
+.link.showPrnt{ 
+  stroke: #994; 
+  stroke-opacity: 1; }
 
 .tooltipO{ /*outer box*/
   width: 300px; /*max width*/

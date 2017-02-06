@@ -141,6 +141,10 @@ this.nodeClick = function(d){ //select node:
 //   clearTimeout(clickTimer); clickTimer=null;
 //   gui.showEditor(d);  
 // }
+this.nodeRightClick = function(d){
+  d3.event.preventDefault();
+  d.permFixed=!d.permFixed;
+}
 this.linkMousedown = function(d) { //easier to catch than Click
   var hide=true;
   if(d!=gui.selected){ //immediate response is not selected
@@ -249,7 +253,7 @@ this.nodeMouseover = function(d){
 this.nodeMouseout = function(d){
   if(!d.dragging){
     d3.select(this)
-        .classed("fixed",d.fixed=false);
+        .classed("fixed",d.fixed=d.permFixed);
     if(this.parentNode.tooltip) 
       this.parentNode.tooltip.classed("show",false);
     d3.selectAll('.link').classed({'showSib':false,'showChld':false,'showPrnt':false});
@@ -277,8 +281,8 @@ this.linkMouseover=function(d){
 }
 this.linkMouseout=function(d){
   if(!(d.source.dragging || d.target.dragging)){
-    d.source.fixed=false;
-    d.target.fixed=false;
+    d.source.fixed=d.source.permFixed;
+    d.target.fixed=d.target.permFixed;
     d3.selectAll('.node').classed({'showSrc':false,'showTrg':false});
     d3.selectAll('.tooltipO').classed('show',false);
     d3.select(this).classed("fixed",false);

@@ -189,6 +189,7 @@ vis.append('svg:rect')
         .on("mousedown",gui.nodeMousedown, false) //callbacks
         .on("mouseup", gui.nodeMouseup, false) //bubble event propagation
         .on("click", gui.nodeClick,false)
+        .on("contextmenu", gui.nodeRightClick, false)
         // .on("dblclick", gui.nodeDblClick, false) //implemented in click callback
         .transition()
         .duration(750)
@@ -319,8 +320,13 @@ vis.append('svg:rect')
     //     return 0;//d.strength/10;
     //   })
     linkData.forEach(function(lk){ //ensure that links are visible
-      lk.distance = (parseFloat(lk.source.importance)+
+      lk.minDist = (parseFloat(lk.source.importance)+
         parseFloat(lk.target.importance))*1.2;
+      switch(lk.type){ //set the transition distances
+        case 'theorem': lk.transDist=300; break;
+        case 'conjecture': lk.transDist=200; break;
+        case 'related': lk.transDist=100; break;
+      }
     })
 
     //show the selection correctly:
@@ -492,8 +498,11 @@ vis.append('svg:rect')
     linkData.forEach(function(lk){
       var dx=(lk.target.x - lk.source.x);
       var dy=(lk.target.y - lk.source.y);
-      var scale=g*lk.strength/2000 * (1 - 
-        lk.distance / Math.sqrt(dx*dx + dy*dy));
+      var len = Math.sqrt(dx*dx + dy*dy);
+      var scale=g*lk.strength/500 * (len>lk.transDist ? 30/len : 1)*
+        (1 - lk.minDist / len);
+      d3.selectAll('.link').filter(d => d._id==lk._id)
+        .classed('long',len>lk.transDist);
       dx*=scale; dy*=scale;
       lk.source.x+=dx; lk.source.y+=dy;
       lk.target.x-=dx; lk.target.y-=dy;
