@@ -323,9 +323,9 @@ vis.append('svg:rect')
       lk.minDist = (parseFloat(lk.source.importance)+
         parseFloat(lk.target.importance))*1.2;
       switch(lk.type){ //set the transition distances
-        case 'theorem': lk.transDist=300; break;
-        case 'conjecture': lk.transDist=200; break;
-        case 'related': lk.transDist=100; break;
+        case 'theorem': lk.transDist=150; break;
+        case 'conjecture': lk.transDist=100; break;
+        case 'related': lk.transDist=70; break;
       }
     })
 
@@ -478,14 +478,14 @@ vis.append('svg:rect')
 
       // if(nd.x-nd.px > 10){console.log(nd.x, nd.y)};
       // if(!nd.dragging){
-        nd.y += g * Math.max(-2, Math.min(2, //between [-2,2]
-          nd.parentsIx.reduce(function(prev, idx){
-            return prev+Math.exp(-(nd.y-nodeData[idx].y)/100.)
-          }, 0.) -
-          nd.childrenIx.reduce(function(prev, idx){
-            return prev+Math.exp((nd.y-nodeData[idx].y)/100.)
-          }, 0.)
-          ));
+        // nd.y += g * Math.max(-2, Math.min(2, //between [-2,2]
+        //   nd.parentsIx.reduce(function(prev, idx){
+        //     return prev+Math.exp(-(nd.y-nodeData[idx].y)/100.)
+        //   }, 0.) -
+        //   nd.childrenIx.reduce(function(prev, idx){
+        //     return prev+Math.exp((nd.y-nodeData[idx].y)/100.)
+        //   }, 0.)
+        //   ));
       // }
       // var grav=0.1;
 
@@ -496,16 +496,27 @@ vis.append('svg:rect')
 
     //Link forces:
     linkData.forEach(function(lk){
-      var dx=(lk.target.x - lk.source.x);
-      var dy=(lk.target.y - lk.source.y);
-      var len = Math.sqrt(dx*dx + dy*dy);
+      //non-linear attraction:
+      var delx=(lk.target.x - lk.source.x);
+      var dely=(lk.target.y - lk.source.y);
+      var len = Math.sqrt(delx*delx + dely*dely);
       var scale=g*lk.strength/500 * (len>lk.transDist ? 30/len : 1)*
         (1 - lk.minDist / len);
       d3.selectAll('.link').filter(d => d._id==lk._id)
         .classed('long',len>lk.transDist);
-      dx*=scale; dy*=scale;
+      var dx=delx*scale, dy=dely*scale;
       lk.source.x+=dx; lk.source.y+=dy;
       lk.target.x-=dx; lk.target.y-=dy;
+
+      if(lk.oriented){ //orienting forces
+        // var dy=g * Math.max(-2, Math.min(2,
+        //   Math.exp((lk.source.y-lk.target.y)/100.)
+        //   ));
+        scale = g*lk.strength/20/len*Math.exp(-2*dely/len)*Math.sign(delx);
+        dx = -dely*scale; dy = delx*scale;
+        lk.source.x-=dx; lk.target.x+=dx;
+        lk.source.y-=dy; lk.target.y+=dy;
+      }
     })
 
     // link.attr("x1", function(d) { return d.source.x; })
