@@ -2,6 +2,8 @@ ToDo:
 possibility to adjust newly created nodes/links
 undo/redo stack on server operations (https://github.com/JackAdams/meteor-undo-redo)
 link: implies in most cases
+highlighting links on rollover - go further
+highlighting nodes on rollover - all by color?
 
 +fix gravity
 +Link style changing on type change - immediate

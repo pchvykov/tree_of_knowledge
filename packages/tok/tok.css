@@ -37,7 +37,7 @@ body {
 .node.showSrc { stroke: #990; }
 .node.showTrg { stroke: #909; }
 
-#andNode { opacity: 0.6 }
+#andNode { opacity: 0.7 }
 
 .drag_line {
   stroke: #999;

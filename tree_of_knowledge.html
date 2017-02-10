@@ -36,6 +36,9 @@
       <input type="file" id="cltRestore" />
   </label>
   </span>
+  <input type="text" onkeypress="return event.charCode >= 48 &&  event.charCode <= 57" id="linkDistInput" value="300"/>
+  <input type="text" onkeypress="return event.charCode >= 48 &&  event.charCode <= 57" id="linkStrInput" value="50"/>
+  <input type="button" id="randomize" value="Randomize!"/>
 	</h3>
 	<div class="canvas" id="graphCanvas">
 		<svg id="graphSVG"></svg>

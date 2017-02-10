@@ -350,7 +350,7 @@ vis.append('svg:rect')
 
   this.redraw();
 
-  //Make a "RUN" button (to keep relaxing the graph):
+  //Make a "RUN" button (to keep relaxing the graph while held down):
   var runBt= svg.append('svg:g')
       .attr('id','runButton')
       .attr("transform",
@@ -462,6 +462,12 @@ vis.append('svg:rect')
       }
   }
 
+  $('#randomize').click(function(){
+    nodeData.forEach(function(nd){
+      nd.x=treeDim[0]/2 +Math.random()*200; 
+      nd.y=treeDim[1]/2 +Math.random()*200;
+    })
+  })
   // }); });
   function tick(e) {
     //keep running while RUN is held down:
@@ -492,6 +498,10 @@ vis.append('svg:rect')
       //include gravity (charge-independent):
       nd.x -= grav*e.alpha*(nd.x-treeDim[0]/2);
       nd.y -= grav*e.alpha*(nd.y-treeDim[1]/2);
+
+      //Add noise for annealing:
+      nd.x +=g*g*(Math.random()-0.5);
+      nd.y +=g*g*(Math.random()-0.5);
     })
 
     //Link forces:
@@ -500,10 +510,14 @@ vis.append('svg:rect')
       var delx=(lk.target.x - lk.source.x);
       var dely=(lk.target.y - lk.source.y);
       var len = Math.sqrt(delx*delx + dely*dely);
-      var scale=g*lk.strength/500 * (len>lk.transDist ? 30/len : 1)*
+
+      var transDist = $('#linkDistInput').val();
+      var lkStr= $('#linkStrInput').val();
+
+      var scale=g*lk.strength/500 * (len>transDist ? lkStr/len : 1)*
         (1 - lk.minDist / len);
       d3.selectAll('.link').filter(d => d._id==lk._id)
-        .classed('long',len>lk.transDist);
+        .classed('long',len>transDist);
       var dx=delx*scale, dy=dely*scale;
       lk.source.x+=dx; lk.source.y+=dy;
       lk.target.x-=dx; lk.target.y-=dy;
@@ -512,7 +526,7 @@ vis.append('svg:rect')
         // var dy=g * Math.max(-2, Math.min(2,
         //   Math.exp((lk.source.y-lk.target.y)/100.)
         //   ));
-        scale = g*lk.strength/20/len*Math.exp(-2*dely/len)*Math.sign(delx);
+        scale = g*lk.strength/5/len*Math.exp(-dely/len)*Math.sign(delx);
         dx = -dely*scale; dy = delx*scale;
         lk.source.x-=dx; lk.target.x+=dx;
         lk.source.y-=dy; lk.target.y+=dy;
