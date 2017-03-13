@@ -137,7 +137,6 @@ if (Meteor.isServer){
 if (Meteor.isClient) {
   //Once the SVG is rendered:
   Template.graph.onRendered(function(){
-
     //Dropdown for available graphs:
     Meteor.call("listGraphs", function(err, list){
       $.each(list, function (i, item) {
@@ -156,7 +155,7 @@ if (Meteor.isClient) {
     Session.set('lastUpdate', new Date() );
     var width = $(window).innerWidth()-35,//$("body").prop("clientWidth"),
     height = 700;//$(window).height(); //SVG size
-    console.log(width);
+    console.log('width: ', width);
 
     svg = d3.select("#graphSVG")
         .attr("width", width)
@@ -307,6 +306,10 @@ if (Meteor.isClient) {
       }
       //trigger file load:
       r.readAsText(event.target.files[0]);
+    },
+    'change #loadMetamath': function(event){
+      //trigger file load:
+      loadMetamath(event.target.files[0]);
     }
   });
 

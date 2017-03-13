@@ -44,8 +44,8 @@ var updateDB = function(dat){
       obj, dat.sourceID, link,
       function(err,res){
         if(err) alert(err);
-        if(res){ dat.node._id=res[0];
-          dat.gui.showContent(dat.node);}
+        if(res){ dat.node._id=res[0];}
+        dat.gui.showContent(dat.node);
       });
   }
   //if adding a link:
@@ -93,9 +93,8 @@ var updateDB = function(dat){
     Meteor.call("updateLink", obj,
       function(err,res){
         if(err) alert(err);
-        if(res){ dat.link._id=res;
-          dat.gui.showContent(dat.link)
-        }
+        if(res){ dat.link._id=res;}
+        dat.gui.showContent(dat.link)
       });
   }
   else console.error("failed to update DB: no data given");
