@@ -66,7 +66,7 @@ Meteor.methods({
     })
   },
   //replace data entries in DB with ones provided 
-  //(leave others unchanged):
+  //(leave others unchanged), or create new:
   updateNode: function(node, fromID, link){
     console.log(node);
     //Check that node has the crucial properties:

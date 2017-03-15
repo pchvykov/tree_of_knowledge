@@ -59,6 +59,9 @@ if (Meteor.isServer){
     // console.log(
     //   Nodes.remove({graph:{$exists:false}}),
     //   Links.remove({graph:{$exists:false}}))
+    console.log(
+      Nodes.remove({graph:'MetaMath'}),
+      Links.remove({graph:'MetaMath'}))
 
     db.publish();
     Meteor.publish("srvBckup", function () {
