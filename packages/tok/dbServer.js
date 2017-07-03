@@ -68,7 +68,7 @@ Meteor.methods({
   //replace data entries in DB with ones provided 
   //(leave others unchanged), or create new:
   updateNode: function(node, fromID, link){
-    console.log(node);
+    console.log("add node:",node);
     //Check that node has the crucial properties:
     if(!node.importance || !node.x || !node.y){
       alert("failed to update node: missing info");
@@ -97,8 +97,9 @@ Meteor.methods({
     }
   },
   updateLink: function (link) {
+    console.log("add link:", link);
     //Check that link has the crucial properties:
-    if(!link.strength){
+    if(!link.strength || !link.source || !link.target){
       alert("failed to update link: missing info");
       return null;
     }
