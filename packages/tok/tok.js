@@ -76,7 +76,6 @@ vis.append('svg:rect')
           notify('coordinates fixed');
         });
 
-  var grav=0.01; //strength of the centering gravity force
     // console.log("chdist",force.chargeDistance());
 
   // var bckgnd = vis.append('svg:g');
@@ -254,11 +253,12 @@ vis.append('svg:rect')
         .attr("xlink:href", d => nodeShape(d.type))
         // .attr("width", d => d.importance)
         // .attr("height", d=> d.importance)
-        .attr("transform", d => "scale("+d.importance+")")
+        .attr("transform", d => "scale("+d.importance*$('#sizeInput').val()+")")
         //work-around to keep stroke-width independent of size:
         .attr("stroke-width",d => 3/d.importance)
         // .attr("r", function(d){return d.importance}) //radius
-    force.charge(function(d){return - $('#ChargeInput').val()/200*Math.sqrt(Math.pow(d.importance,3))})
+    force.charge(function(d){return - $('#ChargeInput').val()/2*Math.pow(d.importance,2)})
+         // .chargeDistance($('#chrgDistInput').val())
   
     //re-render all math - in the entire page!
     if(typeof MathJax !== 'undefined') MathJax.Hub.Queue(["Typeset", MathJax.Hub]); 
@@ -290,7 +290,7 @@ vis.append('svg:rect')
     //style and behavrior according to datum:
     link.style({
       "stroke-width":function(d){
-        return d.strength+'px';
+        return d.strength*$('#sizeInput').val()+'px';
       },
       "marker-mid":function(d){
         return (d.oriented ?  "url(#arrowHead)" : null) //Arrow heads
@@ -470,7 +470,6 @@ vis.append('svg:rect')
   })
   // }); });
 
-  var lastPos={}; 
   function tick(e) {
     //keep running while RUN is held down:
     if(forceRun) force.alpha(0.1);
@@ -478,32 +477,10 @@ vis.append('svg:rect')
     //create custom forces:
     var g = 30 * e.alpha; //e.alpha = 0.1 maximum
     nodeData.forEach(function(nd){
-      //Include the orienting forces: (depricated - done with links)
-      //(position below parent nodes and above child nodes)
-      //use exponential as soft ordering constraint (childern below parents)
-      //keep the whole thing within g*[-2,2] steps per tick range
-      //since forces are node, rather than link-based, they will change link lengths
-
-      // if(nd.x-nd.px > 10){console.log(nd.x, nd.y)};
-      // if(!nd.dragging){
-        // nd.y += g * Math.max(-2, Math.min(2, //between [-2,2]
-        //   nd.parentsIx.reduce(function(prev, idx){
-        //     return prev+Math.exp(-(nd.y-nodeData[idx].y)/100.)
-        //   }, 0.) -
-        //   nd.childrenIx.reduce(function(prev, idx){
-        //     return prev+Math.exp((nd.y-nodeData[idx].y)/100.)
-        //   }, 0.)
-        //   ));
-      // }
-      // var grav=0.1;
-      if(lastPos[nd._id] !== undefined){
-        var chrg=-force.charge()(nd);
-        nd.x += (nd.x-lastPos[nd._id].x)*(chrg-1);
-        nd.y += (nd.y-lastPos[nd._id].y)*(chrg-1);
-        console.log('charge',force.charge()(nd));
-      }
+    
 
       //include gravity (charge-independent):
+      var grav=0.01*$('#gravInput').val(); //strength of the centering gravity force
       nd.x -= grav*e.alpha*(nd.x-treeDim[0]/2);
       nd.y -= grav*e.alpha*(nd.y-treeDim[1]/2);
 
@@ -522,22 +499,23 @@ vis.append('svg:rect')
       var transDist = $('#linkDistInput').val();
       var lkStr= $('#linkStrInput').val();
 
-      var scale=g/50 * (len>transDist*lk.strength ? lk.strength*lkStr/len : $('#linkSStrInput').val())*
+      var scale=g/50 * Math.pow(lk.strength,2)*(len>transDist*lk.strength ? lk.strength*lkStr/len : $('#linkSStrInput').val())*
         (1 - lk.minDist / len);
       d3.selectAll('.link').filter(d => d._id==lk._id)
         .classed('long',len>transDist*lk.strength);
       var dx=delx*scale, dy=dely*scale;
-      lk.source.x+=dx; lk.source.y+=dy;
-      lk.target.x-=dx; lk.target.y-=dy;
+      var srcChrg=-force.charge()(lk.source), trgChrg=-force.charge()(lk.target);
+      lk.source.x+=dx/srcChrg; lk.source.y+=dy/srcChrg; //divide by charge=mass to get acceleration
+      lk.target.x-=dx/trgChrg; lk.target.y-=dy/trgChrg;
 
       if(lk.oriented){ //orienting forces
         // var dy=g * Math.max(-2, Math.min(2,
         //   Math.exp((lk.source.y-lk.target.y)/100.)
         //   ));
-        scale = $('#linkOrtInput').val()*g*lk.strength/len/2*(Math.exp(-dely/len)-0.367879)*Math.sign(delx);
+        scale = - $('#linkOrtInput').val()*g*lk.strength/len*5*(Math.exp(-dely/len)-0.367879)*Math.sign(delx);
         dx = -dely*scale; dy = delx*scale;
-        lk.source.x-=dx; lk.target.x+=dx;
-        lk.source.y-=dy; lk.target.y+=dy;
+        lk.source.x+=dx/srcChrg; lk.source.y+=dy/srcChrg; //divide by charge=mass to get acceleration
+        lk.target.x-=dx/trgChrg; lk.target.y-=dy/trgChrg;
       }
     })
 
@@ -576,10 +554,6 @@ vis.append('svg:rect')
     // attr("x", function(d) { return d.x; })
     //     .attr("y", function(d) { return d.y; });
     positionTooltips();
-
-    nodeData.forEach(function(nd){
-      lastPos[nd._id]={'x':nd.x,'y':nd.y};
-    })
 
   }
 

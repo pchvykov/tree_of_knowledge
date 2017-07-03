@@ -62,10 +62,10 @@ if (Meteor.isServer){
     // console.log(
     //   Nodes.remove({graph:'MetaMath'}),
     //   Links.remove({graph:'MetaMath'}))
-    console.log(Nodes.update({}, 
+    console.log(Nodes.update({x:NaN}, 
       {$set: {x:1000}}, {multi:true}),
-    Nodes.update({}, 
-      {$set: {y:1000}}, {multi:true}),)
+    Nodes.update({y:NaN}, 
+      {$set: {y:1000}}, {multi:true}))
 
     db.publish();
     Meteor.publish("srvBckup", function () {
