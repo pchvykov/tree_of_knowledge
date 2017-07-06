@@ -258,7 +258,7 @@ vis.append('svg:rect')
         .attr("stroke-width",d => 3/d.importance)
         // .attr("r", function(d){return d.importance}) //radius
     force.charge(function(d){return - $('#ChargeInput').val()/2*Math.pow(d.importance,2)})
-         // .chargeDistance($('#chrgDistInput').val())
+    // force.chargeDistance($('#chrgDistInput').val())
   
     //re-render all math - in the entire page!
     if(typeof MathJax !== 'undefined') MathJax.Hub.Queue(["Typeset", MathJax.Hub]); 
@@ -504,19 +504,17 @@ vis.append('svg:rect')
       d3.selectAll('.link').filter(d => d._id==lk._id)
         .classed('long',len>transDist*lk.strength);
       var dx=delx*scale, dy=dely*scale;
-      var srcChrg=-force.charge()(lk.source), trgChrg=-force.charge()(lk.target);
-      lk.source.x+=dx/srcChrg; lk.source.y+=dy/srcChrg; //divide by charge=mass to get acceleration
-      lk.target.x-=dx/trgChrg; lk.target.y-=dy/trgChrg;
 
       if(lk.oriented){ //orienting forces
         // var dy=g * Math.max(-2, Math.min(2,
         //   Math.exp((lk.source.y-lk.target.y)/100.)
         //   ));
         scale = - $('#linkOrtInput').val()*g*lk.strength/len*5*(Math.exp(-dely/len)-0.367879)*Math.sign(delx);
-        dx = -dely*scale; dy = delx*scale;
-        lk.source.x+=dx/srcChrg; lk.source.y+=dy/srcChrg; //divide by charge=mass to get acceleration
-        lk.target.x-=dx/trgChrg; lk.target.y-=dy/trgChrg;
+        dx -= dely*scale; dy += delx*scale;
       }
+      var srcChrg=-force.charge()(lk.source), trgChrg=-force.charge()(lk.target);
+      lk.source.x+=dx/srcChrg; lk.source.y+=dy/srcChrg; //divide by charge=mass to get acceleration
+      lk.target.x-=dx/trgChrg; lk.target.y-=dy/trgChrg;
     })
 
     // link.attr("x1", function(d) { return d.source.x; })

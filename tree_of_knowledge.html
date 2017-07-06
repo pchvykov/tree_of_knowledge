@@ -1,3 +1,4 @@
+<!-- SET METEOR_OFFLINE_CATALOG=1 meteor -->
 <head>
   <title>tree_of_knowledge</title>
   <meta charset="utf-8"/>
@@ -35,11 +36,13 @@
       <input type="button" value="Upload" /> <!-- just for show -->
       <input type="file" id="cltRestore" />
   </label>
+  </span>
+  </h3>
+  <span>
   <label class="fileContainer">
       <input type="button" value="Load Metamath" /> <!-- just for show -->
       <input type="file" id="loadMetamath" />
   </label>
-  </span>
   Lk_Crit_Length:<input type="text" size="3" onkeypress="return event.charCode >= 46 &&  event.charCode <= 57" id="linkDistInput" value="50"/>
   Lk_long_Str:<input type="text" size="3" onkeypress="return event.charCode >= 46 &&  event.charCode <= 57" id="linkStrInput" value="10"/>
   Lk_short_Str:<input type="text" size="3" onkeypress="return event.charCode >= 46 &&  event.charCode <= 57" id="linkSStrInput" value="0.3"/>
@@ -49,7 +52,7 @@
   Gravity:<input type="text" size="3" onkeypress="return event.charCode >= 46 &&  event.charCode <= 57" id="gravInput" value="1"/>
   Size:<input type="text" size="3" onkeypress="return event.charCode >= 46 &&  event.charCode <= 57" id="sizeInput" value="1"/>
   <input type="button" id="randomize" value="Randomize!"/>
-	</h3>
+	</span>
 	<div class="canvas" id="graphCanvas">
 		<svg id="graphSVG"></svg>
     {{#mathjax}}

@@ -5,7 +5,7 @@
 # but you can also edit it by hand.
 
 meteor-base             # Packages every Meteor app needs to have
-mobile-experience       # Packages for a great mobile UX
+#mobile-experience       # Packages for a great mobile UX
 mongo                   # The database Meteor supports right now
 blaze-html-templates    # Compile .html files into Meteor Blaze views
 session                 # Client-side reactive dictionary for your app
@@ -21,8 +21,8 @@ pchvykov:tok
 standard-minifier-css
 standard-minifier-js
 mrt:mathjax
-hitchcott:app-dump
-accounts-ui
-twbs:bootstrap 			#for some css formats
-pfafman:filesaver
+#hitchcott:app-dump		#backup and restore DB
+#accounts-ui
+#twbs:bootstrap 		#for some nice css formats (really overkill though)
+pfafman:filesaver		#file saving
 d3
