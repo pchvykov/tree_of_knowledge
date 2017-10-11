@@ -374,9 +374,9 @@ vis.append('svg:rect')
       // var bbox=this.parentNode.parentNode.getBoundingClientRect();
       var bbox=d.getBoundingClientRect(); //node bbox
       this.style.left=(bbox.left+bbox.right-
-        this.firstChild.offsetWidth)/2 
+        this.firstChild.offsetWidth)/2 -8
             +window.scrollX+'px';
-      this.style.top=bbox.top-10
+      this.style.top=bbox.top
             +window.scrollY+'px';
         // this.firstChild.offsetHeight -16+'px';
     })

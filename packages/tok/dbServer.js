@@ -8,8 +8,8 @@ treeData = function(){
   this.loadJSON = function(graph){
       console.log("loading collection from json")
       //Clear all entries in current collection:
-      Nodes.remove({});
-      Links.remove({});
+      // Nodes.remove({});
+      // Links.remove({});
       // var graph = JSON.parse(Assets.getText(fileName));
       graph.nodes.forEach(function (item, index, array) {
         Nodes.insert(item);
@@ -28,7 +28,7 @@ treeData = function(){
     console.log(bckup);
   }
   this.clear = function(){
-    console.log("deleting everything!")
+    alert("deleting everything!")
     //Clear all entries in current collection:
     Nodes.remove({});
     Links.remove({});

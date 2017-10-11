@@ -107,7 +107,7 @@ body {
 .tooltipO .inner::after {
     content: "";
     position: absolute;
-    top: 98%;
+    top: 92%;
     left: 50%;
     margin-left: -8px;
     border-width: 8px;
