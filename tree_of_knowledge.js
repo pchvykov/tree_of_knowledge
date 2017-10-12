@@ -59,6 +59,9 @@ if (Meteor.isServer){
     // console.log(
     //   Nodes.remove({graph:{$exists:false}}),
     //   Links.remove({graph:{$exists:false}}))
+    // console.log('all',
+    //   Nodes.find().fetch(),
+    //   Links.find().fetch())
     console.log(
       Nodes.remove({graph:'MetaMath'}),
       Links.remove({graph:'MetaMath'}))
@@ -316,7 +319,7 @@ if (Meteor.isClient) {
     },
     'change #loadMetamath': function(event){
       //trigger file load:
-      loadMetamath(event.target.files[0]);
+      parseMetamath(event.target.files[0]);
     }
   });
 
