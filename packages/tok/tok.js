@@ -484,7 +484,7 @@ vis.append('svg:rect')
       nd.x -= grav*e.alpha*(nd.x-treeDim[0]/2);
       nd.y -= grav*e.alpha*(nd.y-treeDim[1]/2);
 
-      //Add noise for annealing:
+      //Add noise for annealing (quadratic s.t. dies faster than motion stops):
       nd.x +=g*g*(Math.random()-0.5)*nd.importance/100;
       nd.y +=g*g*(Math.random()-0.5)*nd.importance/100;
     })
