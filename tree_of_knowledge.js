@@ -62,9 +62,9 @@ if (Meteor.isServer){
     // console.log('all',
     //   Nodes.find().fetch(),
     //   Links.find().fetch())
-    console.log(
-      Nodes.remove({graph:'MetaMath'}),
-      Links.remove({graph:'MetaMath'}))
+    // console.log(
+    //   Nodes.remove({graph:'MetaMath'}),
+    //   Links.remove({graph:'MetaMath'}))
     console.log(Nodes.update({x:NaN}, 
       {$set: {x:1000}}, {multi:true}),
     Nodes.update({y:NaN}, 

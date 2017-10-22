@@ -168,7 +168,7 @@ this.linkMousedown = function(d) { //easier to catch than Click
 this.linkDblClick = function(d){
   d3.event.stopPropagation();
   clearTimeout(clickTimer); clickTimer=null;
-  var lk={};
+  var lk={}; //create new object to be edited
   for(var attr in d) lk[attr] = d[attr];
   lk.source = lk.source._id;
   lk.target = lk.target._id;

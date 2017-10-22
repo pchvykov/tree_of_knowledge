@@ -35,20 +35,47 @@ treeData = function(){
   }
 
   this.publish = function(){
-  	Meteor.publish("allNodes", function (name) {
+    //publish entire current graph:
+  	Meteor.publish("allNodes", function (name,tmp,tm) {
       // console.log("publish", Nodes.find({graph:name}).count());
-  	  return Nodes.find({graph:name});
+  	  return [Nodes.find({graph:name}), Links.find({graph:name})];
   	});
-  	Meteor.publish("allLinks", function (name) {
-  	  return Links.find({graph:name});
-  	});
+
+    //publish visible portion of the graph:
+    Meteor.publish("visNodes", function (Gname,visWindow,nnds) {
+      // console.log("publish", Nodes.find({graph:Gname}).count());
+      var visNodes = Nodes.find({graph:Gname,
+        x:{$gt: visWindow[0], $lt: visWindow[2]},
+        y:{$gt: visWindow[1], $lt: visWindow[3]}}, 
+        {sort:{importance: -1}, limit:nnds});
+      // console.log("visNd", visWindow, Gname, visNodes.count())
+      var visNdID = visNodes.map(nd => nd._id);
+      var visLinks= Links.find({graph:Gname,
+          $or:[{source:{$in: visNdID}}, {target:{$in: visNdID}}]});
+      return [visNodes, visLinks];
+    });
+    Meteor.publish("phantNodes", function(visNdID, visLkST){
+      // console.log(visNdID, "and", visLkST)
+      var fixNodes = Nodes.find({_id:{$in:visLkST,$nin:visNdID}},
+        {transform: function(nd){
+          nd.fix=true; return nd;
+        }});
+      // console.log('fixNd',fixNodes.fetch())
+      return fixNodes;
+    });
   };
 
-  this.subscribe = function(onReady){ //the 1 client method
-    db.lkSubscr=Meteor.subscribe("allLinks",Session.get("currGraph"),function(){
-    db.ndSubscr=Meteor.subscribe("allNodes",Session.get("currGraph"),function(){
+  this.subscribe = function(visWindow, nnds, onReady){ //the 1 client method here
+    if(db.visSubscr){
+      db.visSubscr.stop(); //clear client collections
+      db.phantSubscr.stop();
+    }
+    //only published nodes/links appear in Nodes/Links collections:
+    db.visSubscr=Meteor.subscribe("visNodes",Session.get("currGraph"),visWindow,nnds, function(){
+    db.phantSubscr=Meteor.subscribe("phantNodes", Nodes.find().map(nd=>nd._id), 
+    Links.find().map(lk=>lk.source).concat(Links.find().map(lk=>lk.target)), function(){
       onReady();
-    })});
+    })})
   }
 }
 

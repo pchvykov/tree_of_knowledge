@@ -41,14 +41,25 @@ ToK = function(svg, db) {
 
   //visualized picture, moves with pan/zoom:
   //initialize the starting offset to center tree:
+  var zm=d3.behavior.zoom().on("zoom", rescale);
+  //initial window scaling and translation
+  var initScale=0.5;
+  var initTransl=[(width/initScale-treeDim[0])/2, (height/initScale-treeDim[1])/2];
   var vis = outer
   .append('svg:g')
     .attr("transform", 
-      "translate(" + [(width-treeDim[0])/2, (height-treeDim[1])/2] + ")")
-    .call(d3.behavior.zoom().on("zoom", rescale))
+      "scale("+ initScale + ")" + 
+      " translate(" + initTransl + ")")
+    .call(zm)
     .on("dblclick.zoom", null)
   .append('svg:g');
-
+  // zm.scale(0.5);
+  //coordinates of the visible region
+  var visWindowInit = [(treeDim[0]-width/initScale)/2, 
+                  (treeDim[1]-height/initScale)/2,
+                   (treeDim[0]+width/initScale)/2,
+                  (treeDim[1]+height/initScale)/2];
+  var visWindow=visWindowInit;
 // vis.attr("width",treeWidth)
 //    .attr("height",treeHeight);
 //    .attr("transform",
@@ -130,19 +141,21 @@ vis.append('svg:rect')
   d3.select(window)
       .on("keydown", gui.keydown);
 
+//==================== REDRAW =============================================================
   // pull data from server and redraw force layout
+  var visSubscr, phantSubscr;
   this.redraw = function(postScript) { //execte postScrip() at the end
   //store current node coordinates to restart from same position:
   if(force.nodes().length >0) Meteor.call("updateCoord",force.nodes())
-  if(db.ndSubscr){
-    db.ndSubscr.stop();//clear client collections
-    db.lkSubscr.stop();
-  }
-  db.subscribe(function(){
+
+  db.subscribe(visWindow, parseInt($('#nnodesInput').val()), function(){
     console.log("redrawing");
-    linkData=Links.find({}).fetch();
-    nodeData=Nodes.find({}).fetch(); //contains only published data
+    //this can access only published data - current graph:
+    nodeData=Nodes.find().fetch(); 
+    linkData=Links.find().fetch();
     // console.log(nodeData.length);
+    console.log('tst',nodeData.map(nd=>nd.fix))
+
     nodeData.forEach(function(nd){
       //initialize all node velocities to 0:
       // nd.x=treeDim[0]/2; nd.y=treeDim[1]/2;
@@ -198,34 +211,6 @@ vis.append('svg:rect')
         // .attr("data-tooltip-top", function(d){
         //   return 10 + parseFloat(this.getAttribute("r"));
         // });
-    // Add tooltip for each:-------
-    //as SVG text and backgnd rect: - can't render MathJax
-    // var newTT=newNodes.append("svg:g") 
-    //         .attr("class",'tooltip1')
-    //         .style("opacity", 0.5)
-    // var text=newTT.append('text')
-    //         .text(function(d){return d.title});      
-    // text.each(function(d,idx){
-    //   var bbox=this.getBBox();
-    //   var padding=3;
-    //   d3.select(this.parentNode)
-    //       .insert("rect","text")
-    //       .attr("x", bbox.x - padding)
-    //       .attr("y", bbox.y - padding)
-    //       .attr("width", bbox.width + (padding*2))
-    //       .attr("height", bbox.height + (padding*2))
-    //       .style("fill", "blueviolet");
-    // })
-
-    //Tooltips as foreignObject: (position in tick and rescale) 
-    //problems rendering MathJax
-    // newNodes.append("svg:foreignObject")
-    //       // .attr("width",100)
-    //       // .attr("height",100)
-    //       .append("xhtml:div")
-    //       .attr("class",'tooltip')
-    //       .append("xhtml:span") 
-    //       .attr("class",'inner');
 
     //Tooltips as divs in the body, with reference to node SVG:
     newNodes.each(function(d, idx){
@@ -595,8 +580,17 @@ vis.append('svg:rect')
       vis.attr("transform",
           "translate(" + transl + ")"
           + " scale(" + scale + ")");
+      //currently visible window coordinates
+      visWindow = [(visWindowInit[0]-transl[0])/scale, //x-left
+                   (visWindowInit[1]-transl[1])/scale, //y-top
+                   (visWindowInit[2]-transl[0])/scale, //x-right
+                   (visWindowInit[3]-transl[1])/scale];//y-bottom
+      tree.redraw();
       positionTooltips();
     // }
   }
 
 }
+
+
+
