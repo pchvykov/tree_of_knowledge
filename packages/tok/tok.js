@@ -154,9 +154,11 @@ vis.append('svg:rect')
     nodeData=Nodes.find().fetch(); 
     linkData=Links.find().fetch();
     // console.log(nodeData.length);
-    console.log('tst',nodeData.map(nd=>nd.fix))
+    // console.log('tst',Nodes.find({text:{$exists:false}}).count())
 
     nodeData.forEach(function(nd){
+      nd.phantom = !nd.hasOwnProperty('text'); //identify phantom nodes
+      nd.fixed=nd.phantom; nd.permFixed=nd.fixed;
       //initialize all node velocities to 0:
       // nd.x=treeDim[0]/2; nd.y=treeDim[1]/2;
       nd.px=nd.x;
@@ -242,6 +244,8 @@ vis.append('svg:rect')
         //work-around to keep stroke-width independent of size:
         .attr("stroke-width",d => 3/d.importance)
         // .attr("r", function(d){return d.importance}) //radius
+        .classed("phantom",d=>d.phantom)
+        .classed("fixed",d=>d.fixed)
     force.charge(function(d){return - $('#ChargeInput').val()/2*Math.pow(d.importance,2)})
     // force.chargeDistance($('#chrgDistInput').val())
   
@@ -460,7 +464,7 @@ vis.append('svg:rect')
     if(forceRun) force.alpha(0.1);
     
     //create custom forces:
-    var g = 30 * e.alpha; //e.alpha = 0.1 maximum
+    var g = 30 * e.alpha; //e.alpha = 0.1 maximum filter(nd=>!nd.phantom).
     nodeData.forEach(function(nd){
     
 
@@ -476,18 +480,23 @@ vis.append('svg:rect')
 
     //Link forces:
     linkData.forEach(function(lk){
-      //non-linear attraction:
+      
       var delx=(lk.target.x - lk.source.x);
       var dely=(lk.target.y - lk.source.y);
       var len = Math.sqrt(delx*delx + dely*dely);
 
-      var transDist = $('#linkDistInput').val();
-      var lkStr= $('#linkStrInput').val();
+      ////non-linear attraction:---
+      // var transDist = $('#linkDistInput').val();
+      // var lkStr= $('#linkStrInput').val();
+      // var scale=g/50 * Math.pow(lk.strength,2)*(len>transDist*lk.strength ? lk.strength*lkStr/len : $('#linkSStrInput').val())*
+      //   (1 - lk.minDist / len);
+      // d3.selectAll('.link').filter(d => d._id==lk._id)
+      //   .classed('long',len>transDist*lk.strength);
 
-      var scale=g/50 * Math.pow(lk.strength,2)*(len>transDist*lk.strength ? lk.strength*lkStr/len : $('#linkSStrInput').val())*
+      ////Linear spring-like force:----
+      var scale=g/50 * Math.pow(lk.strength,2)*($('#linkSStrInput').val())*
         (1 - lk.minDist / len);
-      d3.selectAll('.link').filter(d => d._id==lk._id)
-        .classed('long',len>transDist*lk.strength);
+
       var dx=delx*scale, dy=dely*scale;
 
       if(lk.oriented){ //orienting forces
@@ -498,7 +507,9 @@ vis.append('svg:rect')
         dx -= dely*scale; dy += delx*scale;
       }
       var srcChrg=-force.charge()(lk.source), trgChrg=-force.charge()(lk.target);
+      // if(!lk.source.phantom){ 
       lk.source.x+=dx/srcChrg; lk.source.y+=dy/srcChrg; //divide by charge=mass to get acceleration
+      // if(!lk.target.phantom){ 
       lk.target.x-=dx/trgChrg; lk.target.y-=dy/trgChrg;
     })
 

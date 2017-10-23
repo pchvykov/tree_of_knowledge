@@ -51,17 +51,35 @@ treeData = function(){
       // console.log("visNd", visWindow, Gname, visNodes.count())
       var visNdID = visNodes.map(nd => nd._id);
       var visLinks= Links.find({graph:Gname,
-          $or:[{source:{$in: visNdID}}, {target:{$in: visNdID}}]});
+          $and:[{source:{$in: visNdID}}, {target:{$in: visNdID}}]});
       return [visNodes, visLinks];
     });
-    Meteor.publish("phantNodes", function(visNdID, visLkST){
+    Meteor.publish("phantNodes", function(visNdID, visWindow, minImportance){
       // console.log(visNdID, "and", visLkST)
-      var fixNodes = Nodes.find({_id:{$in:visLkST,$nin:visNdID}},
-        {transform: function(nd){
-          nd.fix=true; return nd;
-        }});
+      var connLk= Links.find({
+          $or:[{source:{$in: visNdID}}, {target:{$in: visNdID}}]});
+      var fixNodes = Nodes.find(
+        {_id:{$in: connLk.map(lk=>lk.source).concat(connLk.map(lk=>lk.target)),
+              $nin:visNdID},
+          $or:[{x:{$lte: visWindow[0]}}, {x:{$gte: visWindow[2]}},
+               {y:{$lte: visWindow[1]}}, {y:{$gte: visWindow[3]}}],
+          // importance:{$gt: minImportance}
+        },
+        {fields:{text:0}}); //use this to flag phantom nodes (for now)
+        // {transform: function(nd){
+        //   nd.phant=true; return nd;
+        // }});
       // console.log('fixNd',fixNodes.fetch())
-      return fixNodes;
+      var fixNdID=fixNodes.map(nd=>nd._id);
+      return [fixNodes, Links.find({
+        $or:[{
+          source:{$in: fixNdID},
+          target:{$in: visNdID}
+        },{
+          source:{$in: visNdID},
+          target:{$in: fixNdID}
+        }]
+      })];
     });
   };
 
@@ -73,7 +91,10 @@ treeData = function(){
     //only published nodes/links appear in Nodes/Links collections:
     db.visSubscr=Meteor.subscribe("visNodes",Session.get("currGraph"),visWindow,nnds, function(){
     db.phantSubscr=Meteor.subscribe("phantNodes", Nodes.find().map(nd=>nd._id), 
-    Links.find().map(lk=>lk.source).concat(Links.find().map(lk=>lk.target)), function(){
+    // Links.find().map(lk=>lk.source).concat(Links.find().map(lk=>lk.target)), 
+    visWindow, 
+    Nodes.find().map(nd=>nd.importance).reduce((min,now)=>Math.min(min,now)),
+     function(){
       onReady();
     })})
   }
