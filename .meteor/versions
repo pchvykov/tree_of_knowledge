@@ -21,6 +21,7 @@ deps@1.0.11
 diff-sequence@1.0.4
 ecmascript@0.4.2
 ecmascript-runtime@0.2.9
+ecwyne:mathjs@2.7.0
 ejson@1.0.10
 es5-shim@4.5.9
 fastclick@1.0.10

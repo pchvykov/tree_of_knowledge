@@ -69,7 +69,6 @@ vis.append('svg:rect')
     .attr('height', treeDim[1])
     .attr('fill', '#EEE'); //make slightly grey s.t. it's visible
 
-
   // init force layout
   var nodeData, linkData;
   var force = d3.layout.force()
@@ -451,14 +450,21 @@ vis.append('svg:rect')
       }
   }
 
+  //Some buttons functionality
   $('#randomize').click(function(){
     nodeData.forEach(function(nd){
       nd.x=treeDim[0]/2 +Math.random()*100; 
       nd.y=treeDim[1]/2 +Math.random()*100;
     })
   })
-  // }); });
+  $('#calcZoom').click(function(){ //recalculate the effective connectivit matrices on the server
+    Meteor.call("calculateZoom",Session.get("currGraph"),function(err,res){
+      tree.redraw();
+    })
+  }
 
+  // }); });
+  //Each time-step of graph evolution
   function tick(e) {
     //keep running while RUN is held down:
     if(forceRun) force.alpha(0.1);

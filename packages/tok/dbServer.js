@@ -58,11 +58,12 @@ treeData = function(){
       // console.log(visNdID, "and", visLkST)
       var connLk= Links.find({
           $or:[{source:{$in: visNdID}}, {target:{$in: visNdID}}]});
+      console.log('MI',minImportance)
       var fixNodes = Nodes.find(
         {_id:{$in: connLk.map(lk=>lk.source).concat(connLk.map(lk=>lk.target)),
               $nin:visNdID},
-          $or:[{x:{$lte: visWindow[0]}}, {x:{$gte: visWindow[2]}},
-               {y:{$lte: visWindow[1]}}, {y:{$gte: visWindow[3]}}],
+          // $or:[{x:{$lte: visWindow[0]}}, {x:{$gte: visWindow[2]}},
+          //      {y:{$lte: visWindow[1]}}, {y:{$gte: visWindow[3]}}],
           // importance:{$gt: minImportance}
         },
         {fields:{text:0}}); //use this to flag phantom nodes (for now)
@@ -89,7 +90,7 @@ treeData = function(){
       db.phantSubscr.stop();
     }
     //only published nodes/links appear in Nodes/Links collections:
-    db.visSubscr=Meteor.subscribe("visNodes",Session.get("currGraph"),visWindow,nnds, function(){
+    db.visSubscr=Meteor.subscribe("allNodes",Session.get("currGraph"),visWindow,nnds, function(){
     db.phantSubscr=Meteor.subscribe("phantNodes", Nodes.find().map(nd=>nd._id), 
     // Links.find().map(lk=>lk.source).concat(Links.find().map(lk=>lk.target)), 
     visWindow, 
@@ -185,6 +186,14 @@ Meteor.methods({
   },
   deleteLink: function(lk){
     Links.remove(lk);
+  },
+  calculateZoom: function(graph){ //calculate the effective connectivit matrices
+    var connMx=math.sparse();
+    var allNodes = Nodes.find({graph:graph},{sort:{importance: -1}})
+    var mxDic = allNodes.map(function(nd){return {id:nd._id, imp:nd.importance}});
+    allNodes.forEach(function(nd){
+      nd.children
+    })
   }
 });
 

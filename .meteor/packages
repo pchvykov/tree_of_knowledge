@@ -26,3 +26,4 @@ mrt:mathjax
 #twbs:bootstrap 		#for some nice css formats (really overkill though)
 pfafman:filesaver		#file saving
 d3
+ecwyne:mathjs			#for computing effective connectivity during zoom behavior
