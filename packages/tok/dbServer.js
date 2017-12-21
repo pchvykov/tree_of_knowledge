@@ -187,13 +187,37 @@ Meteor.methods({
   deleteLink: function(lk){
     Links.remove(lk);
   },
-  calculateZoom: function(graph){ //calculate the effective connectivit matrices
-    var connMx=math.sparse();
-    var allNodes = Nodes.find({graph:graph},{sort:{importance: -1}})
-    var mxDic = allNodes.map(function(nd){return {id:nd._id, imp:nd.importance}});
-    allNodes.forEach(function(nd){
-      nd.children
+  calcEffConn: function(graph){ //calculate the effective connectivit matrices
+    //Generate connectivity matrix-----------------------------------
+    var connMx=math.sparse(); //initialize connectivity matrix
+    var allNodes = Nodes.find({graph:graph},{sort:{importance: -1}}) // take all nodes, from most to least important
+    var mxDic = allNodes.map(nd => nd._id); //make a dictionary array storing node ids
+    var mxN=allNodes.count(); connMx.set([mxN,mxN],0);
+    //build the sparse matrix row-by-row:
+    mxDic.forEach(function(nd, idx, arr){ //for each node
+      Links.find({source:nd}) //take all child Links
+           .forEach(function(lk){ //for each link
+        connMx.set([idx, //set the matrix element in that row
+          mxDic.indexOf(lk.target)], //and find column from dictionary
+          lk.strength) //set mx element to link weight
+      });
     })
+
+    connMxPS = math.add(math.multiply(0.9,connMx), //partly symmetrized connectivity matrix
+      math.multiply(0.2,math.transpose(connMx)));
+    var splitN=Math.round(mxN / (ZoomStep*ZoomStep)); //hide all nodes after this idx
+    var rg1=math.range(0,splitN), rg2=math.range(splitN,mxN);
+
+    var mxB = connMxPS.subset(math.index(rg1,rg2)),
+        mxC = connMxPS.subset(math.index(rg2,rg1)),
+        mxD = connMxPS.subset(math.index(rg2,rg2));
+    math.add(connMxPS.subset(math.index(rg1,rg1)), //add actual connections to effectve ones
+      math.multiply(mxB,
+        math.inv(
+          math.subtract(math.eye(mxN-splitN), 
+            math.add(mxD, math.multiply(mxC,mxB)))),
+        mxC));
+    return connMx.toArray();
   }
 });
 

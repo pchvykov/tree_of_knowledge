@@ -458,10 +458,12 @@ vis.append('svg:rect')
     })
   })
   $('#calcZoom').click(function(){ //recalculate the effective connectivit matrices on the server
-    Meteor.call("calculateZoom",Session.get("currGraph"),function(err,res){
+    Meteor.call("calcEffConn",Session.get("currGraph"),function(err,res){
       tree.redraw();
+      console.log(res)
     })
-  }
+  })
+  ZoomStep=1.5; //factor by which each zoom step rescales the graph
 
   // }); });
   //Each time-step of graph evolution
