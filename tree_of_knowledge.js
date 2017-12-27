@@ -4,7 +4,8 @@ Nodes = new Meteor.Collection("all_Nodes");
 Links = new Meteor.Collection("all_Links");
 //Collection to store JSON strings as backups:
 Backup = new Meteor.Collection("backups");
-
+//factor by which each zoom step rescales the graph
+ZoomStep=1.5; VisNNodes=[20,50];
 var db = new treeData();
 var graph; var svg;
 var currGraph;
@@ -18,7 +19,7 @@ notify = function(text){ //notification messages
   },1);
 }
 // Server-side code:============================
-if (Meteor.isServer){
+if (Meteor.isServer){ 
   Meteor.startup(function(){
     // var allCollections = function () { //return all collections
     //     var Future = Npm.require('fibers/future'),
@@ -65,6 +66,8 @@ if (Meteor.isServer){
     // console.log(
     //   Nodes.remove({graph:'MetaMath'}),
     //   Links.remove({graph:'MetaMath'}))
+    // Links.find({}).forEach(lk => Links.update(lk._id, 
+    //   {$set: {strength:parseFloat(lk.strength)}}));
     console.log(Nodes.update({x:NaN}, 
       {$set: {x:1000}}, {multi:true}),
     Nodes.update({y:NaN}, 
@@ -159,12 +162,13 @@ if (Meteor.isClient) {
 
     Session.set("currGraph",currGraph);
     $('#availGraphs').val(currGraph);
+    Session.set("currZmLvl", 1); 
 
 
     //Create canvas:
     Session.set('lastUpdate', new Date() );
     var width = $(window).innerWidth()-35,//$("body").prop("clientWidth"),
-    height = 700;//$(window).height(); //SVG size
+    height = 500;//$(window).height(); //SVG size
     console.log('width: ', width);
 
     svg = d3.select("#graphSVG")
@@ -329,6 +333,7 @@ if (Meteor.isClient) {
       Blaze.remove(graph.gui.contentPopup);
       graph.gui.contentPopup=null;
     }
+    Session.set("currZmLvl", 1); //Set zoom level
     graph.redraw();//subscribe to and show the "currGraph"
     $('#pgTitle').text("Graph "+name);
   }

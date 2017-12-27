@@ -60,6 +60,7 @@ ToK = function(svg, db) {
                    (treeDim[0]+width/initScale)/2,
                   (treeDim[1]+height/initScale)/2];
   var visWindow=visWindowInit;
+  var currScale=1;
 // vis.attr("width",treeWidth)
 //    .attr("height",treeHeight);
 //    .attr("transform",
@@ -147,7 +148,7 @@ vis.append('svg:rect')
   //store current node coordinates to restart from same position:
   if(force.nodes().length >0) Meteor.call("updateCoord",force.nodes())
 
-  db.subscribe(visWindow, parseInt($('#nnodesInput').val()), function(){
+  db.subscribe(visWindow, function(){ //parseInt($('#nnodesInput').val())
     console.log("redrawing");
     //this can access only published data - current graph:
     nodeData=Nodes.find().fetch(); 
@@ -179,6 +180,8 @@ vis.append('svg:rect')
       lk.source = nodeData.find(function(nd){return nd._id == lk.source});
       lk.target = nodeData.find(function(nd){return nd._id == lk.target});
       if(!lk.source || !lk.target) console.error("orphaned link! ", lk._id);
+      var strKey = 'strength'+Session.get('currZmLvl');
+      if(strKey in lk){ lk.strength = lk[strKey];}
       // console.log("lk", lk._id, lk.source, lk.target);
     });
 
@@ -459,11 +462,15 @@ vis.append('svg:rect')
   })
   $('#calcZoom').click(function(){ //recalculate the effective connectivit matrices on the server
     Meteor.call("calcEffConn",Session.get("currGraph"),function(err,res){
-      tree.redraw();
       console.log(res)
+      // tree.redraw();
     })
   })
-  ZoomStep=1.5; //factor by which each zoom step rescales the graph
+  $('#zmLvlInput').change(function(){
+    Session.set('currZmLvl', parseInt($('#zmLvlInput').val()));
+    console.log("current zoom:", Session.get('currZmLvl'))
+    tree.redraw();
+  })
 
   // }); });
   //Each time-step of graph evolution
@@ -599,11 +606,13 @@ vis.append('svg:rect')
       vis.attr("transform",
           "translate(" + transl + ")"
           + " scale(" + scale + ")");
+      // console.log(scale)
       //currently visible window coordinates
       visWindow = [(visWindowInit[0]-transl[0])/scale, //x-left
                    (visWindowInit[1]-transl[1])/scale, //y-top
                    (visWindowInit[2]-transl[0])/scale, //x-right
                    (visWindowInit[3]-transl[1])/scale];//y-bottom
+      currScale=scale;
       tree.redraw();
       positionTooltips();
     // }

@@ -8,6 +8,7 @@ highlighting nodes on rollover - all by color?
 Optimize tick-function for speed
 chargeDistance??
 Make sure all types are correct when going from edit popup to DB
+Check parameters: symmetrization of connMx, rounding of weak eff links 
 
 +fix gravity
 +Link style changing on type change - immediate
