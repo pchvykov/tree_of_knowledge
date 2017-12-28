@@ -159,10 +159,7 @@ if (Meteor.isClient) {
           }));
       });
     currGraph=list[0]; //First graph to show
-
-    Session.set("currGraph",currGraph);
     $('#availGraphs').val(currGraph);
-    Session.set("currZmLvl", 1); 
 
 
     //Create canvas:
@@ -177,8 +174,8 @@ if (Meteor.isClient) {
     $(".canvas").width(width);
 
     // showGraph("test0");
-    graph = new ToK(svg, db);    
-    $('#pgTitle').text("Graph "+currGraph);
+    graph = new ToK(svg, db);
+    showGraph(currGraph)
 
     });
   });
@@ -333,8 +330,11 @@ if (Meteor.isClient) {
       Blaze.remove(graph.gui.contentPopup);
       graph.gui.contentPopup=null;
     }
-    Session.set("currZmLvl", 1); //Set zoom level
-    graph.redraw();//subscribe to and show the "currGraph"
+    Meteor.call('maxZoomLvl',name,function(err,res){
+      Session.set("currZmLvl", res); //Set zoom level
+      console.log("Max zoom level here:", res);
+      graph.redraw();//subscribe to and show the "currGraph"
+    }); 
     $('#pgTitle').text("Graph "+name);
   }
 

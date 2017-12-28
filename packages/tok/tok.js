@@ -339,7 +339,7 @@ vis.append('svg:rect')
   })
   }
 
-  this.redraw();
+  // this.redraw();
 
   //Make a "RUN" button (to keep relaxing the graph while held down):
   var runBt= svg.append('svg:g')

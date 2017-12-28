@@ -46,38 +46,40 @@ treeData = function(){
     Meteor.publish("visNodes", function (Gname,visWindow,zmLvl) {
       // console.log("publish", Nodes.find({graph:Gname}).count());
       tmpZmLvl = zmLvl; 
-      var ndCount, ndCountLast=NaN, zmLvlLast;
+      var ndCount, ndCountLast=NaN;
       do{ //loop to set the appropriate zoom level
       var visNodes = Nodes.find({graph:Gname, //all nodes within visible window
-        zoomLvl:{$lte: tmpZmLvl},
+        zoomLvl:{$gte: tmpZmLvl},
         x:{$gt: visWindow[0], $lt: visWindow[2]},
         y:{$gt: visWindow[1], $lt: visWindow[3]}}) 
         // {sort:{importance: -1}, limit:nnds});
       // console.log("visNd", visWindow, Gname, visNodes.count())
       ndCount=visNodes.count();
-      if(ndCountLast==ndCount){tmpZmLvl=zmLvlLast; break;} //if changing zoom didn't help, break
-      zmLvlLast=tmpZmLvl;
       console.log('zmLvl',tmpZmLvl, 'ndCnt', ndCount);
-      if(ndCount < VisNNodes[0]){
+      if(ndCount < VisNNodes[0]){ //if too few nodes, show more detail
         if(ndCountLast>VisNNodes[1]){console.error("can't get the right zoom -"); break;} 
-        tmpZmLvl++;} //if too few nodes, show more detail
-      else if(ndCount > VisNNodes[1]){
+        if(tmpZmLvl==0){break;} //if fully zoomed in, break
+        tmpZmLvl--;} 
+      else if(ndCount > VisNNodes[1]){ //if too many nodes, coarsen
         if(ndCountLast<VisNNodes[0]){console.error("can't get the right zoom +"); break;} 
-        tmpZmLvl--;} //if too many nodes, coarsen
+        if(tmpZmLvl==visNodes.map(nd=>nd.zoomLvl)
+            .reduce((max,now)=>Math.max(max,now),0)){break;} //if fully zoomed out, break
+        tmpZmLvl++;} 
       ndCountLast=ndCount;
       } while(ndCount < VisNNodes[0] || ndCount > VisNNodes[1])
 
       var visNdID = visNodes.map(nd => nd._id);
       var select={graph:Gname, //selector for links between these nodes at current zoom lvl
           $and:[{source:{$in: visNdID}}, {target:{$in: visNdID}}]};
+      if(tmpZmLvl==0){tmpZmLvl=''}
       select['strength'+tmpZmLvl]={$exists:true};
       var visLinks= Links.find(select);
-      if (visLinks.count()==0){ //if zmLvl is higher than maximum zoom
-        delete select['strength'+tmpZmLvl];
-        select['strength']={$exists:true}; //then use the micorscopic connectivity
-        visLinks= Links.find(select);
-        tmpZmLvl = ''; //so that phantNodes uses microscopic connectivity
-      }
+      // if (visLinks.count()==0){ //if zmLvl is higher than maximum zoom
+      //   delete select['strength'+tmpZmLvl];
+      //   select['strength']={$exists:true}; //then use the micorscopic connectivity
+      //   visLinks= Links.find(select);
+      //   tmpZmLvl = ''; //so that phantNodes uses microscopic connectivity
+      // }
       return [visNodes, visLinks];
     });
     Meteor.publish("phantNodes", function(visNdID){//visWindow, minImportance){
@@ -111,7 +113,7 @@ treeData = function(){
       //   }]
       // })];
     });
-  };
+  }; 
 
   this.subscribe = function(visWindow, onReady){ //the 1 client method here
     if(db.visSubscr){
@@ -122,7 +124,7 @@ treeData = function(){
     db.visSubscr=Meteor.subscribe("visNodes",Session.get("currGraph"),
       visWindow, Session.get('currZmLvl'), function(){
       Session.set('currZmLvl', //set to new level as found in the publish function
-        Nodes.find().map(nd=>nd.zoomLvl).reduce((max,now)=>Math.max(max,now),1))
+        Nodes.find().map(nd=>nd.zoomLvl).reduce((min,now)=>Math.min(min,now),Infinity))
     // db.phantSubscr=Meteor.subscribe("phantNodes", Nodes.find().map(nd=>nd._id), 
     // // Links.find().map(lk=>lk.source).concat(Links.find().map(lk=>lk.target)), 
     // visWindow, 
@@ -242,13 +244,7 @@ Meteor.methods({
     connMxPS = connMx; //math.add(math.multiply(0.9,connMx), //partly symmetrized connectivity matrix
       // math.multiply(0.2,math.transpose(connMx)));
     var zmIx = 1;
-    var tmp=mxN;
-    while (tmp > VisNNodes[1]){ //find maximum zmIx we should use, s.t. largest scale is at 1
-      tmp=Math.round(tmp / (ZoomStep*ZoomStep));
-      zmIx++;
-    }
     while (mxN > VisNNodes[1]){
-      zmIx--; console.log("Calculating effective conn mx: ", zmIx, " remaining");
       var splitN=Math.round(mxN / (ZoomStep*ZoomStep)); //hide all nodes after this idx
       var rg1=math.range(0,splitN), rg2=math.range(splitN,mxN);
 
@@ -273,14 +269,20 @@ Meteor.methods({
         // console.log(Links.find(updLk.insertedId).fetch())
         },true)
       ndID.slice(splitN,mxN).forEach(function(id){
-        Nodes.update(id,{$set:{zoomLvl:zmIx+1}}) //store zoom level for each node
+        Nodes.update(id,{$set:{zoomLvl:zmIx-1}}) //store zoom level for each node
       })
       mxN = splitN; // prepare for next iteration
+      zmIx++; console.log("Calculating effective conn mx: ", splitN, " remaining");
     }
-    ndID.slice(0,mxN).forEach(function(id){
-      Nodes.update(id,{$set:{zoomLvl:1}}) //store zoom level for last block
+    ndID.slice(0,splitN).forEach(function(id){
+      Nodes.update(id,{$set:{zoomLvl:zmIx-1}}) //store zoom level for last block
     })
     return connMxPS;
+  },
+  maxZoomLvl: function(graph){
+    return Nodes.find({graph:graph})
+      .map(nd=>(('zoomLvl' in nd)? nd.zoomLvl : 0))
+      .reduce((max,now)=>Math.max(max,now),0);
   }
 });
 
