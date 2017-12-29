@@ -46,16 +46,48 @@ treeData = function(){
     Meteor.publish("visNodes", function (Gname,visWindow,zmLvl) {
       // console.log("publish", Nodes.find({graph:Gname}).count());
       tmpZmLvl = zmLvl; 
-      var ndCount, ndCountLast=NaN;
+      var visNodes, ndCount, ndCountLast=NaN, zmLvlLast=NaN;
       do{ //loop to set the appropriate zoom level
-      var visNodes = Nodes.find({graph:Gname, //all nodes within visible window
+      if(false && zmLvlLast > tmpZmLvl) { //if zooming in, find the dominant subtrees connected to visible ones
+        var visNodesNew = visNodes.map(nd=>nd._id), prevNodes=visNodesNew;
+        do{
+          var newNodes=[];
+          prevNodes.forEach(function(visNd){ //for each node found last iteration
+            // Links.find({$or:[{source:nd._id}, {target:nd._id}]})
+            var srt={}; 
+            if(tmpZmLvl==0) {srt['strength']=-1;}// exst['strength']={$exists:true}}
+            else {srt['strength'+tmpZmLvl]=-1;}// exst['strength'+tmpZmLvl]={$exists:true}}}
+            Array.prototype.push.apply(newNodes, //to push multiple elements
+            Links.find({source:visNd}).map(lk=>lk.target) //find all the children
+              .filter(chNd => //take only the children at the new zoom level
+              Nodes.find(chNd).map(nd=>nd.zoomLvl)[0]==tmpZmLvl) 
+              .filter(chNd => //take only the children whose most important parent is visNd
+              Links.find({target:chNd},{sort:srt,limit:1}) //find child's most important parent
+                .map(lk=>lk.source)[0] == visNd)) //and see if it's the visible node
+            // newNodes.concat(Links.find({target:visNd}).map(lk=>lk.source) //same thing for parents
+            //   .filter(parNd => //take only the parents whose most important child is visNd
+            //   Links.find({source:parNd},{sort:srt,limit:1}) 
+            //     .map(lk=>lk.target)[0] == visNd))
+          // console.log('...', visNd, newNodes)
+          })
+          prevNodes=newNodes; //set up for the next iteration
+          visNodesNew.concat(newNodes); //add the found nodes to the array
+          console.log("building subtree, added ", newNodes.length, ' nodes')
+        } while(prevNodes.length > 0)
+        visNodes = Nodes.find({_id:{$in:visNodesNew}}); //get the cursor for the found array
+      }
+      else{ //if zooming out or staying const, then use node coordinates to determin what's visible
+      visNodes = Nodes.find({graph:Gname, //all nodes within visible window
         zoomLvl:{$gte: tmpZmLvl},
         x:{$gt: visWindow[0], $lt: visWindow[2]},
         y:{$gt: visWindow[1], $lt: visWindow[3]}}) 
         // {sort:{importance: -1}, limit:nnds});
+      }
       // console.log("visNd", visWindow, Gname, visNodes.count())
+      //---------Automatic Zoom Level--------------------------------
       ndCount=visNodes.count();
       console.log('zmLvl',tmpZmLvl, 'ndCnt', ndCount);
+      zmLvlLast=tmpZmLvl;
       if(ndCount < VisNNodes[0]){ //if too few nodes, show more detail
         if(ndCountLast>VisNNodes[1]){console.error("can't get the right zoom -"); break;} 
         if(tmpZmLvl==0){break;} //if fully zoomed in, break
