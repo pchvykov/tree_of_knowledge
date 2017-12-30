@@ -48,7 +48,7 @@ treeData = function(){
       tmpZmLvl = zmLvl; 
       var visNodes, ndCount, ndCountLast=NaN, zmLvlLast=NaN;
       do{ //loop to set the appropriate zoom level
-      if(false && zmLvlLast > tmpZmLvl) { //if zooming in, find the dominant subtrees connected to visible ones
+      if(zmLvlLast > tmpZmLvl) { //if zooming in, find the dominant subtrees connected to visible ones
         var visNodesNew = visNodes.map(nd=>nd._id), prevNodes=visNodesNew;
         do{
           var newNodes=[];
@@ -58,20 +58,25 @@ treeData = function(){
             if(tmpZmLvl==0) {srt['strength']=-1;}// exst['strength']={$exists:true}}
             else {srt['strength'+tmpZmLvl]=-1;}// exst['strength'+tmpZmLvl]={$exists:true}}}
             Array.prototype.push.apply(newNodes, //to push multiple elements
-            Links.find({source:visNd}).map(lk=>lk.target) //find all the children
+            Links.find({source:visNd, target:{$nin:visNodesNew}}) 
+            .map(lk=>lk.target) //find all the children not already selected
               .filter(chNd => //take only the children at the new zoom level
               Nodes.find(chNd).map(nd=>nd.zoomLvl)[0]==tmpZmLvl) 
               .filter(chNd => //take only the children whose most important parent is visNd
               Links.find({target:chNd},{sort:srt,limit:1}) //find child's most important parent
                 .map(lk=>lk.source)[0] == visNd)) //and see if it's the visible node
-            // newNodes.concat(Links.find({target:visNd}).map(lk=>lk.source) //same thing for parents
-            //   .filter(parNd => //take only the parents whose most important child is visNd
-            //   Links.find({source:parNd},{sort:srt,limit:1}) 
-            //     .map(lk=>lk.target)[0] == visNd))
+            Array.prototype.push.apply(newNodes,
+            Links.find({target:visNd, source:{$nin:visNodesNew}})
+            .map(lk=>lk.source) //same thing for parents
+              .filter(parNd => //take only the children at the new zoom level
+              Nodes.find(parNd).map(nd=>nd.zoomLvl)[0]==tmpZmLvl)
+              .filter(parNd => //take only the parents whose most important child is visNd
+              Links.find({source:parNd},{sort:srt,limit:1}) 
+                .map(lk=>lk.target)[0] == visNd))
           // console.log('...', visNd, newNodes)
           })
           prevNodes=newNodes; //set up for the next iteration
-          visNodesNew.concat(newNodes); //add the found nodes to the array
+          Array.prototype.push.apply(visNodesNew,newNodes); //add the found nodes to the array
           console.log("building subtree, added ", newNodes.length, ' nodes')
         } while(prevNodes.length > 0)
         visNodes = Nodes.find({_id:{$in:visNodesNew}}); //get the cursor for the found array
