@@ -77,7 +77,7 @@ treeData = function(){
           })
           prevNodes=newNodes; //set up for the next iteration
           Array.prototype.push.apply(visNodesNew,newNodes); //add the found nodes to the array
-          console.log("building subtree, added ", newNodes.length, ' nodes')
+          // console.log("building subtree, added ", newNodes.length, ' nodes')
         } while(prevNodes.length > 0)
         visNodes = Nodes.find({_id:{$in:visNodesNew}}); //get the cursor for the found array
       }
@@ -120,13 +120,23 @@ treeData = function(){
       return [visNodes, visLinks];
     });
     Meteor.publish("phantNodes", function(visNdID){//visWindow, minImportance){
+      //----------Select 20 most important phantom links-------------------
       //Select links that connect to visNd on one side by implementing XOR: 
-      var select={$or:[{source:{$in: visNdID}, target:{$nin: visNdID}}, 
-                       {source:{$nin: visNdID}, target:{$in: visNdID}}]};
-      select['strength'+tmpZmLvl]={$exists:true}; //select links at the right zoom     
+      // var select={$or:[{source:{$in: visNdID}, target:{$nin: visNdID}}, 
+      //                  {source:{$nin: visNdID}, target:{$in: visNdID}}]};
+      // select['strength'+tmpZmLvl]={$exists:true}; //select links at the right zoom     
       var srt={}; srt['strength'+tmpZmLvl]=-1;
-      var connLk= Links.find(select,{sort:srt, limit:20}); //limit number of phantom nodes loaded
-
+      // var connLk= Links.find(select,{sort:srt, limit:100}); //limit number of phantom nodes loaded
+      //---------Or select two most important per node----------------------
+      var connLkIDs=[];
+      visNdID.forEach(function(nd){
+        var select={$or:[{source:nd, target:{$nin: visNdID}}, 
+                         {source:{$nin: visNdID}, target:nd}]};
+        select['strength'+tmpZmLvl]={$exists:true}; //select links at the right zoom 
+        Array.prototype.push.apply(connLkIDs,
+          Links.find(select,{sort:srt, limit:2}).map(lk=>lk._id));
+      })
+      var connLk = Links.find({_id:{$in:connLkIDs}});
       // var connLk= Links.find({
       //     $or:[{source:{$in: visNdID}}, {target:{$in: visNdID}}]});
       // console.log('MI',minImportance)

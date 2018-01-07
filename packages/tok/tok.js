@@ -614,6 +614,7 @@ vis.append('svg:rect')
                    (visWindowInit[2]-transl[0])/scale, //x-right
                    (visWindowInit[3]-transl[1])/scale];//y-bottom
       currScale=scale;
+      // tree.redraw();
       throttRedraw();
     // }
   }
