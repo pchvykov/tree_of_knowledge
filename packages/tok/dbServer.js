@@ -50,29 +50,35 @@ treeData = function(){
       do{ //loop to set the appropriate zoom level
       if(zmLvlLast > tmpZmLvl) { //if zooming in, find the dominant subtrees connected to visible ones
         var visNodesNew = visNodes.map(nd=>nd._id), prevNodes=visNodesNew;
-        do{
+        do{ 
           var newNodes=[];
           prevNodes.forEach(function(visNd){ //for each node found last iteration
             // Links.find({$or:[{source:nd._id}, {target:nd._id}]})
+            var coord=Nodes.find(visNd).map(nd => [nd.x,nd.y,nd.importance])[0];
             var srt={}; 
             if(tmpZmLvl==0) {srt['strength']=-1;}// exst['strength']={$exists:true}}
             else {srt['strength'+tmpZmLvl]=-1;}// exst['strength'+tmpZmLvl]={$exists:true}}}
-            Array.prototype.push.apply(newNodes, //to push multiple elements
-            Links.find({source:visNd, target:{$nin:visNodesNew}}) 
+            var chNodes = Links.find({source:visNd, target:{$nin:visNodesNew}}) 
             .map(lk=>lk.target) //find all the children not already selected
               .filter(chNd => //take only the children at the new zoom level
               Nodes.find(chNd).map(nd=>nd.zoomLvl)[0]==tmpZmLvl) 
               .filter(chNd => //take only the children whose most important parent is visNd
               Links.find({target:chNd},{sort:srt,limit:1}) //find child's most important parent
-                .map(lk=>lk.source)[0] == visNd)) //and see if it's the visible node
-            Array.prototype.push.apply(newNodes,
-            Links.find({target:visNd, source:{$nin:visNodesNew}})
+                .map(lk=>lk.source)[0] == visNd) //and see if it's the visible node
+            Nodes.update({$and:[{_id:{$in:chNodes}}, {x:2345}]},
+              {$set:{x:coord[0],y:coord[1]+coord[2]}},{multi:true})
+            Array.prototype.push.apply(newNodes, chNodes);//to push multiple elements
+            
+            var parNodes = Links.find({target:visNd, source:{$nin:visNodesNew}})
             .map(lk=>lk.source) //same thing for parents
               .filter(parNd => //take only the children at the new zoom level
               Nodes.find(parNd).map(nd=>nd.zoomLvl)[0]==tmpZmLvl)
               .filter(parNd => //take only the parents whose most important child is visNd
               Links.find({source:parNd},{sort:srt,limit:1}) 
-                .map(lk=>lk.target)[0] == visNd))
+                .map(lk=>lk.target)[0] == visNd)
+            Nodes.update({$and:[{_id:{$in:parNodes}}, {x:2345}]},
+              {$set:{x:coord[0],y:coord[1]-coord[2]}},{multi:true})
+            Array.prototype.push.apply(newNodes, parNodes); //to push multiple elements
           // console.log('...', visNd, newNodes)
           })
           prevNodes=newNodes; //set up for the next iteration
@@ -142,7 +148,7 @@ treeData = function(){
       // console.log('MI',minImportance)
       var fixNodes = Nodes.find(
         {_id:{$in: connLk.map(lk=>lk.source).concat(connLk.map(lk=>lk.target)),
-              $nin:visNdID}},
+              $nin:visNdID}, x:{$ne:2345}}, //filter out unpositioned nodes - connecting links will be removed in tok.js, redraw()
         {fields:{text:0}}); //use this to flag phantom nodes (for now)
         // {transform: function(nd){
         //   nd.phant=true; return nd;
@@ -170,8 +176,9 @@ treeData = function(){
     //only published nodes/links appear in Nodes/Links collections:
     db.visSubscr=Meteor.subscribe("visNodes",Session.get("currGraph"),
       visWindow, Session.get('currZmLvl'), function(){
+      var ndLvls=Nodes.find().map(nd=>nd.zoomLvl);
       Session.set('currZmLvl', //set to new level as found in the publish function
-        Nodes.find().map(nd=>nd.zoomLvl).reduce((min,now)=>Math.min(min,now),Infinity))
+        (ndLvls.length > 0)? ndLvls.reduce((min,now)=>Math.min(min,now)) : 0)
     // db.phantSubscr=Meteor.subscribe("phantNodes", Nodes.find().map(nd=>nd._id), 
     // // Links.find().map(lk=>lk.source).concat(Links.find().map(lk=>lk.target)), 
     // visWindow, 
@@ -319,7 +326,7 @@ Meteor.methods({
         Nodes.update(id,{$set:{zoomLvl:zmIx-1}}) //store zoom level for each node
       })
       mxN = splitN; // prepare for next iteration
-      zmIx++; console.log("Calculating effective conn mx: ", splitN, " remaining");
+      zmIx++; console.log("Calculating effective conn mx ", splitN, " remaining");
     }
     ndID.slice(0,splitN).forEach(function(id){
       Nodes.update(id,{$set:{zoomLvl:zmIx-1}}) //store zoom level for last block

@@ -158,11 +158,13 @@ vis.append('svg:rect')
 
     nodeData.forEach(function(nd){
       nd.phantom = !nd.hasOwnProperty('text'); //identify phantom nodes
-      nd.fixed=nd.phantom; nd.permFixed=nd.fixed;
+      nd.fixed=nd.phantom; nd.permFixed=nd.phantom;
       //initialize all node velocities to 0:
       // nd.x=treeDim[0]/2; nd.y=treeDim[1]/2;
-      nd.px=nd.x;
-      nd.py=nd.y;
+      nd.x+=(Math.random()-0.5)*nd.importance/3; //randomize initial coordinates
+      nd.y+=(Math.random()-0.5)*nd.importance/3; //to avoid overlaps
+      nd.px=nd.x; nd.py=nd.y;
+
       //indices of parent nodes in nodeData (for oriented links only)
       nd.parentsIx = linkData 
           .filter(lk => nd._id==lk.target && lk.oriented)
@@ -176,14 +178,15 @@ vis.append('svg:rect')
 
     //replace node id-s in links with pointers to nodes
     //note: link.source prop used to distinguish links and nodes
-    linkData.forEach(function(lk, idx){
+    linkData.reduceRight(function(tmp, lk, idx, arr){ //a hack to get forEach runningh from the end (in reverse)
       lk.source = nodeData.find(function(nd){return nd._id == lk.source});
       lk.target = nodeData.find(function(nd){return nd._id == lk.target});
-      if(!lk.source || !lk.target) console.error("orphaned link! ", lk._id);
+      if(!lk.source || !lk.target) arr.splice(idx,1); //remove orphaned links
+      //console.error("orphaned link! ", lk._id);
       var strKey = 'strength'+Session.get('currZmLvl');
-      if(strKey in lk){ lk.strength = lk[strKey];}
+      if(strKey in lk){ lk.strength = lk[strKey];} //set displayed weight to that at current zoom
       // console.log("lk", lk._id, lk.source, lk.target);
-    });
+    },[]);
 
     // console.log("links here", linkData)    
 
@@ -574,7 +577,7 @@ vis.append('svg:rect')
   // d3.select("body").on("keyup", function () {
   //     ctrlDn = false;
   // });
-  var throttRedraw=throttle(function(){tree.redraw()},1000,{leading:false});
+  var throttRedraw=throttle(function(){tree.redraw()},1200,{leading:false});
   // var zoomScale=1, prevScale=1;
   // rescale g (pan and zoom)
   function rescale() {
