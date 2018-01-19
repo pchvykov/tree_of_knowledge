@@ -125,7 +125,7 @@ treeData = function(){
       // }
       return [visNodes, visLinks];
     });
-    Meteor.publish("phantNodes", function(visNdID){//visWindow, minImportance){
+    Meteor.publish("phantNodes", function(Gname, visWindow, visNdID, phChConst){//visWindow, minImportance){
       //----------Select 20 most important phantom links-------------------
       //Select links that connect to visNd on one side by implementing XOR: 
       // var select={$or:[{source:{$in: visNdID}, target:{$nin: visNdID}}, 
@@ -146,9 +146,21 @@ treeData = function(){
       // var connLk= Links.find({
       //     $or:[{source:{$in: visNdID}}, {target:{$in: visNdID}}]});
       // console.log('MI',minImportance)
+
+      //Find the nodes to create the right electric potential:
+      // if(tmpZmLvl=='') tmpZmLvl=0;
+      var scrCent = [(visWindow[0]+visWindow[2])/2, (visWindow[1]+visWindow[3])/2];
+      var phChNodes=[];
+      Nodes.find({graph:Gname, zoomLvl:{$gte: tmpZmLvl}, x:{$ne:2345}}).forEach(function(nd){
+          if(nd.importance*nd.importance > 
+              phChConst*(visWindow[3]-visWindow[1])/50 *
+              math.norm([nd.x-scrCent[0], nd.y-scrCent[1]])) phChNodes.push(nd._id);
+        })
+
       var fixNodes = Nodes.find(
-        {_id:{$in: connLk.map(lk=>lk.source).concat(connLk.map(lk=>lk.target)),
+        {$or:[{_id:{$in: connLk.map(lk=>lk.source).concat(connLk.map(lk=>lk.target)),
               $nin:visNdID}, x:{$ne:2345}}, //filter out unpositioned nodes - connecting links will be removed in tok.js, redraw()
+              {_id:{$in: phChNodes}}]}, //add nodes needed to get the right electric field
         {fields:{text:0}}); //use this to flag phantom nodes (for now)
         // {transform: function(nd){
         //   nd.phant=true; return nd;
@@ -184,8 +196,8 @@ treeData = function(){
     // visWindow, 
     // Nodes.find().map(nd=>nd.importance).reduce((min,now)=>Math.min(min,now)), //smallest visible node
     //  function(){
-    db.phantSubscr=Meteor.subscribe("phantNodes",
-      Nodes.find().map(nd=>nd._id),function(){ 
+    db.phantSubscr=Meteor.subscribe("phantNodes",Session.get("currGraph"),
+      visWindow, Nodes.find().map(nd=>nd._id), $('#phChInput').val(),function(){ 
       onReady();
     })})
   }
@@ -216,6 +228,7 @@ Meteor.methods({
 
     if(!node._id){ //add new node
       delete node._id;
+      if(!('zoomLvl' in node)) node.zoomLvl=0;
       var ndID = Nodes.insert(node);
       // console.log(Nodes.find().fetch())
       if(fromID){ //if linked node, also insert link
@@ -293,6 +306,7 @@ Meteor.methods({
           lk.strength/ndImp[idx]) //set mx element to link weight normalized by parent nd weight
       });
     })
+    console.log("built "+mxN+" sparse connectivity matrix");
 
     //Calculate effective connectivity one level out-------------------------
     connMxPS = connMx; //math.add(math.multiply(0.9,connMx), //partly symmetrized connectivity matrix
@@ -326,11 +340,12 @@ Meteor.methods({
         Nodes.update(id,{$set:{zoomLvl:zmIx-1}}) //store zoom level for each node
       })
       mxN = splitN; // prepare for next iteration
-      zmIx++; console.log("Calculating effective conn mx ", splitN, " remaining");
+      zmIx++; console.log("Calculating effective conn mx: " + splitN + " remaining");
     }
     ndID.slice(0,splitN).forEach(function(id){
       Nodes.update(id,{$set:{zoomLvl:zmIx-1}}) //store zoom level for last block
     })
+    console.log("Everything is loaded!")
     return connMxPS;
   },
   maxZoomLvl: function(graph){

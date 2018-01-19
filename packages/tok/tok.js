@@ -251,7 +251,9 @@ vis.append('svg:rect')
         // .attr("r", function(d){return d.importance}) //radius
         .classed("phantom",d=>d.phantom)
         .classed("fixed",d=>d.fixed)
-    force.charge(function(d){return - $('#ChargeInput').val()/2*Math.pow(d.importance,2)})
+    force.charge(function(d){ return -$('#ChargeInput').val()/2*
+      Math.pow(d.importance,2)}) //*((d.phantom)?3:1)
+        //change up phantom nodes to account for the charge of removed nodes
     // force.chargeDistance($('#chrgDistInput').val())
   
     //re-render all math - in the entire page!
@@ -315,12 +317,12 @@ vis.append('svg:rect')
     //   })
     linkData.forEach(function(lk){ //ensure that links are visible
       lk.minDist = (parseFloat(lk.source.importance)+
-        parseFloat(lk.target.importance))*1.2;
-      switch(lk.type){ //set the transition distances
-        case 'theorem': lk.transDist=150; break;
-        case 'conjecture': lk.transDist=100; break;
-        case 'related': lk.transDist=70; break;
-      }
+        parseFloat(lk.target.importance))*2;
+      // switch(lk.type){ //set the transition distances
+      //   case 'theorem': lk.transDist=150; break;
+      //   case 'conjecture': lk.transDist=100; break;
+      //   case 'related': lk.transDist=70; break;
+      // }
     })
 
     //show the selection correctly:
@@ -482,26 +484,17 @@ vis.append('svg:rect')
     if(forceRun) force.alpha(0.1);
     
     //create custom forces:
+    
     var g = 30 * e.alpha; //e.alpha = 0.1 maximum filter(nd=>!nd.phantom).
-    nodeData.forEach(function(nd){
     
 
-      //include gravity (charge-independent):
-      var grav=0.01*$('#gravInput').val(); //strength of the centering gravity force
-      nd.x -= grav*e.alpha*(nd.x-treeDim[0]/2);
-      nd.y -= grav*e.alpha*(nd.y-treeDim[1]/2);
-
-      //Add noise for annealing (quadratic s.t. dies faster than motion stops):
-      nd.x +=g*g*(Math.random()-0.5)*nd.importance/100;
-      nd.y +=g*g*(Math.random()-0.5)*nd.importance/100;
-    })
-
-    //Link forces:
+    //Link forces:----------------------------
     linkData.forEach(function(lk){
       
       var delx=(lk.target.x - lk.source.x);
       var dely=(lk.target.y - lk.source.y);
-      var len = Math.sqrt(delx*delx + dely*dely);
+      // var len = Math.sqrt(delx*delx + dely*dely);
+      var len = math.norm([delx, dely]);
 
       ////non-linear attraction:---
       // var transDist = $('#linkDistInput').val();
@@ -513,8 +506,11 @@ vis.append('svg:rect')
 
       ////Linear spring-like force:----
       var scale=g/50 * Math.pow(lk.strength,2)*($('#linkSStrInput').val())*
-        (1 - lk.minDist / len);
-
+        (1 - lk.minDist / (len+lk.strength/2)); //ensure denomenator >0
+      // if(scale < -1) scale=-1;
+      // if(scale >0.3) scale=0.3;
+      // console.log('scale',scale);
+      // if(len < lk.minDist) scale = scale*10; //to avoid collisions;
       var dx=delx*scale, dy=dely*scale;
 
       if(lk.oriented){ //orienting forces
@@ -524,11 +520,29 @@ vis.append('svg:rect')
         scale = - $('#linkOrtInput').val()*g*lk.strength/len*5*(Math.exp(-dely/len)-0.367879)*Math.sign(delx);
         dx -= dely*scale; dy += delx*scale;
       }
-      var srcChrg=-force.charge()(lk.source), trgChrg=-force.charge()(lk.target);
-      // if(!lk.source.phantom){ 
-      lk.source.x+=dx/srcChrg; lk.source.y+=dy/srcChrg; //divide by charge=mass to get acceleration
-      // if(!lk.target.phantom){ 
-      lk.target.x-=dx/trgChrg; lk.target.y-=dy/trgChrg;
+      var srcChrg=-force.charge()(lk.source)-lk.strength/5, 
+          trgChrg=-force.charge()(lk.target)-lk.strength/5; //ensure denomenator >0
+      if(!lk.source.fixed){ 
+      lk.source.x+=dx/srcChrg; lk.source.y+=dy/srcChrg;} //divide by charge=mass to get acceleration
+      if(!lk.target.fixed){ 
+      lk.target.x-=dx/trgChrg; lk.target.y-=dy/trgChrg;}
+    })
+
+    //Node forces:--------------------------
+    nodeData.forEach(function(nd, idx){
+      if(!nd.fixed){
+      //include gravity (charge-independent):
+      var grav=0.01*$('#gravInput').val(); //strength of the centering gravity force
+      nd.x -= grav*e.alpha*(nd.x-treeDim[0]/2);
+      nd.y -= grav*e.alpha*(nd.y-treeDim[1]/2);
+
+      //Add noise for annealing (quadratic s.t. dies faster than motion stops):
+      nd.x +=g*g*(Math.random()-0.5)*nd.importance/100;
+      nd.y +=g*g*(Math.random()-0.5)*nd.importance/100;
+
+      //avoid collisions:
+
+    }
     })
 
     // link.attr("x1", function(d) { return d.source.x; })
@@ -577,7 +591,7 @@ vis.append('svg:rect')
   // d3.select("body").on("keyup", function () {
   //     ctrlDn = false;
   // });
-  var throttRedraw=throttle(function(){tree.redraw()},1200,{leading:false});
+  var throttRedraw=throttle(function(){tree.redraw()},800,{leading:false});
   // var zoomScale=1, prevScale=1;
   // rescale g (pan and zoom)
   function rescale() {
