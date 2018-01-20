@@ -331,6 +331,10 @@ this.dblclick = function(){
 
 
 this.keydown = function() {
+  if(d3.event.keyCode == 32){ //Spacebar pressed
+    d3.event.preventDefault(); 
+    tree.redraw(); //update graph accoriding to current window
+  }
   if (!gui.selected) return;
   if(d3.event.ctrlKey){ //editing controls accessed by holding Ctrl
   switch (d3.event.keyCode) {

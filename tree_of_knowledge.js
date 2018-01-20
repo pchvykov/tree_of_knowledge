@@ -67,6 +67,8 @@ if (Meteor.isServer){
     // console.log(
     //   Nodes.remove({graph:'MetaMath'}),
     //   Links.remove({graph:'MetaMath'})) 
+    Nodes.update({graph:'MetaMath'},{$set:{x:2345,y:2345}},{multi:true})
+     
     console.log(
       Nodes.remove({graph:'test1'}),
       Links.remove({graph:'test1'})) 

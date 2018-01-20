@@ -247,7 +247,7 @@ vis.append('svg:rect')
         // .attr("height", d=> d.importance)
         .attr("transform", d => "scale("+d.importance*$('#sizeInput').val()+")")
         //work-around to keep stroke-width independent of size:
-        .attr("stroke-width",d => 3/d.importance)
+        .attr("stroke-width",d => Math.min(3/d.importance,0.3))
         // .attr("r", function(d){return d.importance}) //radius
         .classed("phantom",d=>d.phantom)
         .classed("fixed",d=>d.fixed)
@@ -494,7 +494,7 @@ vis.append('svg:rect')
       var delx=(lk.target.x - lk.source.x);
       var dely=(lk.target.y - lk.source.y);
       // var len = Math.sqrt(delx*delx + dely*dely);
-      var len = math.norm([delx, dely]);
+      var len = math.norm([delx, dely]) +lk.strength/2; //ensure denomenators >0
 
       ////non-linear attraction:---
       // var transDist = $('#linkDistInput').val();
@@ -506,26 +506,33 @@ vis.append('svg:rect')
 
       ////Linear spring-like force:----
       var scale=g/50 * Math.pow(lk.strength,2)*($('#linkSStrInput').val())*
-        (1 - lk.minDist / (len+lk.strength/2)); //ensure denomenator >0
+        (1 - lk.minDist / len); 
       // if(scale < -1) scale=-1;
       // if(scale >0.3) scale=0.3;
       // console.log('scale',scale);
-      // if(len < lk.minDist) scale = scale*10; //to avoid collisions;
+      // if(len < lk.minDist) scale = scale*$('#hardCoreInput').val(); //to avoid collisions;
       var dx=delx*scale, dy=dely*scale;
 
       if(lk.oriented){ //orienting forces
         // var dy=g * Math.max(-2, Math.min(2,
         //   Math.exp((lk.source.y-lk.target.y)/100.)
         //   ));
-        scale = - $('#linkOrtInput').val()*g*lk.strength/len*5*(Math.exp(-dely/len)-0.367879)*Math.sign(delx);
+        scale = - $('#linkOrtInput').val()*g*Math.pow(lk.strength,3)/len*(Math.exp(-dely/len)-0.367879)*Math.sign(delx);
+        // scale = Math.min(scale, 0.5*lk.strength*lk.strength); //cap rotation at 30deg per tick
         dx -= dely*scale; dy += delx*scale;
       }
-      var srcChrg=-force.charge()(lk.source)-lk.strength/5, 
-          trgChrg=-force.charge()(lk.target)-lk.strength/5; //ensure denomenator >0
+      // console.log('chrg', force.charge()(lk.source))
+      var srcChrg=-force.charge()(lk.source)-lk.strength/2, 
+          trgChrg=-force.charge()(lk.target)-lk.strength/2; //ensure denomenator >0
       if(!lk.source.fixed){ 
       lk.source.x+=dx/srcChrg; lk.source.y+=dy/srcChrg;} //divide by charge=mass to get acceleration
       if(!lk.target.fixed){ 
       lk.target.x-=dx/trgChrg; lk.target.y-=dy/trgChrg;}
+      //Collision detection for the linked nodes:
+      // if(Math.abs(lk.source.x-lk.target.x) + Math.abs(lk.source.y-lk.target.y) < lk.minDist/2){ //faster than math.norm([srcX-trgX,srcY-trgY])
+      //   lk.source.x=srcX; lk.source.y = srcY;
+      //   lk.target.x=trgX; lk.target.y = trgY;
+      // }
     })
 
     //Node forces:--------------------------
@@ -591,7 +598,8 @@ vis.append('svg:rect')
   // d3.select("body").on("keyup", function () {
   //     ctrlDn = false;
   // });
-  var throttRedraw=throttle(function(){tree.redraw()},800,{leading:false});
+  
+  // var throttRedraw=throttle(function(){tree.redraw()},800,{leading:false});
   // var zoomScale=1, prevScale=1;
   // rescale g (pan and zoom)
   function rescale() {
@@ -632,7 +640,7 @@ vis.append('svg:rect')
                    (visWindowInit[3]-transl[1])/scale];//y-bottom
       currScale=scale;
       // tree.redraw();
-      throttRedraw();
+      // throttRedraw();
     // }
   }
   //------------Throttling function (from Underscore_ package)--------------
@@ -641,37 +649,37 @@ vis.append('svg:rect')
   // as much as it can, without ever going more than once per `wait` duration;
   // but if you'd like to disable the execution on the leading edge, pass
   // `{leading: false}`. To disable execution on the trailing edge, ditto.
-  function throttle(func, wait, options) {
-    var context, args, result;
-    var timeout = null;
-    var previous = 0;
-    if (!options) options = {};
-    var later = function() {
-      previous = options.leading === false ? 0 : Date.now();
-      timeout = null;
-      result = func.apply(context, args);
-      if (!timeout) context = args = null;
-    };
-    return function() {
-      var now = Date.now();
-      if (!previous && options.leading === false) previous = now;
-      var remaining = wait - (now - previous);
-      context = this;
-      args = arguments;
-      if (remaining <= 0 || remaining > wait) {
-        if (timeout) {
-          clearTimeout(timeout);
-          timeout = null;
-        }
-        previous = now;
-        result = func.apply(context, args);
-        if (!timeout) context = args = null;
-      } else if (!timeout && options.trailing !== false) {
-        timeout = setTimeout(later, remaining);
-      }
-      return result;
-    };
-  };
+  // function throttle(func, wait, options) {
+  //   var context, args, result;
+  //   var timeout = null;
+  //   var previous = 0;
+  //   if (!options) options = {};
+  //   var later = function() {
+  //     previous = options.leading === false ? 0 : Date.now();
+  //     timeout = null;
+  //     result = func.apply(context, args);
+  //     if (!timeout) context = args = null;
+  //   };
+  //   return function() {
+  //     var now = Date.now();
+  //     if (!previous && options.leading === false) previous = now;
+  //     var remaining = wait - (now - previous);
+  //     context = this;
+  //     args = arguments;
+  //     if (remaining <= 0 || remaining > wait) {
+  //       if (timeout) {
+  //         clearTimeout(timeout);
+  //         timeout = null;
+  //       }
+  //       previous = now;
+  //       result = func.apply(context, args);
+  //       if (!timeout) context = args = null;
+  //     } else if (!timeout && options.trailing !== false) {
+  //       timeout = setTimeout(later, remaining);
+  //     }
+  //     return result;
+  //   };
+  // };
 
 }
 
