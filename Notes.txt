@@ -10,6 +10,7 @@ chargeDistance??
 Make sure all types are correct when going from edit popup to DB
 Check parameters: symmetrization of connMx, rounding of weak eff links 
 Ctrl+ +/-  - makes unoriented links oriented
+(Only in Meteor 1.6 - Mongo3.4) $graphLookup, $aggregate, indexing?
 
 +fix gravity
 +Link style changing on type change - immediate
