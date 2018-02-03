@@ -61,6 +61,8 @@ ToK = function(svg, db) {
                   (treeDim[1]+height/initScale)/2];
   var visWindow=visWindowInit;
   var currScale=1;
+  this.gravTo = [treeDim[0]/2, treeDim[1]/2];
+  this.gravStrength = [visWindow[2]-visWindow[0],visWindow[3]-visWindow[1]];
 // vis.attr("width",treeWidth)
 //    .attr("height",treeHeight);
 //    .attr("transform",
@@ -147,7 +149,8 @@ vis.append('svg:rect')
   this.redraw = function(postScript) { //execte postScrip() at the end
   //store current node coordinates to restart from same position:
   if(force.nodes().length >0) Meteor.call("updateCoord",force.nodes())
-
+  tree.gravTo = [(visWindow[0]+visWindow[2])/2, (visWindow[1]+visWindow[3])/2]; //gravity center
+  tree.gravStrength =[visWindow[2]-visWindow[0],visWindow[3]-visWindow[1]];
   db.subscribe(visWindow, function(){ //parseInt($('#nnodesInput').val())
     console.log("redrawing");
     //this can access only published data - current graph:
@@ -182,9 +185,13 @@ vis.append('svg:rect')
       lk.source = nodeData.find(function(nd){return nd._id == lk.source});
       lk.target = nodeData.find(function(nd){return nd._id == lk.target});
       if(!lk.source || !lk.target) arr.splice(idx,1); //remove orphaned links
-      //console.error("orphaned link! ", lk._id);
-      var strKey = 'strength'+Session.get('currZmLvl');
-      if(strKey in lk){ lk.strength = lk[strKey];} //set displayed weight to that at current zoom
+        // console.error("orphaned link! ", lk._id);}
+      var strKey, ttZm=Session.get('currZmLvl');
+      // do{
+        strKey = 'strength'+(ttZm==0? '':ttZm);
+      //   ttZm++;
+      //  } while(!(strKey in lk))
+       lk.strength = lk[strKey]; //set displayed weight to that at current zoom
       // console.log("lk", lk._id, lk.source, lk.target);
     },[]);
 
@@ -247,13 +254,13 @@ vis.append('svg:rect')
         // .attr("height", d=> d.importance)
         .attr("transform", d => "scale("+d.importance*$('#sizeInput').val()+")")
         //work-around to keep stroke-width independent of size:
-        .attr("stroke-width",d => Math.min(3/d.importance,0.3))
+        .attr("stroke-width",d => Math.min(5/d.importance,0.3))
         // .attr("r", function(d){return d.importance}) //radius
         .classed("phantom",d=>d.phantom)
         .classed("fixed",d=>d.fixed)
     force.charge(function(d){ return -$('#ChargeInput').val()/2*
-      Math.pow(d.importance,2)}) //*((d.phantom)?3:1)
-        //change up phantom nodes to account for the charge of removed nodes
+      Math.pow(d.importance*((d.phantom)?0:1),2)}) //*((d.phantom)?3:1)
+        //charge up phantom nodes to account for the charge of removed nodes
     // force.chargeDistance($('#chrgDistInput').val())
   
     //re-render all math - in the entire page!
@@ -471,6 +478,10 @@ vis.append('svg:rect')
       // tree.redraw();
     })
   })
+  $('#calcGrWeights').click(function(){ //recalculate the effective connectivit matrices on the server
+    Meteor.call("weighGraph",Session.get("currGraph"))
+  })
+
   $('#zmLvlInput').change(function(){
     Session.set('currZmLvl', parseInt($('#zmLvlInput').val()));
     console.log("current zoom:", Session.get('currZmLvl'))
@@ -494,7 +505,7 @@ vis.append('svg:rect')
       var delx=(lk.target.x - lk.source.x);
       var dely=(lk.target.y - lk.source.y);
       // var len = Math.sqrt(delx*delx + dely*dely);
-      var len = math.norm([delx, dely]) +lk.strength/2; //ensure denomenators >0
+      var len = math.norm([delx, dely]) +lk.strength/4; //ensure denomenators >0
 
       ////non-linear attraction:---
       // var transDist = $('#linkDistInput').val();
@@ -517,13 +528,13 @@ vis.append('svg:rect')
         // var dy=g * Math.max(-2, Math.min(2,
         //   Math.exp((lk.source.y-lk.target.y)/100.)
         //   ));
-        scale = - $('#linkOrtInput').val()*g*Math.pow(lk.strength,3)/len*(Math.exp(-dely/len)-0.367879)*Math.sign(delx);
+        scale = $('#linkOrtInput').val()*g*Math.pow(lk.strength,3)/len*(Math.exp(-delx/len)-0.367879)*Math.sign(dely);
         // scale = Math.min(scale, 0.5*lk.strength*lk.strength); //cap rotation at 30deg per tick
         dx -= dely*scale; dy += delx*scale;
       }
       // console.log('chrg', force.charge()(lk.source))
-      var srcChrg=-force.charge()(lk.source)-lk.strength/2, 
-          trgChrg=-force.charge()(lk.target)-lk.strength/2; //ensure denomenator >0
+      var srcChrg=-force.charge()(lk.source);//-lk.strength/2, 
+          trgChrg=-force.charge()(lk.target);//-lk.strength/2; //ensure denomenator >0
       if(!lk.source.fixed){ 
       lk.source.x+=dx/srcChrg; lk.source.y+=dy/srcChrg;} //divide by charge=mass to get acceleration
       if(!lk.target.fixed){ 
@@ -539,9 +550,11 @@ vis.append('svg:rect')
     nodeData.forEach(function(nd, idx){
       if(!nd.fixed){
       //include gravity (charge-independent):
+      //gravitate towards center of window at last reload, rectified cubic potential:
       var grav=0.01*$('#gravInput').val(); //strength of the centering gravity force
-      nd.x -= grav*e.alpha*(nd.x-treeDim[0]/2);
-      nd.y -= grav*e.alpha*(nd.y-treeDim[1]/2);
+      var dxG=nd.x-tree.gravTo[0]; dyG=nd.y-tree.gravTo[1];
+      nd.x -= grav*e.alpha*Math.pow(dxG,2)*Math.sign(dxG)/tree.gravStrength[0];//treeDim[0]/2);
+      nd.y -= grav*e.alpha*Math.pow(dyG,2)*Math.sign(dyG)/tree.gravStrength[1];//treeDim[1]/2);
 
       //Add noise for annealing (quadratic s.t. dies faster than motion stops):
       nd.x +=g*g*(Math.random()-0.5)*nd.importance/100;
@@ -598,7 +611,7 @@ vis.append('svg:rect')
   // d3.select("body").on("keyup", function () {
   //     ctrlDn = false;
   // });
-  
+
   // var throttRedraw=throttle(function(){tree.redraw()},800,{leading:false});
   // var zoomScale=1, prevScale=1;
   // rescale g (pan and zoom)

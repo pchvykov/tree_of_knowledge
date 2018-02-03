@@ -1,4 +1,11 @@
 ToDo:
++Why disconnected visNodes sometimes? (Biimpri - sylibr - bitri)
+Effective connectivity - include horizontal
++Gravity - quadratic or quartic? Size-dependent?
+Zooming in: children whom this is one of 2 most important parents?
++Panning at large zoom - redo zoom in calculation
+Change graph weights
+
 possibility to adjust newly created nodes/links
 undo/redo stack on server operations (https://github.com/JackAdams/meteor-undo-redo)
 Shift-enter updates DB but not content popup
@@ -8,7 +15,7 @@ highlighting nodes on rollover - all by color?
 Optimize tick-function for speed
 chargeDistance??
 Make sure all types are correct when going from edit popup to DB
-Check parameters: symmetrization of connMx, rounding of weak eff links 
+Check parameters: symmetrization of connMx, rounding of weak eff links, 
 Ctrl+ +/-  - makes unoriented links oriented
 (Only in Meteor 1.6 - Mongo3.4) $graphLookup, $aggregate, indexing?
 

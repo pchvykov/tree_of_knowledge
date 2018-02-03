@@ -64,17 +64,18 @@ if (Meteor.isServer){
     // console.log('all',
     //   Nodes.find().fetch(),
     //   Links.find().fetch())
-    console.log(
-      Nodes.remove({graph:'MetaMath'}),
-      Links.remove({graph:'MetaMath'})) 
-    // Nodes.update({graph:'MetaMath'},{$set:{x:2345,y:2345}},{multi:true})
-     
-    console.log(
-      Nodes.remove({graph:'test1'}),
-      Links.remove({graph:'test1'})) 
+    // console.log(
+    //   Nodes.remove({graph:'MetaMath'}),
+    //   Links.remove({graph:'MetaMath'})) 
+    Nodes.update({graph:'MetaMath'},{$set:{x:2345,y:2345}},{multi:true})
+ 
+    // console.log(
+    //   Nodes.remove({graph:'test1'}),
+    //   Links.remove({graph:'test1'})) 
+    Nodes.update({graph:'test'},{$set:{x:2345,y:2345}},{multi:true}) 
     // Links.find({}).forEach(lk => Links.update(lk._id, 
     //   {$set: {strength:parseFloat(lk.strength)}}));
-    console.log(Nodes.update({x:NaN}, 
+    console.log(Nodes.update({x:NaN},  
       {$set: {x:1000}}, {multi:true}),
     Nodes.update({y:NaN}, 
       {$set: {y:1000}}, {multi:true}))
@@ -103,7 +104,7 @@ if (Meteor.isServer){
       Links.remove({graph: name});
       Nodes.remove({graph: name});
     },
-    backupGraph: function(name, note, srv){
+    backupGraph: function(name, note, srv){ 
       var bck={
         nodes: //JSON.stringify(
           Nodes.find({graph:name}).fetch(),
