@@ -331,7 +331,7 @@ this.dblclick = function(){
 
 
 this.keydown = function() {
-  if(d3.event.keyCode == 32){ //Spacebar pressed
+  if(d3.event.keyCode == 32 && !gui.editPopup){ //Spacebar pressed
     d3.event.preventDefault(); 
     tree.redraw(); //update graph accoriding to current window
   }
@@ -387,8 +387,8 @@ this.keydown = function() {
       gui.tree.redraw();
       break;
     //Ctrl+ U/D - switch type
-    case 38: var grow=true;//up
-    case 40: //down
+    case 221: var grow=true;//up
+    case 219: //down
       var del=(grow ? 1:-1);
       var obj=gui.selected;
       d3.event.preventDefault();

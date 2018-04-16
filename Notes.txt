@@ -1,3 +1,6 @@
+Generating forces
+
+
 ToDo:
 +Why disconnected visNodes sometimes? (Biimpri - sylibr - bitri)
 Effective connectivity - include horizontal
@@ -6,9 +9,9 @@ Zooming in: children whom this is one of 2 most important parents?
 +Panning at large zoom - redo zoom in calculation
 Change graph weights
 
-possibility to adjust newly created nodes/links
++possibility to adjust newly created nodes/links
 undo/redo stack on server operations (https://github.com/JackAdams/meteor-undo-redo)
-Shift-enter updates DB but not content popup
++Shift-enter updates DB but not content popup
 link: implies in most cases
 highlighting links on rollover - go further
 highlighting nodes on rollover - all by color?
@@ -79,7 +82,7 @@ Click - select node/link
 R-Click - fix node
 Ctrl+C and Ctrl+V - copy and paste node/link data onto another one (replaces whatever is there; doesn't not save automatically)
 Ctrl+Z and Ctrl+Y - undo/redo when in text-editor box
-Ctrl+ up/down - change link/node type
+Ctrl+[/] - change link/node type
 Ctrl+ -/= - decrease / increase size
 Ctrl+ O - orient link
 Ctrl+ R - reverse link direction

@@ -39,6 +39,7 @@ var updateDB = function(dat){
         oriented: true //(obj.type=='derivation' || obj.type=='example')
       };
     };
+    dat.node=obj;
     //update the database entry:
     Meteor.call("updateNode",
       obj, dat.sourceID, link,
@@ -88,7 +89,7 @@ var updateDB = function(dat){
         // return "fail"; //disallow circular references
       }
     }
-
+    dat.link=obj;
     //update the database entry:
     Meteor.call("updateLink", obj,
       function(err,res){
