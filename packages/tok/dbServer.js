@@ -271,16 +271,41 @@ Meteor.methods({
     }
 
     // console.log("added link in method!", link);
-    if(!link._id){
+    if(!link._id){ //new link
       delete link._id;
+      var tarLk=Links.findOne(link.target);
+      if(tarLk){ //if targeting another link, add "derivation" node
+        var tarNd=Nodes.findOne(tarLk.target);
+        var derNdID=Nodes.insert({
+          importance: tarNd.importance,
+          x: tarNd.x-tarNd.importance,
+          y: tarNd.y,
+          graph: link.graph,
+          type: "derivation",
+          text: "",
+          zoomLvl:0
+        });
+        Links.update(link.target,{$set: {target:derNdID}});
+        Links.insert({
+          source:derNdID,
+          target:tarNd._id,
+          strength:tarLk.strength,
+          type:tarLk.type,
+          graph:link.graph,
+          oriented:true,
+          text:""
+        });
+        link.target=derNdID;
+        link.oriented=true; link.type="theorem";
+      }
       return Links.insert(link);
     }
-    else{
+    else{ //update link
       var attr = {};
       for (var attrname in link) { 
         if(attrname=="_id") continue;
         if((attrname=="source" || attrname=="target") && 
-          typeof link[attrname] !== 'string'){
+          typeof link[attrname] !== 'string'){ //allow objects as source/target
           attr[attrname]=link[attrname]._id; continue;
         }
         attr[attrname] = link[attrname]; 

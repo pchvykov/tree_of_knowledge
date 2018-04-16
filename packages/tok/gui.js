@@ -228,6 +228,26 @@ this.nodeMouseup = function(d) { //Create new link:
   // drag_line.attr("class", "drag_line_hidden");
   resetMouseVars(); 
 };
+this.linkMouseup = function(d) { //Create new AND ("derivation") node:
+  if (mousedown_node) {
+    mouseup_link = d; 
+    if (mouseup_link.source !== mousedown_node && mouseup_link.target !== mousedown_node) { 
+      d3.event.stopPropagation(); //prevent anything else from happening      
+      tree.addLink({source: mousedown_node, target: mouseup_link});
+    }
+    else{
+      alert("Can't have double links!");
+      drag_line.attr("class", "drag_line_hidden");
+    }
+    // enable zoom and drag:
+    // tree.vis.call(zoom);
+    d3.select(mousedown_node_DOM).call(nodeDrag);
+    // console.log(gui.selected_node, gui.selected_link);
+  }
+  d.dragging=false;
+  // drag_line.attr("class", "drag_line_hidden");
+  resetMouseVars(); 
+};
 //fix links/nodes on hover to make them easier to select:
 this.nodeMouseover = function(d){
   if(!d.dragging){

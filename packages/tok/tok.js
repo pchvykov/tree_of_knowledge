@@ -278,6 +278,7 @@ vis.append('svg:rect')
         .on("mouseover", gui.linkMouseover)
         .on("mouseout",gui.linkMouseout)
         .on("mousedown", gui.linkMousedown)
+        .on("mouseup", gui.linkMouseup, false) //bubble event propagation
         .on("dblclick", gui.linkDblClick,false);//bubble events
         // .each(function(d){
         //   console.log(d);
@@ -296,7 +297,8 @@ vis.append('svg:rect')
         return d.strength*$('#sizeInput').val()+'px';
       },
       "marker-mid":function(d){
-        return (d.oriented ?  "url(#arrowHead)" : null) //Arrow heads
+        return (d.oriented && d.source.type!="derivation"
+           ?  "url(#arrowHead)" : null) //Arrow heads
       }
     })
     link.each(function(d){
@@ -325,6 +327,7 @@ vis.append('svg:rect')
     linkData.forEach(function(lk){ //ensure that links are visible
       lk.minDist = (parseFloat(lk.source.importance)+
         parseFloat(lk.target.importance))*2;
+      if(lk.source.type=="derivation") lk.minDist/=10;
       // switch(lk.type){ //set the transition distances
       //   case 'theorem': lk.transDist=150; break;
       //   case 'conjecture': lk.transDist=100; break;
@@ -523,6 +526,10 @@ vis.append('svg:rect')
       // console.log('scale',scale);
       // if(len < lk.minDist) scale = scale*$('#hardCoreInput').val(); //to avoid collisions;
       var dx=delx*scale, dy=dely*scale;
+      if(lk.source.type=="derivation"){ //make derivation node close to target node
+        var nnScale=0.5*(len-lk.minDist)/lk.strength; 
+        dx*=nnScale; dy*=nnScale; //non-linear springs
+      }
 
       if(lk.oriented){ //orienting forces
         // var dy=g * Math.max(-2, Math.min(2,
@@ -533,8 +540,9 @@ vis.append('svg:rect')
         dx -= dely*scale; dy += delx*scale;
       }
       // console.log('chrg', force.charge()(lk.source))
-      var srcChrg=-force.charge()(lk.source);//-lk.strength/2, 
-          trgChrg=-force.charge()(lk.target);//-lk.strength/2; //ensure denomenator >0
+      // var chrgCorr=lk.strength*lk.strength/4*0;
+      var srcChrg=-force.charge()(lk.source);//-chrgCorr, 
+          trgChrg=-force.charge()(lk.target);//-chrgCorr; //ensure denomenator >0
       if(!lk.source.fixed){ 
       lk.source.x+=dx/srcChrg; lk.source.y+=dy/srcChrg;} //divide by charge=mass to get acceleration
       if(!lk.target.fixed){ 

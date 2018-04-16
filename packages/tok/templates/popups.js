@@ -75,6 +75,7 @@ var updateDB = function(dat){
       var nodeData = dat.gui.tree.force.nodes();
       var src = nodeData.find(function(nd){return nd._id == obj.source});
       var trg = nodeData.find(function(nd){return nd._id == obj.target});
+      if(trg){
       var checkChildren = function(nd){
         return nd.childrenIx.reduce(
           function(prev,ix){
@@ -87,6 +88,7 @@ var updateDB = function(dat){
       if(checkChildren(trg)){
         notify("circular reference detected!");
         // return "fail"; //disallow circular references
+      }
       }
     }
     dat.link=obj;
@@ -153,8 +155,9 @@ var rendered = function(){
       $("#oriented").prop("checked",dat.link.oriented);
     }
     else{ //defaults
-      $('#type').val('related');
-      $('#importance').val(10);
+      $('#type').val('theorem');
+      $('#importance').val(5);
+      $('#oriented').prop("checked",true);
     }
   }
   // if(node.importance) $("#importance").val(node.importance);
