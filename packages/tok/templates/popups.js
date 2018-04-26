@@ -34,7 +34,7 @@ var updateDB = function(dat){
         };
       var link = {
         type: lkType(obj.type),
-        strength: obj.importance,
+        strength: obj.importance/2,
         graph: Session.get('currGraph'),
         oriented: true //(obj.type=='derivation' || obj.type=='example')
       };
@@ -118,7 +118,6 @@ var editorEvents = {
     this.gui.drag_line.attr("class", "drag_line_hidden");
     // this.gui.tree.updateSelection();
   },
-
   'click #cancel':function(e){
     Blaze.remove(this.gui.editPopup);
     this.gui.editPopup=null;
@@ -142,6 +141,7 @@ var rendered = function(){
       $('#type').val('statement');
       $('#importance').val(10);
     }
+    $('#title').focus();
   };
   if(dat.link){
     $.each(linkTypes, function(key, value) {   
@@ -159,6 +159,7 @@ var rendered = function(){
       $('#importance').val(5);
       $('#oriented').prop("checked",true);
     }
+    $('#save').focus();
   }
   // if(node.importance) $("#importance").val(node.importance);
   // $("#content").val(node.text);
@@ -180,6 +181,12 @@ var rendered = function(){
         $('#contentPopup #linkBody')
           .scrollTop(cont_scroll*document.getElementById('linkBody').scrollHeight);
       }
+    }
+  });
+  //Click save on "enter"
+  $("#title").keyup(function(event) {
+    if (event.keyCode === 13) {
+        $("#save").click();
     }
   });
 };

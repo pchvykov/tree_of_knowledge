@@ -160,6 +160,7 @@ vis.append('svg:rect')
     // console.log('tst',Nodes.find({text:{$exists:false}}).count())
 
     nodeData.forEach(function(nd){
+      if(nd.x==2345 || nd.y==2345) console.error("unpositioned node: ", nd);
       nd.phantom = !nd.hasOwnProperty('text'); //identify phantom nodes
       nd.fixed=nd.phantom; nd.permFixed=nd.phantom;
       //initialize all node velocities to 0:
@@ -327,7 +328,7 @@ vis.append('svg:rect')
     linkData.forEach(function(lk){ //ensure that links are visible
       lk.minDist = (parseFloat(lk.source.importance)+
         parseFloat(lk.target.importance))*2;
-      if(lk.source.type=="derivation") lk.minDist/=10;
+      if(lk.source.type=="derivation") lk.minDist/=8;
       // switch(lk.type){ //set the transition distances
       //   case 'theorem': lk.transDist=150; break;
       //   case 'conjecture': lk.transDist=100; break;

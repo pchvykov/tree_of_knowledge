@@ -60,30 +60,30 @@ treeData = function(){
           var newNodes=[];
           prevNodes.forEach(function(visNd){ //for each node found last iteration
             // Links.find({$or:[{source:nd._id}, {target:nd._id}]})
-            var coord=Nodes.find(visNd).map(nd => [nd.x,nd.y,nd.importance])[0];//for new node positioning 
+            var coord=Nodes.find(visNd).map(nd => [nd.x,nd.y,2*nd.importance])[0];//for new node positioning 
             var srt={}; 
             if(tmpZmLvl==0) {srt['strength']=-1;}// exst['strength']={$exists:true}}
             else {srt['strength'+tmpZmLvl]=-1;}// exst['strength'+tmpZmLvl]={$exists:true}}}
             var chNodes = Links.find({source:visNd, target:{$nin:visNodesNew}}) 
             .map(lk=>lk.target) //find all the children not already selected
               .filter(chNd => //take only the children at the new zoom level
-              Nodes.find(chNd).map(nd=>nd.zoomLvl)[0]==tmpZmLvl) 
+              Nodes.findOne(chNd).zoomLvl==tmpZmLvl) 
               .filter(chNd => //take only the children whose most important parent is visNd
               Links.find({target:chNd},{sort:srt,limit:1}) //find child's most important parent
                 .map(lk=>lk.source)[0] == visNd) //and see if it's the visible node
             Nodes.update({$and:[{_id:{$in:chNodes}}, {x:2345}]},
-              {$set:{x:coord[0],y:coord[1]+coord[2]}},{multi:true})//position node near the visible one if not alrady
+              {$set:{x:coord[0]+coord[2],y:coord[1]+Math.random()*coord[2]}},{multi:true})//position node near the visible one if not alrady
             Array.prototype.push.apply(newNodes, chNodes);//to push multiple elements
             
             var parNodes = Links.find({target:visNd, source:{$nin:visNodesNew}})
             .map(lk=>lk.source) //same thing for parents
               .filter(parNd => //take only the children at the new zoom level
-              Nodes.find(parNd).map(nd=>nd.zoomLvl)[0]==tmpZmLvl)
+              Nodes.findOne(parNd).zoomLvl==tmpZmLvl)
               .filter(parNd => //take only the parents whose most important child is visNd
               Links.find({source:parNd},{sort:srt,limit:1}) 
                 .map(lk=>lk.target)[0] == visNd)
             Nodes.update({$and:[{_id:{$in:parNodes}}, {x:2345}]},
-              {$set:{x:coord[0],y:coord[1]-coord[2]}},{multi:true})
+              {$set:{x:coord[0]-coord[2],y:coord[1]-Math.random()*coord[2]}},{multi:true})
             Array.prototype.push.apply(newNodes, parNodes); //to push multiple elements
           // console.log('...', visNd, newNodes)
           })
@@ -94,10 +94,10 @@ treeData = function(){
         visNodes = Nodes.find({_id:{$in:visNodesNew}}); //get the cursor for the found array
       }
       else{ //if zooming out or staying const, then use node coordinates to determin what's visible
-      visNodes = Nodes.find({graph:Gname, //all nodes within visible window
+      visNodes = Nodes.find({graph:Gname, //all positioned nodes within visible window
         zoomLvl:{$gte: tmpZmLvl},
-        x:{$gt: visWindow[0], $lt: visWindow[2]},
-        y:{$gt: visWindow[1], $lt: visWindow[3]}})  
+        x:{$gt: visWindow[0], $lt: visWindow[2], $ne: 2345},
+        y:{$gt: visWindow[1], $lt: visWindow[3], $ne: 2345}})  
         // {sort:{importance: -1}, limit:nnds});
       }
       // console.log("visNd", visWindow, Gname, visNodes.count())
@@ -329,7 +329,7 @@ Meteor.methods({
   deleteLink: function(lk){
     Links.remove(lk);
   },
-  weighGraph: function(graph){
+  weighGraph: function(graph){ //calculate node and link weights 
     if(Meteor.isServer){
     //after the tree has been created No
     //Back-propagate importance values from leaves throughout the tree
@@ -342,7 +342,26 @@ Meteor.methods({
     // console.log("MMnodes",Nodes.find({graph:'MetaMath'}).fetch())
     //nodes that are not yet weighted:
     Links.remove({graph:graph, strength:{$exists:false}}); //remove old effective links
-    var unweighted = Nodes.find({graph:graph}).map(nd=>nd._id);//Object.keys(nodeDic).map((k) => nodeDic[k]);
+    var nds=Nodes.find({graph:graph});//, level:lev});
+    var unweighted = nds.map(nd=>nd._id);//Object.keys(nodeDic).map((k) => nodeDic[k]);
+    //Find average child to parent ratio:
+    // var nnLev=1, lev=1; var ch2parRat=[];
+    // while(nnLev>0){
+      // nnLev=nds.count();
+      var aveNchildren = nds.map(nd=>nd.children.length)//.filter(nCh=>nCh>0);
+        .reduce((tot,nCh)=>[tot[0]+nCh,tot[1]+(nCh>0)],[0,0]);
+      aveNchildren=(aveNchildren[0]/aveNchildren[1]); //average number of children (non-leaf nodes only)
+      // aveNchildren=math.median(aveNchildren); 
+      var aveNparents = nds.map(nd=>Links.find({target:nd._id}).count())
+        .reduce((tot,nCh)=>[tot[0]+nCh,tot[1]+(nCh>0)],[0,0]);
+      aveNparents=(aveNparents[0]/aveNparents[1]);
+      // aveNparents=math.median(aveNparents);
+      var ch2parRat = ((aveNchildren+1)/(aveNparents)); 
+      // ch2parRat.push((aveNchildren+1)/(1+aveNparents)); 
+      console.log("aveNchildren",aveNchildren,"aveNparent",aveNparents,"ratio",ch2parRat);
+      // lev++;
+    // }
+    // aveNchildren=(aveNchildren[0]/aveNchildren[1]); //average number of children (non-leaf nodes only)
     //Save connectivity matrix for analysis:----------
     // var connMx=[];
     // for(iu in unweighted){
@@ -361,15 +380,18 @@ Meteor.methods({
     //for each node whose children are already weighted:
     Nodes.find({$and:[{_id:{$in:unweighted}},{children:{ $nin: unweighted }}]},
       // {graph:'MetaMath',importance:1.23456},
-      {fields:{level:1}}).forEach(function(nd, idx){ //take only level field
+      {fields:{level:1,number:1}}).forEach(function(nd, idx){ //take only level field
       // if(Links.find({source:nd._id, strength:1.23456}).count()>0) return;
       console.log("weigh node "+idx+" of "+unweighted.length)
+      var leafImp=0.1; //the "unit" of node importance
       //set importance to sum of all child link strengths:
-      var ndImp=(Links.find({source : nd._id},{fields:{strength:1}})
+      var ndImp=(Links.find({source : nd._id},{fields:{strength:1,target:1}})
+        // .count()); /Nodes.findOne(lk.target).importance
         .map(lk => lk.strength).reduce((sum, value) => sum + value,0));
       // var ndImp=Links.aggregate([{$match:{source : nd._id}},])
-      var leafImp=0.1;
-      ndImp+=(leafImp/(1+ndImp)); //source importance from liefs
+      ndImp/=ch2parRat; //to balance out average sizes of early and late nodes
+      ndImp+=(leafImp);///(1+ndImp/leafImp)); //source importance from liefs
+      // ndImp=Math.sqrt(ndImp);
       //Math.exp(-ndImp); //decaying influence of possible new nodes
       Nodes.update(nd._id, {$set:{importance : ndImp}});
       // nd.importance = (Links.find({source : nd._id})
@@ -382,7 +404,7 @@ Meteor.methods({
       // //to avoid huge exponents that cancel out:
       // var parWt = parLev.map(lv => Math.exp((lv-parLev[0])/2));
       //-----------------------
-      //according to parent's number of children of lower level
+      //according to parent's number of children of lower level (how many times parent has already been used)
       var parNChild = parLk.map(function(lk){ //for each parent link, take
         return Nodes.findOne(lk.source).chLevel.filter(lvl=>lvl<nd.level).length;
         // return Links.find({source: lk.source},{target:1,_id:0}) //all links with same parent,
@@ -394,10 +416,11 @@ Meteor.methods({
       var parWt = parNChild.map(Nch => 1/(Nch+1)); //parent link relative weight
       //==================================
       var parWtTot=parWt.reduce((sum, value) => sum + value,0); //normalization
-      var pfI = parLk.count(); pfI = pfI*Math.log(pfI)*leafImp/5; //info content of the proof itself
+      // var pfI = parLk.count(); pfI = pfI*Math.log(pfI)*leafImp/5; //info content of the proof itself
+      // parWtTot*=Math.log(parLk.count()+1);
       parLk.forEach(function(lk,ip){
-        Links.update(lk._id,{$set:{strength: parWt[ip]/parWtTot*// ndImp/(1+pfI)}});
-          Math.max(ndImp-pfI,leafImp)}});
+        Links.update(lk._id,{$set:{strength: parWt[ip]/parWtTot*ndImp}});// ndImp/(1+pfI)}});
+          // *Math.max(ndImp-pfI,leafImp)}}); 
       })
    
       //remove current node from unweighted list:
@@ -405,6 +428,15 @@ Meteor.methods({
       // remaining--;
     })
     }
+    // Nodes.find({graph:graph}).forEach(function(nd){
+    //   var currScale = (nd.number+1)/(nds.count()-nd.number+1);
+    //   Nodes.update(nd._id,{$mul:{importance:currScale}});
+    //   Links.update({target:nd._id},{$mul:{strength:currScale}});
+    // })
+    // Links.find({graph:graph}).forEach(function(lk){
+    //   Links.update(lk._id,{$set:{strength: 
+    //     lk.strength*Math.sqrt(Nodes.findOne(lk.target).importance*Nodes.findOne(lk.source).importance)}})
+    // })
 
     Meteor.call("calcEffConn", graph,function(err,res){
       // console.log("effective connectivities ",res)
@@ -436,7 +468,7 @@ Meteor.methods({
     console.log("built "+mxN+" sparse connectivity matrix");
 
     //Calculate effective connectivity one level out-------------------------
-    connMxPS = connMx;//math.add(math.multiply(0.9,connMx), //partly symmetrized connectivity matrix
+    var connMxPS = math.multiply(0.9,connMx);//math.add(math.multiply(0.9,connMx), //partly symmetrized connectivity matrix
       // math.multiply(0.1,math.transpose(connMx)));
     var zmIx = 1; 
     while (mxN > VisNNodes[1]){
@@ -455,23 +487,26 @@ Meteor.methods({
  
       //Store effective connectivities in Links DB-------------------------------
       // connMxPS=connMxPS.map(wt => parseFloat(wt.toFixed(1)),true);//(wt>0.05 ? wt : 0),)
+      ndID.slice(splitN,mxN).forEach(function(id){
+        Nodes.update(id,{$set:{zoomLvl:zmIx-1}}) //store zoom level for each node
+      })
       connMxPS.forEach(function(effWt, idx){ //for each non-zero entry of connMx
-        if((effWt<0.05 && effWt*ndImp[idx[0]]/ndImp[idx[1]]<0.05) ||
-          effWt < connMxPS.subset(math.index(idx[1],idx[0]))) {return} //cut off weak effective links
+        if((effWt<0.05 && effWt*ndImp[idx[0]]<ndImp[idx[1]]*0.05) || //cut off weak effective links
+          effWt < connMxPS.subset(math.index(idx[1],idx[0]))) {return} //and reversed links
         var temp = {}; temp["strength" + zmIx] = effWt*ndImp[idx[0]];
         Links.upsert({source:ndID[idx[0]], target:ndID[idx[1]]}, //find the corresponding link
           {$set:temp, //add a strength field for the current zoom level
             $setOnInsert: {type:"theorem", oriented:true, graph:graph}}) //if the link did not exist before, insert it
         // console.log(Links.find(updLk.insertedId).fetch())
+        // var src=Nodes.findOne(ndID[idx[0]]), trg=Nodes.findOne(ndID[idx[1]]);
+        // if(src.zoomLvl || trg.zoomLvl) console.error(src,trg);
         },true)
-      ndID.slice(splitN,mxN).forEach(function(id){
-        Nodes.update(id,{$set:{zoomLvl:zmIx-1}}) //store zoom level for each node
-      })
+      
       mxN = splitN; // prepare for next iteration
       zmIx++; console.log("Calculating effective conn mx: " + splitN + " remaining");
     }
     ndID.slice(0,splitN).forEach(function(id){
-      Nodes.update(id,{$set:{zoomLvl:zmIx-1}}) //store zoom level for last block
+      Nodes.update(id,{$set:{zoomLvl:zmIx-1, x:2346, y:2346}}) //store zoom level for last block, and designate nodes as "positioned"
     })
     console.log("Everything is loaded!")
     return connMxPS;

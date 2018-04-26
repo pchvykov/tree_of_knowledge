@@ -8,7 +8,7 @@
     <!-- <div class="modal-body"> -->
     <form>
     {{#with node}}
-      Node Title: <input typt="text" id="title" value={{title}}><br>
+      Node Title: <input type="text" id="title" value={{title}}><br>
       <select id="type">
 <!--         <option value="assumption">Assumption</option>
         <option value="definition">Definition</option>
@@ -27,7 +27,7 @@
     </form>
     <!-- </div> -->
 
-    <div class="modal-footer">
+    <div class="modal-footer"> <!--type=submit makes it trigger on enter-->
       <button type="button" class="btn btn-primary" id="save">Save</button>
         <button type="button" class="btn btn-default" id="cancel" data-dismiss="modal">Cancel</button>
     </div>
