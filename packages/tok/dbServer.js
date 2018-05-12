@@ -72,7 +72,7 @@ treeData = function(){
               Links.find({target:chNd},{sort:srt,limit:1}) //find child's most important parent
                 .map(lk=>lk.source)[0] == visNd) //and see if it's the visible node
             Nodes.update({$and:[{_id:{$in:chNodes}}, {x:2345}]},
-              {$set:{x:coord[0]+coord[2],y:coord[1]+Math.random()*coord[2]}},{multi:true})//position node near the visible one if not alrady
+              {$set:{x:coord[0]+coord[2],y:coord[1]+Math.random()*coord[2]*4}},{multi:true})//position node near the visible one if not alrady
             Array.prototype.push.apply(newNodes, chNodes);//to push multiple elements
             
             var parNodes = Links.find({target:visNd, source:{$nin:visNodesNew}})
@@ -83,7 +83,7 @@ treeData = function(){
               Links.find({source:parNd},{sort:srt,limit:1}) 
                 .map(lk=>lk.target)[0] == visNd)
             Nodes.update({$and:[{_id:{$in:parNodes}}, {x:2345}]},
-              {$set:{x:coord[0]-coord[2],y:coord[1]-Math.random()*coord[2]}},{multi:true})
+              {$set:{x:coord[0]-coord[2],y:coord[1]-Math.random()*coord[2]*4}},{multi:true})
             Array.prototype.push.apply(newNodes, parNodes); //to push multiple elements
           // console.log('...', visNd, newNodes)
           })
@@ -389,11 +389,14 @@ Meteor.methods({
         // .count()); /Nodes.findOne(lk.target).importance
         .map(lk => lk.strength).reduce((sum, value) => sum + value,0));
       // var ndImp=Links.aggregate([{$match:{source : nd._id}},])
-      ndImp/=ch2parRat; //to balance out average sizes of early and late nodes
+      // ndImp/=ch2parRat; //to balance out average sizes of early and late nodes
       ndImp+=(leafImp);///(1+ndImp/leafImp)); //source importance from liefs
       // ndImp=Math.sqrt(ndImp);
       //Math.exp(-ndImp); //decaying influence of possible new nodes
-      Nodes.update(nd._id, {$set:{importance : ndImp}});
+      var parLk = Links.find({target : nd._id},{fields:{source:1}});
+      var keepFrac=0.5; //parLk.count()+1; keepFrac=1/(keepFrac*Math.log(keepFrac));
+      // keepFrac=(keepFrac==Infinity)? 0:keepFrac;
+      Nodes.update(nd._id, {$set:{importance : ndImp*(keepFrac)}});
       // nd.importance = (Links.find({source : nd._id})
       //  .map(lk => lk.strength).reduce((sum, value) => sum + value,2));
       //set strengths of all parent links according to their level:
@@ -419,7 +422,7 @@ Meteor.methods({
       // var pfI = parLk.count(); pfI = pfI*Math.log(pfI)*leafImp/5; //info content of the proof itself
       // parWtTot*=Math.log(parLk.count()+1);
       parLk.forEach(function(lk,ip){
-        Links.update(lk._id,{$set:{strength: parWt[ip]/parWtTot*ndImp}});// ndImp/(1+pfI)}});
+        Links.update(lk._id,{$set:{strength: parWt[ip]/parWtTot*ndImp*(1-keepFrac)}});// ndImp/(1+pfI)}});
           // *Math.max(ndImp-pfI,leafImp)}}); 
       })
    
@@ -446,6 +449,13 @@ Meteor.methods({
   }},
   calcEffConn: function(graph){ //calculate the effective connectivit matrices
     if(Meteor.isServer){ 
+      //remove old effective links:-----
+    Links.remove({graph:graph, strength:{$exists:false}}); 
+    Links.find({graph:graph}).forEach(function(lk){
+      for(var prop in lk){ //remove old effective links
+          if(prop.substring(0,8)=='strength' && prop.length>8){delete lk[prop];}
+      }
+    })
     //Generate connectivity matrix-----------------------------------
     var connMx=math.sparse(); //initialize connectivity matrix
     var allNodes = Nodes.find({graph:graph},{sort:{importance: -1}}) // take all nodes, from most to least important
@@ -453,13 +463,8 @@ Meteor.methods({
     var ndImp = allNodes.map(nd => nd.importance);
     var mxN=allNodes.count(); connMx.set([mxN,mxN],0);
     //build the sparse matrix row-by-row:
-    Links.remove({graph:graph, strength:{$exists:false}}); //remove old effective links
     ndID.forEach(function(nd, idx, arr){ //for each node
-      Links.find({source:nd}) //take all child Links
-           .forEach(function(lk){ //for each link
-        for(var prop in lk){ //remove old effective links
-          if(prop.substring(0,8)=='strength' && prop.length>8){delete lk[prop]}
-        }
+      Links.find({source:nd}).forEach(function(lk){  //for each child Links
         connMx.set([idx, //set the matrix element in that row
           ndID.indexOf(lk.target)], //and find column from dictionary
           lk.strength/ndImp[idx]) //set mx element to link weight normalized by parent nd weight
