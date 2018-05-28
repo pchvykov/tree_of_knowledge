@@ -348,17 +348,17 @@ Meteor.methods({
     // var nnLev=1, lev=1; var ch2parRat=[];
     // while(nnLev>0){
       // nnLev=nds.count();
-      var aveNchildren = nds.map(nd=>nd.children.length)//.filter(nCh=>nCh>0);
-        .reduce((tot,nCh)=>[tot[0]+nCh,tot[1]+(nCh>0)],[0,0]);
-      aveNchildren=(aveNchildren[0]/aveNchildren[1]); //average number of children (non-leaf nodes only)
-      // aveNchildren=math.median(aveNchildren); 
-      var aveNparents = nds.map(nd=>Links.find({target:nd._id}).count())
-        .reduce((tot,nCh)=>[tot[0]+nCh,tot[1]+(nCh>0)],[0,0]);
-      aveNparents=(aveNparents[0]/aveNparents[1]);
-      // aveNparents=math.median(aveNparents);
-      var ch2parRat = ((aveNchildren+1)/(aveNparents)); 
-      // ch2parRat.push((aveNchildren+1)/(1+aveNparents)); 
-      console.log("aveNchildren",aveNchildren,"aveNparent",aveNparents,"ratio",ch2parRat);
+      // var aveNchildren = nds.map(nd=>nd.children.length)//.filter(nCh=>nCh>0);
+      //   .reduce((tot,nCh)=>[tot[0]+nCh,tot[1]+(nCh>0)],[0,0]);
+      // aveNchildren=(aveNchildren[0]/aveNchildren[1]); //average number of children (non-leaf nodes only)
+      // // aveNchildren=math.median(aveNchildren); 
+      // var aveNparents = nds.map(nd=>Links.find({target:nd._id}).count())
+      //   .reduce((tot,nCh)=>[tot[0]+nCh,tot[1]+(nCh>0)],[0,0]);
+      // aveNparents=(aveNparents[0]/aveNparents[1]);
+      // // aveNparents=math.median(aveNparents);
+      // var ch2parRat = ((aveNchildren+1)/(aveNparents)); 
+      // // ch2parRat.push((aveNchildren+1)/(1+aveNparents)); 
+      // console.log("aveNchildren",aveNchildren,"aveNparent",aveNparents,"ratio",ch2parRat);
       // lev++;
     // }
     // aveNchildren=(aveNchildren[0]/aveNchildren[1]); //average number of children (non-leaf nodes only)
@@ -374,6 +374,7 @@ Meteor.methods({
     // saveAs(new File(connMx,"conn_matrix",{type: "text/plain"}));
     // return;
     //-------------------------------------------------
+    var leafImp=0.01; //the "unit" of node importance
     // var remaining = Nodes.find({graph:'MetaMath',importance:1.23456}).count();
     while(unweighted.length >0){   //iterate through all nodes 
     // console.log("Weighing nodes: "+unweighted.length+" remaining")
@@ -383,20 +384,20 @@ Meteor.methods({
       {fields:{level:1,number:1}}).forEach(function(nd, idx){ //take only level field
       // if(Links.find({source:nd._id, strength:1.23456}).count()>0) return;
       console.log("weigh node "+idx+" of "+unweighted.length)
-      var leafImp=0.1; //the "unit" of node importance
       //set importance to sum of all child link strengths:
       var ndImp=(Links.find({source : nd._id},{fields:{strength:1,target:1}})
         // .count()); /Nodes.findOne(lk.target).importance
         .map(lk => lk.strength).reduce((sum, value) => sum + value,0));
       // var ndImp=Links.aggregate([{$match:{source : nd._id}},])
       // ndImp/=ch2parRat; //to balance out average sizes of early and late nodes
-      ndImp+=(leafImp);///(1+ndImp/leafImp)); //source importance from liefs
+      ndImp+=(leafImp);///(1+ndImp/leafImp)); //source importance from nodes/leafs
       // ndImp=Math.sqrt(ndImp);
       //Math.exp(-ndImp); //decaying influence of possible new nodes
       var parLk = Links.find({target : nd._id},{fields:{source:1}});
-      var keepFrac=0.5; //parLk.count()+1; keepFrac=1/(keepFrac*Math.log(keepFrac));
+      // keep this fraction of weight, pass on the rest:
+      // var keepFrac=0.5; //parLk.count()+1; keepFrac=1/(keepFrac*Math.log(keepFrac));
       // keepFrac=(keepFrac==Infinity)? 0:keepFrac;
-      Nodes.update(nd._id, {$set:{importance : ndImp*(keepFrac)}});
+      Nodes.update(nd._id, {$set:{importance : ndImp}});
       // nd.importance = (Links.find({source : nd._id})
       //  .map(lk => lk.strength).reduce((sum, value) => sum + value,2));
       //set strengths of all parent links according to their level:
@@ -419,10 +420,10 @@ Meteor.methods({
       var parWt = parNChild.map(Nch => 1/(Nch+1)); //parent link relative weight
       //==================================
       var parWtTot=parWt.reduce((sum, value) => sum + value,0); //normalization
-      // var pfI = parLk.count(); pfI = pfI*Math.log(pfI)*leafImp/5; //info content of the proof itself
-      // parWtTot*=Math.log(parLk.count()+1);
+      // var pfI = parLk.count()+1; pfI = pfI*Math.log(pfI)*leafImp/5; //info content of the proof itself
+      // parWtTot*=(1+Math.log(parLk.count()+1)); //include proof info as another ghost-node
       parLk.forEach(function(lk,ip){
-        Links.update(lk._id,{$set:{strength: parWt[ip]/parWtTot*ndImp*(1-keepFrac)}});// ndImp/(1+pfI)}});
+        Links.update(lk._id,{$set:{strength: parWt[ip]/parWtTot*ndImp}});// ndImp/(1+pfI)}});
           // *Math.max(ndImp-pfI,leafImp)}}); 
       })
    
@@ -431,11 +432,13 @@ Meteor.methods({
       // remaining--;
     })
     }
-    // Nodes.find({graph:graph}).forEach(function(nd){
-    //   var currScale = (nd.number+1)/(nds.count()-nd.number+1);
-    //   Nodes.update(nd._id,{$mul:{importance:currScale}});
-    //   Links.update({target:nd._id},{$mul:{strength:currScale}});
-    // })
+    //Compensate nodes found later in DB: (first node left as is, last node squared)
+    Nodes.find({graph:graph}).forEach(function(nd){
+      // var currScale = (nd.number+1)/(nds.count()-nd.number+1);
+      var currScale = Math.pow(nd.importance/leafImp,1/(2*nds.count()/nd.number -1));
+      Nodes.update(nd._id,{$mul:{importance:currScale}});
+      Links.update({target:nd._id},{$mul:{strength:currScale}});
+    })
     // Links.find({graph:graph}).forEach(function(lk){
     //   Links.update(lk._id,{$set:{strength: 
     //     lk.strength*Math.sqrt(Nodes.findOne(lk.target).importance*Nodes.findOne(lk.source).importance)}})
@@ -452,9 +455,14 @@ Meteor.methods({
       //remove old effective links:-----
     Links.remove({graph:graph, strength:{$exists:false}}); 
     Links.find({graph:graph}).forEach(function(lk){
+      var del={}, delFl=false;
       for(var prop in lk){ //remove old effective links
-          if(prop.substring(0,8)=='strength' && prop.length>8){delete lk[prop];}
+          if(prop.substring(0,8)=='strength' && prop.length>8){
+            del[prop]=""; //delete lk[prop];
+            delFl=true;
+          }
       }
+      if(delFl){Links.update(lk._id,{$unset:del});} //delete those fields from DB
     })
     //Generate connectivity matrix-----------------------------------
     var connMx=math.sparse(); //initialize connectivity matrix
@@ -473,8 +481,9 @@ Meteor.methods({
     console.log("built "+mxN+" sparse connectivity matrix");
 
     //Calculate effective connectivity one level out-------------------------
-    var connMxPS = math.multiply(0.9,connMx);//math.add(math.multiply(0.9,connMx), //partly symmetrized connectivity matrix
-      // math.multiply(0.1,math.transpose(connMx)));
+    // var connMxPS = math.multiply(0.9,connMx);
+    var connMxPS = math.add(math.multiply(1.1,connMx), //partly symmetrized connectivity matrix
+      math.multiply(0.1,math.transpose(connMx)));
     var zmIx = 1; 
     while (mxN > VisNNodes[1]){
       var splitN=Math.round(mxN / (ZoomStep*ZoomStep)); //hide all nodes after this idx
@@ -496,7 +505,8 @@ Meteor.methods({
         Nodes.update(id,{$set:{zoomLvl:zmIx-1}}) //store zoom level for each node
       })
       connMxPS.forEach(function(effWt, idx){ //for each non-zero entry of connMx
-        if((effWt<0.05 && effWt*ndImp[idx[0]]<ndImp[idx[1]]*0.05) || //cut off weak effective links
+        if(idx[0]==idx[1] || //ignore self-links
+        (effWt<0.05 && effWt*ndImp[idx[0]]<ndImp[idx[1]]*0.05) || //ignore weak effective links
           effWt < connMxPS.subset(math.index(idx[1],idx[0]))) {return} //and reversed links
         var temp = {}; temp["strength" + zmIx] = effWt*ndImp[idx[0]];
         Links.upsert({source:ndID[idx[0]], target:ndID[idx[1]]}, //find the corresponding link
