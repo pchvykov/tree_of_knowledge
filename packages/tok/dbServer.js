@@ -433,12 +433,12 @@ Meteor.methods({
     })
     }
     //Compensate nodes found later in DB: (first node left as is, last node squared)
-    Nodes.find({graph:graph}).forEach(function(nd){
-      // var currScale = (nd.number+1)/(nds.count()-nd.number+1);
-      var currScale = Math.pow(nd.importance/leafImp,1/(2*nds.count()/nd.number -1));
-      Nodes.update(nd._id,{$mul:{importance:currScale}});
-      Links.update({target:nd._id},{$mul:{strength:currScale}});
-    })
+    // Nodes.find({graph:graph}).forEach(function(nd){
+    //   // var currScale = (nd.number+1)/(nds.count()-nd.number+1);
+    //   var currScale = Math.pow(nd.importance/leafImp,1/(2*nds.count()/nd.number -1));
+    //   Nodes.update(nd._id,{$mul:{importance:currScale}});
+    //   Links.update({target:nd._id},{$mul:{strength:currScale}});
+    // })
     // Links.find({graph:graph}).forEach(function(lk){
     //   Links.update(lk._id,{$set:{strength: 
     //     lk.strength*Math.sqrt(Nodes.findOne(lk.target).importance*Nodes.findOne(lk.source).importance)}})
