@@ -170,7 +170,7 @@ vis.append('svg:rect')
       nd.px=nd.x; nd.py=nd.y;
 
       //indices of parent nodes in nodeData (for oriented links only)
-      nd.parentsIx = linkData 
+      nd.parentsIx = linkData //used to orient "derivation" triangles
           .filter(lk => nd._id==lk.target && lk.oriented)
           .map(lk => 
             nodeData.findIndex(ndDat => ndDat._id==lk.source));
@@ -178,6 +178,7 @@ vis.append('svg:rect')
           .filter(lk => nd._id==lk.source && lk.oriented)
           .map(lk => 
             nodeData.findIndex(ndDat => ndDat._id==lk.target));
+      nd.chiMinLen=["id",Infinity]; nd.parMinLen=["id",Infinity]; //for percolating springs model
     });
 
     //replace node id-s in links with pointers to nodes
@@ -509,9 +510,9 @@ vis.append('svg:rect')
       var delx=(lk.target.x - lk.source.x);
       var dely=(lk.target.y - lk.source.y);
       // var len = Math.sqrt(delx*delx + dely*dely);
-      var len = math.norm([delx, dely]) +lk.strength/4; //ensure denomenators >0
-
-      ////non-linear attraction:---
+      var len = math.norm([delx, dely]) +lk.strength/4, scale; //ensure denomenators >0
+      //////////////////////////////////////////////////////////
+      ////non-linear springs:---
       // var transDist = $('#linkDistInput').val();
       // var lkStr= $('#linkStrInput').val();
       // var scale=g/50 * Math.pow(lk.strength,2)*(len>transDist*lk.strength ? lk.strength*lkStr/len : $('#linkSStrInput').val())*
@@ -519,9 +520,28 @@ vis.append('svg:rect')
       // d3.selectAll('.link').filter(d => d._id==lk._id)
       //   .classed('long',len>transDist*lk.strength);
 
-      ////Linear spring-like force:----
-      var scale=g/50 * Math.pow(lk.strength,2)*($('#linkSStrInput').val())*
-        (1 - lk.minDist / len); 
+      ////Percolating springs model:---------
+      lk.strong=false;
+      if(len < lk.target.parMinLen[1] || lk.target.parMinLen[0]==lk._id){ //Short spring
+        lk.target.parMinLen[0]=lk._id; lk.target.parMinLen[1]=len;
+        lk.strong=true;
+      }
+      if(len < lk.source.chiMinLen[1] || lk.source.chiMinLen[0]==lk._id){
+        lk.source.chiMinLen[0]=lk._id; lk.source.chiMinLen[1]=len;
+        lk.strong=true;
+      }
+      if(lk.strong){
+        scale = g/50 * Math.pow(lk.strength,2)*($('#linkSStrInput').val())*
+          (1 - lk.minDist / len);
+      }
+      else{ //Long spring
+        scale = g/50 * Math.pow(lk.strength,2)*(lk.strength*$('#linkStrInput').val()/len)*
+          (1 - lk.minDist / len);
+      }
+      ////Linear springs:---------
+      // var scale=g/50 * Math.pow(lk.strength,2)*($('#linkSStrInput').val())*
+      //   (1 - lk.minDist / len); 
+      /////////////////////////////////////////////////////
       // if(scale < -1) scale=-1;
       // if(scale >0.3) scale=0.3;
       // console.log('scale',scale);
@@ -532,7 +552,7 @@ vis.append('svg:rect')
         dx*=nnScale; dy*=nnScale; //non-linear springs
       }
 
-      if(lk.oriented){ //orienting forces
+      if(lk.oriented && lk.strong){ //orienting forces
         // var dy=g * Math.max(-2, Math.min(2,
         //   Math.exp((lk.source.y-lk.target.y)/100.)
         //   ));
@@ -554,9 +574,11 @@ vis.append('svg:rect')
       //   lk.target.x=trgX; lk.target.y = trgY;
       // }
     })
-
+    d3.selectAll('.link').classed('long',d=>!d.strong); //for percolating springs
+ 
     //Node forces:--------------------------
     nodeData.forEach(function(nd, idx){
+      // nd.parMinLen+=nd.importance/2; nd.chiMinLen+=nd.importance/2; //for percolating springs
       if(!nd.fixed){
       //include gravity (charge-independent):
       //gravitate towards center of window at last reload, rectified cubic potential:

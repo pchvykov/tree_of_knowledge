@@ -343,6 +343,8 @@ Meteor.methods({
     //nodes that are not yet weighted:
     Links.remove({graph:graph, strength:{$exists:false}}); //remove old effective links
     var nds=Nodes.find({graph:graph});//, level:lev});
+//===========Propagate weights from leafs===========================
+if(false){ 
     var unweighted = nds.map(nd=>nd._id);//Object.keys(nodeDic).map((k) => nodeDic[k]);
     //Find average child to parent ratio:
     // var nnLev=1, lev=1; var ch2parRat=[];
@@ -443,7 +445,44 @@ Meteor.methods({
     //   Links.update(lk._id,{$set:{strength: 
     //     lk.strength*Math.sqrt(Nodes.findOne(lk.target).importance*Nodes.findOne(lk.source).importance)}})
     // })
-
+}//=====================================================================
+//==============Weight using random walker==============================
+else {
+  var iMax=10*nds.count(); //Math.exp(0.002*nds.count())
+  var di=nds.count()/iMax;
+  var wlkID=nds.map(nd=>nd._id);//Nodes.findOne({graph:graph, children:{size}})._id;
+  wlkID=wlkID[Math.floor(Math.random()*wlkID.length)]; //random initial node
+  Links.update({graph:graph},{$set:{strength:di}},{multi:true});
+  Nodes.update({graph:graph},{$set:{importance:di}},{multi:true}); //initialize
+  for(var i=0; i<iMax; i++){
+    // var connLk=Links.find({$or:[{source:wlkID},{target:wlkID}]}).map(lk=>lk._id); //find all connected links (make array of IDs)
+    // var lkID=connLk[Math.floor(Math.random()*connLk.length)]; //choose a random one
+    // Links.update(lkID,{$inc:{strength:di}});
+    // var lk=Links.findOne(lkID);
+    // if(lk.source==wlkID){wlkID = lk.target;}
+    // else {wlkID = lk.source}
+    // Nodes.update(wlkID,{$inc:{importance:di}});
+    chiLk=Links.find({source:wlkID}).map(lk=>lk._id);
+    parLk=Links.find({target:wlkID}).map(lk=>lk._id);
+    if(Math.random()<chiLk.length/(chiLk.length+parLk.length)){
+      connLk=chiLk;
+      if(connLk.length>0){
+      lkID=connLk[Math.floor(Math.random()*connLk.length)];
+      wlkID=Links.findOne(lkID).target;}
+    }
+    else {
+      connLk=parLk;
+      if(connLk.length>0){
+      lkID=connLk[Math.floor(Math.random()*connLk.length)]; 
+      wlkID=Links.findOne(lkID).source;}
+    }
+    var incr=di;//*Math.exp(-Nodes.findOne(wlkID).importance/di);
+    Links.update(lkID,{$inc:{strength:incr}});
+    Nodes.update(wlkID,{$inc:{importance:incr}});
+    if(i%1000==0){console.log('weighting: step ',i,' of ',iMax)}//show progress
+  }  
+}
+//======================================================================
     Meteor.call("calcEffConn", graph,function(err,res){
       // console.log("effective connectivities ",res)
       // tree.redraw();
@@ -482,7 +521,7 @@ Meteor.methods({
 
     //Calculate effective connectivity one level out-------------------------
     // var connMxPS = math.multiply(0.9,connMx);
-    var connMxPS = math.add(math.multiply(1.1,connMx), //partly symmetrized connectivity matrix
+    var connMxPS = math.add(math.multiply(0.9,connMx), //partly symmetrized connectivity matrix
       math.multiply(0.1,math.transpose(connMx)));
     var zmIx = 1; 
     while (mxN > VisNNodes[1]){
