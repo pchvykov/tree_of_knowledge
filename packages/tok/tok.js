@@ -552,11 +552,12 @@ vis.append('svg:rect')
         dx*=nnScale; dy*=nnScale; //non-linear springs
       }
 
-      if(lk.oriented && lk.strong){ //orienting forces
+      if(lk.oriented){ //orienting forces
         // var dy=g * Math.max(-2, Math.min(2,
         //   Math.exp((lk.source.y-lk.target.y)/100.)
         //   ));
         scale = $('#linkOrtInput').val()*g*Math.pow(lk.strength,3)/len*(Math.exp(-delx/len)-0.367879)*Math.sign(dely);
+        if(lk.strong){scale*=3;}
         // scale = Math.min(scale, 0.5*lk.strength*lk.strength); //cap rotation at 30deg per tick
         dx -= dely*scale; dy += delx*scale;
       }
