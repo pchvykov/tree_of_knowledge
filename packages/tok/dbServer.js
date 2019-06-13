@@ -448,7 +448,7 @@ if(false){
 }//=====================================================================
 //==============Weight using random walker==============================
 else {
-  var iMax=10*nds.count(); //Math.exp(0.002*nds.count())
+  var iMax=20*nds.count(); //Math.exp(0.002*nds.count())
   var di=nds.count()/iMax;
   var wlkID=nds.map(nd=>nd._id);//Nodes.findOne({graph:graph, children:{size}})._id;
   wlkID=wlkID[Math.floor(Math.random()*wlkID.length)]; //random initial node
@@ -520,10 +520,10 @@ else {
     console.log("built "+mxN+" sparse connectivity matrix");
 
     //Calculate effective connectivity one level out-------------------------
-    // var connMxPS = math.multiply(0.9,connMx);
-    var connMxPS = math.add(math.multiply(0.9,connMx), //partly symmetrized connectivity matrix
-      math.multiply(0.1,math.transpose(connMx)));
-    var zmIx = 1; 
+    var connMxPS = math.multiply(0.9,connMx);
+    // var connMxPS = math.add(math.multiply(0.95,connMx), //partly symmetrized connectivity matrix
+      // math.multiply(0.1,math.transpose(connMx)));
+    var zmIx = 1;  
     while (mxN > VisNNodes[1]){
       var splitN=Math.round(mxN / (ZoomStep*ZoomStep)); //hide all nodes after this idx
       var rg1=math.range(0,splitN), rg2=math.range(splitN,mxN);
@@ -542,7 +542,7 @@ else {
       // connMxPS=connMxPS.map(wt => parseFloat(wt.toFixed(1)),true);//(wt>0.05 ? wt : 0),)
       ndID.slice(splitN,mxN).forEach(function(id){
         Nodes.update(id,{$set:{zoomLvl:zmIx-1}}) //store zoom level for each node
-      })
+      }) 
       connMxPS.forEach(function(effWt, idx){ //for each non-zero entry of connMx
         if(idx[0]==idx[1] || //ignore self-links
         (effWt<0.05 && effWt*ndImp[idx[0]]<ndImp[idx[1]]*0.05) || //ignore weak effective links
@@ -571,5 +571,5 @@ else {
       .map(nd=>(('zoomLvl' in nd)? nd.zoomLvl : 0))
       .reduce((max,now)=>Math.max(max,now),0);
   }
-});
-
+}); 
+   
