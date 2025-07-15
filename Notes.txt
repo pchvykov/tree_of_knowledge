@@ -86,6 +86,7 @@ Ctrl+[/] - change link/node type
 Ctrl+ -/= - decrease / increase size
 Ctrl+ O - orient link
 Ctrl+ R - reverse link direction
+Zoom in / out, and then press space-bar to redraw the nodes shown
 
 
 Marketing:--------------
