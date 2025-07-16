@@ -35,6 +35,36 @@ ToK = function(svg, db) {
   //size of the entire tree page:
   var treeDim = [5000, 5000];
 
+  function bound_crd(nd) {
+    // Bound coordinates:
+    if(!isFinite(nd.x) || !isFinite(nd.y)){
+      console.error("non-finite coordinates, randomizing, for node: ", nd);
+      nd.x = treeDim[0]/2 + Math.random()*100;
+      nd.y = treeDim[1]/2 + Math.random()*100;
+    }
+    if(nd.x>treeDim[0]) nd.x = treeDim[0];
+    if(nd.y>treeDim[1]) nd.y = treeDim[1];
+    if(nd.x<0) nd.x = 0;
+    if(nd.y<0) nd.y = 0;
+
+    // Also bound distance from px (if exists)
+    if (nd.hasOwnProperty('px')) {
+      // if(!isFinite(nd.px) || !isFinite(nd.py)){
+      //   console.error("non-finite p coordinates, randomizing, for node: ", nd);
+      //   nd.px = treeDim[0]/2 + Math.random()*100;
+      //   nd.py = treeDim[1]/2 + Math.random()*100;
+      // }
+      // if(nd.px>treeDim[0]) nd.px = treeDim[0];
+      // if(nd.py>treeDim[1]) nd.py = treeDim[1];
+      // if(nd.px<0) nd.px = 0;
+      // if(nd.py<0) nd.py = 0;
+
+      max_step = 10;
+      nd.x = nd.px + Math.max(-max_step, Math.min(max_step, nd.x - nd.px));
+      nd.y = nd.py + Math.max(-max_step, Math.min(max_step, nd.y - nd.py));
+    }
+  }
+
   // init svg, registers events:
   var outer = svg.append("svg:svg")
       .attr("pointer-events", "all");
@@ -132,7 +162,8 @@ vis.append('svg:rect')
   var gui = new GUI(this); this.gui=gui;
   vis.on("mousemove", gui.mousemove)
     .on("mouseup", gui.mouseup, false)
-    .on("dblclick", gui.dblclick, false);
+    .on("dblclick", gui.dblclick, false)
+    .on('click', gui.background_click, false);
 
   // get existing layout properties (enpty at start)
   var node = vis.selectAll(".node"),
@@ -156,11 +187,13 @@ vis.append('svg:rect')
     //this can access only published data - current graph:
     nodeData=Nodes.find().fetch(); 
     linkData=Links.find().fetch();
-    // console.log(nodeData.length);
+    console.log(nodeData)//.length);
     // console.log('tst',Nodes.find({text:{$exists:false}}).count())
 
     nodeData.forEach(function(nd){
       if(nd.x==2345 || nd.y==2345) console.error("unpositioned node: ", nd);
+      bound_crd(nd); // Bound coordinates
+
       nd.phantom = !nd.hasOwnProperty('text'); //identify phantom nodes
       nd.fixed=nd.phantom; nd.permFixed=nd.phantom;
       //initialize all node velocities to 0:
@@ -281,6 +314,7 @@ vis.append('svg:rect')
         .on("mouseout",gui.linkMouseout)
         .on("mousedown", gui.linkMousedown)
         .on("mouseup", gui.linkMouseup, false) //bubble event propagation
+        .on('click', function(d){d3.event.stopPropagation();}, false)
         .on("dblclick", gui.linkDblClick,false);//bubble events
         // .each(function(d){
         //   console.log(d);
@@ -316,7 +350,7 @@ vis.append('svg:rect')
         case "related": 
           $(this).css("stroke-dasharray","3,7"); break;
         case "specialCase": break;
-        default: console.error("unrecognized link type:", d.type, d);
+        default: console.log("unrecognized link type:", d.type, d);
       }
     })
     // force.linkDistance(function(d){ //ensure that links are visible
@@ -473,10 +507,15 @@ vis.append('svg:rect')
   //Some buttons functionality
   $('#randomize').click(function(){
     nodeData.forEach(function(nd){
-      nd.x=treeDim[0]/2 +Math.random()*100; 
-      nd.y=treeDim[1]/2 +Math.random()*100;
-    })
-  })
+      nd.x = treeDim[0]/2 + Math.random()*100;
+      nd.y = treeDim[1]/2 + Math.random()*100;
+    });
+    // if (force && force.alpha) force.start();//alpha(1).restart(); // For D3 v4+
+    // For D3 v3, use force.start();
+    // if (typeof tree.redraw === "function") tree.redraw();
+    // Meteor.call("updateCoord", nodeData); // <-- ADD THIS LINE
+  });
+
   $('#calcZoom').click(function(){ //recalculate the effective connectivit matrices on the server
     Meteor.call("calcEffConn",Session.get("currGraph"),function(err,res){
       console.log(res)
@@ -577,6 +616,7 @@ vis.append('svg:rect')
     })
     d3.selectAll('.link').classed('long',d=>!d.strong); //for percolating springs
  
+
     //Node forces:--------------------------
     nodeData.forEach(function(nd, idx){
       // nd.parMinLen+=nd.importance/2; nd.chiMinLen+=nd.importance/2; //for percolating springs
@@ -592,8 +632,7 @@ vis.append('svg:rect')
       nd.x +=g*g*(Math.random()-0.5)*nd.importance/100;
       nd.y +=g*g*(Math.random()-0.5)*nd.importance/100;
 
-      //avoid collisions:
-
+      bound_crd(nd); // Bound coordinates
     }
     })
 

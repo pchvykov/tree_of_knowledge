@@ -330,6 +330,22 @@ if (Meteor.isClient) {
     'change #loadMetamath': function(event){
       //trigger file load:
       parseMetamath(event.target.files[0]);
+    },
+    'click #resetCrds': function(e) {
+      e.preventDefault();
+      
+      // Get current graph name from session
+      const currentGraph = Session.get("currGraph");
+      
+      // Call the server method
+      Meteor.call("resetNodeCoords", currentGraph, function(error) {
+        if (error) {
+          notify("Error resetting coordinates: " + error.reason);
+        } else {
+          notify("Node coordinates reset");
+          graph.redraw(); // Refresh the visualization
+        }
+      });
     }
   });
 

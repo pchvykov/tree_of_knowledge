@@ -106,6 +106,7 @@ this.showEditor = function(d, srcID){
 //Mouse actions - set to bubble up form deepest-level SVGs
 //node events executed first:
 this.nodeClick = function(d){ //select node:
+  d3.event.stopPropagation();
   var hide=true;
   if(d!=gui.selected){ //immediate response is not selected
     gui.showContent(d);
@@ -146,6 +147,7 @@ this.nodeRightClick = function(d){
   d.permFixed=!d.permFixed;
 }
 this.linkMousedown = function(d) { //easier to catch than Click
+  d3.event.stopPropagation();
   var hide=true;
   if(d!=gui.selected){ //immediate response is not selected
     gui.showContent(d);
@@ -229,6 +231,7 @@ this.nodeMouseup = function(d) { //Create new link:
   resetMouseVars(); 
 };
 this.linkMouseup = function(d) { //Create new AND ("derivation") node:
+  d3.event.stopPropagation();
   if (mousedown_node) {
     mouseup_link = d; 
     if (mouseup_link.source !== mousedown_node && mouseup_link.target !== mousedown_node) { 
@@ -349,6 +352,17 @@ this.dblclick = function(){
   resetMouseVars();
 }
 
+this.background_click = function(){
+  // Only handle clicks directly on the SVG background
+  // if (d3.event.target.tagName === "svg") {
+    // console.log('background click')
+    if (gui.contentPopup) {
+      gui.hideContent();
+      gui.selected = null;
+      tree.updateSelection();
+    }
+  // }
+}
 
 this.keydown = function() {
   if(d3.event.keyCode == 32 && !gui.editPopup){ //Spacebar pressed

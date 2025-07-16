@@ -202,6 +202,9 @@ var contentEvents={
     this.hideContent();
     this.selected=null;
     this.tree.updateSelection();
+  },
+  "click #contentPopup": function(e) { // avoid propagating to background to close it
+    e.stopPropagation();
   }
 };
 Template.nodeContent.events(contentEvents)

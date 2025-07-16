@@ -239,6 +239,8 @@ Meteor.methods({
       alert("failed to update node: missing info");
       return null;
     }
+    delete node.px // don't store any speed
+    delete node.py
 
     if(!node._id){ //add new node
       delete node._id;
@@ -321,6 +323,18 @@ Meteor.methods({
   //   // console.log("added node in method!", newId);
   //   return newId;
   // },
+
+  resetNodeCoords: function(graphName) {
+    check(graphName, String); // Validate input
+    
+    // Update all nodes in the specified graph to have initial coordinates
+    return Nodes.update(
+      { graph: graphName },
+      { $set: { x: 2346, y: 2346 } },
+      { multi: true }
+    );
+  },
+
   deleteNode: function(nd){
     //Remove node and all connected links:
     Links.remove({$or: [{source: nd}, {target: nd}]});
