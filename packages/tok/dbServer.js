@@ -335,6 +335,39 @@ Meteor.methods({
     );
   },
 
+  renameTypes: function(map){
+    // Iterate through each old_type -> new_type mapping
+    Object.keys(map['nodes']).forEach(function(oldType) {
+        // Update all nodes with the old type
+        if (oldType === null || oldType === "null") {
+            query = { $or: [{ type: null }, { type: { $exists: false } }] };
+        } else {
+            query = { type: oldType };
+        }
+        Nodes.update(
+            query, 
+            { $set: { type: map['nodes'][oldType]} }, 
+            { multi: true }
+        );
+    });
+    Object.keys(map['links']).forEach(function(oldType) {
+        // Update all links with the old type
+        if (oldType === null || oldType === "null") {
+            query = { $or: [{ type: null }, { type: { $exists: false } }] };
+        } else {
+            query = { type: oldType };
+        }
+        Links.update(
+            query, 
+            { $set: { type: map['links'][oldType]} }, 
+            { multi: true }
+        );
+    });
+    
+    console.log('Type renaming complete:', map);
+  },
+
+
   deleteNode: function(nd){
     //Remove node and all connected links:
     Links.remove({$or: [{source: nd}, {target: nd}]});

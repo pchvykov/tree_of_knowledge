@@ -1,0 +1,23 @@
+Pavel ==============
+
++ Check graph scale invariance (zoom in or out, dynamics should remain the same - though perhaps with time rescaling?)
++ Node types as shapes: definition, example, statement
+Node colors to use for clustering or highlighting
++ Edge dashes scale with line width
+Show empty node when no text is added 
++ Markdown in the descriptions
+In text ref to parents
+- Font size prop to node size? No - too confusing how to scale with zoom
+Tooltips at edge of screen on link hover
+
+Node size / importance is relative to the question / problem at hand
+
+### Node types
+Hypothesis
+Theorem, Def
+Method
+
+### Link types
+Requirement
+Derivation
+Evidence / supports

@@ -3,6 +3,57 @@
 //     $("#type").val("example");
 //   }
 // });
+///// Markdown library //////
+const showdown  = require('showdown');
+const converter = new showdown.Converter();
+// Workaround so Markdown doesn't process math symbols:
+function protectMath(text) {
+  // Replace all $...$ and $$...$$ with unique placeholders
+  // and store the math segments in an array.
+  let mathSegments = [];
+  let unique = "MATHJAXPRAAATECT"; //shoud never appear in the actual content
+  let counter = 0;
+  // Protect display math first
+  text = text.replace(/\$\$([\s\S]+?)\$\$/g, function(match, m1) {
+    mathSegments.push("$$" + m1 + "$$");
+    return unique + (counter++) + unique;
+  });
+  // Then inline math
+  text = text.replace(/\$([^\$]+?)\$/g, function(match, m1) {
+    mathSegments.push("$" + m1 + "$");
+    return unique + (counter++) + unique;
+  });
+  return {text, mathSegments, unique};
+}
+function restoreMath(html, mathSegments, unique) {
+  let counter = 0;
+  while (html.indexOf(unique) >= 0 && counter < mathSegments.length) {
+    html = html.replace(unique + counter + unique, mathSegments[counter]);
+    counter++;
+  }
+  return html;
+}
+
+Template.nodeContent.helpers({
+  formattedText() {
+    const rawText = this.text || "";
+    const {text, mathSegments, unique} = protectMath(rawText);
+    let html = converter.makeHtml(text);
+    html = restoreMath(html, mathSegments, unique);
+    return html;
+  }
+});
+// Template.nodeContent.helpers({
+//   formattedText() {
+//     // makeHtml is the showdown method, this.text is the node's content
+//     return converter.makeHtml(this.text || "");
+//   }
+// });
+// Template.nodeContent.onRendered(function() {
+//   if(typeof MathJax !== "undefined") {
+//     MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.find(".nodeText")]);
+//   }
+// });
 
 //update the database for dat.node according to current 
 //form field values; redraw tree and redesplay content
@@ -139,7 +190,7 @@ var rendered = function(){
     if(dat.node.type){ $("#type").val(dat.node.type) }
     else{ //defaults
       $('#type').val('statement');
-      $('#importance').val(10);
+      $('#importance').val(1);
     }
     $('#title').focus();
   };
@@ -156,7 +207,7 @@ var rendered = function(){
     }
     else{ //defaults
       $('#type').val('theorem');
-      $('#importance').val(5);
+      $('#importance').val(0.5);
       $('#oriented').prop("checked",true);
     }
     $('#save').focus();

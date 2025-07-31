@@ -403,18 +403,22 @@ this.keydown = function() {
         notify("Double-click to save");
       break}
     //Ctrl + (=/-) - increase or decrease node importance:
-    case 187: var grow=true; // =
-    case 189://-
-      var del=(grow ? 2:-2);
-      var obj=gui.selected;
+    case 187: // =
       d3.event.preventDefault();
+      var grow=true; 
+    case 189://-
+      d3.event.preventDefault();
+      var del=(grow ? 6./5 : 5./6);
+      var obj=gui.selected;
       if(obj.source){ //if link
-        obj.strength = Math.max(Number(obj.strength)+del,2);
+        // obj.strength = Math.max(Number(obj.strength)+del,2);
+        obj.strength *= del;
         notify(obj.strength);
         Meteor.call('updateLink',obj);
       }
       else{ //if node
-        obj.importance = Math.max(Number(obj.importance)+del,2);
+        // obj.importance = Math.max(Number(obj.importance)+del,2);
+        obj.importance *= del;
         notify(obj.importance);
         Meteor.call('updateNode',obj);
       }

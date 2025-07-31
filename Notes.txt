@@ -72,22 +72,6 @@ faster publish
 					meteor-friendly
 					easy to combine trees
 
-UI:--------------
-Ctrl+... - editing controls
- +Del (or +Bcksp) - delete selected node/link
- +Click & drag - create new link
-Shift+Enter in text edit box - update DB
-Dbl-Click - create/edit node
-Click - select node/link
-R-Click - fix node
-Ctrl+C and Ctrl+V - copy and paste node/link data onto another one (replaces whatever is there; doesn't not save automatically)
-Ctrl+Z and Ctrl+Y - undo/redo when in text-editor box
-Ctrl+[/] - change link/node type
-Ctrl+ -/= - decrease / increase size
-Ctrl+ O - orient link
-Ctrl+ R - reverse link direction
-Zoom in / out, and then press space-bar to redraw the nodes shown
-
 
 Marketing:--------------
 -a generalization of books (books are a special case of this - with linear tree)

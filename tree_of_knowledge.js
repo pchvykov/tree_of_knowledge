@@ -67,7 +67,7 @@ if (Meteor.isServer){
     // console.log(
     //   Nodes.remove({graph:'MetaMath'}),
     //   Links.remove({graph:'MetaMath'})) 
-    Nodes.update({graph:'MetaMath'},{$set:{x:2345,y:2345}},{multi:true}) 
+    // Nodes.update({graph:'MetaMath'},{$set:{x:2345,y:2345}},{multi:true}) 
     var mxZm=Math.max(...Nodes.find({graph:'MetaMath'}).map(nd=>nd.zoomLvl));
     Nodes.update({graph:'MetaMath', zoomLvl:mxZm},{$set:{x:2346, y:2346}},{multi:true})
  

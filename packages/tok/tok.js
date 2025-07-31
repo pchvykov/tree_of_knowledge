@@ -7,19 +7,27 @@
 //Globals: list of node and link types
 nodeTypes={'assumption':'Assumption',
            'definition':'Definition',
-           'statement':'Statement',
+           'theorem':'Theorem',
+           'hypothesis': 'Hypothesis',
            'example':'Example',
            'empirical':'Empirical',
            'concept':'Concept',
+           'method': 'Method',
            'derivation':'Derivation'};
-linkTypes={'theorem':'Theorem',
+linkTypes={'used': 'Used in',
+           'implies':'Implies',
+           'supports': 'Supports',
            'conjecture':'Conjecture',
            'related':'Related',
            'specialCase':'Special Case'};
-
+marker_spacing = 6; // only for the "supports" links styling
   //Hierarchy of objects:
   //svg > outer > vis > bckgnd,drag_line,node,link
-
+// Meteor.call('renameTypes', {
+//   'nodes':{
+//     'null': 'theorem'},
+//   'links':{'theorem': 'implies'}
+// });
 
 ToK = function(svg, db) {
 
@@ -138,21 +146,75 @@ vis.append('svg:rect')
     .attr("d", "M 0 0 L 7 5 L 0 10 z")
     .attr("fill", "context-stroke")
     // .style("fill", "#999")
-    .style("opacity", "0.5");
+    .style("opacity", "0.5")
+    // .style("pointer-events", "all")     // Make markers clickable - doesn't work
+    // .style("cursor", "crosshair");  
 
-  svg.select("defs").append("circle")
+  ////// Define possible node shapes ///////////////////
+  var defs = svg.select("defs");
+  defs.append("circle")
       .attr("id", "circleNode")
       .attr("r",1)
-
-  svg.select("defs").append("polygon")
+  // Arrowhead triangle   
+  defs.append("polygon")
       .attr("id", "andNode")
       .attr("points","-1,-0.2 0,0.8 1,-0.2")  
+  // Square
+  defs.append("polygon")
+      .attr("id", "squareNode")
+      .attr("points","-0.7,-0.7 -0.7,0.7 0.7,0.7 0.7,-0.7")  
+  // Rectangle
+  defs.append("polygon")
+      .attr("id", "rectangleNode")
+      .attr("points","-1,-0.3 1,-0.3 1,0.4 -1,0.4")  
+  // Diamond (using polygon)
+  defs.append("polygon")
+      .attr("id", "diamondNode")
+      .attr("points", "0,-1.1 1.1,0 0,1.1 -1.1,0");
+  // Triangle
+  defs.append("polygon")
+      .attr("id", "triangleNode")
+      .attr("points","-1,0.4 0,-1.33 1,0.4")  
+  // Star (5-pointed)
+  defs.append("polygon")
+      .attr("id", "starNode")
+      .attr("points", "0.0,-1.2 0.3527,-0.4854 1.1413,-0.3708 0.5706,0.1854 0.7053,0.9708 0.0,0.6 -0.7053,0.9708 -0.5706,0.1854 -1.1413,-0.3708 -0.3527,-0.4854")
+// "0,-1.2 0.3,-0.4 1.2,-0.4 0.6,0 0.9,0.8 0,0.4 -0.9,0.8 -0.6,0 -1.2,-0.4 -0.3,-0.4");
+  // Cross (using path)
+  // defs.append("path")
+  //   .attr("id", "crossNode")
+  //   .attr("d", "M-1.2,0 L1.2,0 M0,-1.2 L0,1.2")
+  //   .attr("stroke-width", 0.6)
+  defs.append("polygon")
+  .attr("id", "crossNode")
+  .attr("points", `
+    -1.2,-0.3  -0.3,-0.3  -0.3,-1.2  0.3,-1.2  0.3,-0.3
+     1.2,-0.3   1.2,0.3   0.3,0.3    0.3,1.2  -0.3,1.2
+    -0.3,0.3   -1.2,0.3
+  `)
+    // .attr('stroke', "#000")
+  // Hexagon
+  defs.append("polygon")
+      .attr("id", "hexagonNode")
+      .attr("points", "1,0 0.5,0.866 -0.5,0.866 -1,0 -0.5,-0.866 0.5,-0.866");
+  ///////////////////////////////////////////
 
   //function to select node shape:
   var nodeShape = function(ndType){
-    if(ndType=="derivation") 
-      return "#andNode"
-    else return "#circleNode"
+    switch(ndType){
+    case "derivation": return "#andNode";
+    case 'assumption': return "#circleNode"
+    case 'definition': return "#triangleNode"
+    case 'theorem': return "#squareNode"
+    case 'hypothesis': return "#diamondNode"
+    case 'example': return "#crossNode"
+    case 'empirical': return "#hexagonNode"
+    case 'concept': return "#starNode"
+    case 'method': return "#rectangleNode"
+    default: 
+      console.error("unrecognized node type: ", ndType);
+      return "#circleNode"
+    }
   }
 ///////////////////////////////////////////////
 
@@ -180,8 +242,10 @@ vis.append('svg:rect')
   this.redraw = function(postScript) { //execte postScrip() at the end
   //store current node coordinates to restart from same position:
   if(force.nodes().length >0) Meteor.call("updateCoord",force.nodes())
-  tree.gravTo = [(visWindow[0]+visWindow[2])/2, (visWindow[1]+visWindow[3])/2]; //gravity center
-  tree.gravStrength =[visWindow[2]-visWindow[0],visWindow[3]-visWindow[1]];
+  // tree.gravTo = [(visWindow[0]+visWindow[2])/2, (visWindow[1]+visWindow[3])/2]; //gravity center
+  // tree.gravStrength =[visWindow[2]-visWindow[0],visWindow[3]-visWindow[1]];
+  tree.gravTo = [treeDim[0]/2., treeDim[1]/2.];
+  tree.gravStrength = treeDim;
   db.subscribe(visWindow, function(){ //parseInt($('#nnodesInput').val())
     console.log("redrawing");
     //this can access only published data - current graph:
@@ -190,12 +254,24 @@ vis.append('svg:rect')
     console.log(nodeData)//.length);
     // console.log('tst',Nodes.find({text:{$exists:false}}).count())
 
+    // Find max and min zoomLvl:
+    // var maxZoom = -Infinity;
+    var minZoom = Infinity;
+    nodeData.forEach(node => {
+      // if (node.zoomLvl > maxZoom) maxZoom = node.zoomLvl;
+      if (node.zoomLvl < minZoom) minZoom = node.zoomLvl;
+    });
+
     nodeData.forEach(function(nd){
       if(nd.x==2345 || nd.y==2345) console.error("unpositioned node: ", nd);
       bound_crd(nd); // Bound coordinates
 
       nd.phantom = !nd.hasOwnProperty('text'); //identify phantom nodes
-      nd.fixed=nd.phantom; nd.permFixed=nd.phantom;
+      // Only allow minimum zoom level or unplaced nodes to move:
+      // nd.fixed=nd.phantom || nd.fixed || (nd.zoomLvl!=minZoom && nd.x!=2346); 
+      nd.permFixed=nd.phantom || nd.permFixed || (nd.zoomLvl!=minZoom && nd.x!=2346);
+      nd.fixed = nd.permFixed;
+
       //initialize all node velocities to 0:
       // nd.x=treeDim[0]/2; nd.y=treeDim[1]/2;
       nd.x+=(Math.random()-0.5)*nd.importance/3; //randomize initial coordinates
@@ -294,7 +370,7 @@ vis.append('svg:rect')
         .classed("phantom",d=>d.phantom)
         .classed("fixed",d=>d.fixed)
     force.charge(function(d){ return -$('#ChargeInput').val()/2*
-      Math.pow(d.importance*((d.phantom)?0:1),2)}) //*((d.phantom)?3:1)
+      Math.pow(d.importance,2)}) //*((d.phantom)?3:1) *((d.phantom)?0:1)
         //charge up phantom nodes to account for the charge of removed nodes
     // force.chargeDistance($('#chrgDistInput').val())
   
@@ -333,22 +409,36 @@ vis.append('svg:rect')
         return d.strength*$('#sizeInput').val()+'px';
       },
       "marker-mid":function(d){
-        return (d.oriented && d.source.type!="derivation"
+        return (d.oriented && d.source.type!="derivation" && d.type!="used"
            ?  "url(#arrowHead)" : null) //Arrow heads
       }
     })
+    
     link.each(function(d){
+      var w = d.strength * $('#sizeInput').val();
       switch(d.type){
         //other line options: polyline coord to make double line;
         //polyline with many segments and different shape markers 
         //at each junction, then remove backgnd line;
         //polyline to make long narrow triangle line
-        case "theorem": 
-          $(this).css("stroke-dasharray","none");break;
+        // but then need to draw this line each tick
+        case "used":
+          $(this).css("stroke-width", (w * 0.)); break;
+        case "supports":
+          // remove the stroke but keep the markers
+          $(this).css("stroke-dasharray",w*2+','+w*(marker_spacing-2)); break;
+          // $(this).css({"stroke":"transparent",
+          //   "marker-mid": function(d){
+          //     return (d.oriented && d.source.type!="derivation"
+          //         ?  "url(#arrowHead)" : null) }
+          // })
+        case "implies": 
+          $(this).css("stroke-dasharray","none");
+          break;
         case "conjecture": 
-          $(this).css("stroke-dasharray","10,3");break;
+          $(this).css("stroke-dasharray", w*4+","+w*2);break;
         case "related": 
-          $(this).css("stroke-dasharray","3,7"); break;
+          $(this).css("stroke-dasharray", w+","+w*2); break;
         case "specialCase": break;
         default: console.log("unrecognized link type:", d.type, d);
       }
@@ -562,11 +652,11 @@ vis.append('svg:rect')
       ////Percolating springs model:---------
       lk.strong=false;
       if(len < lk.target.parMinLen[1] || lk.target.parMinLen[0]==lk._id){ //Short spring
-        lk.target.parMinLen[0]=lk._id; lk.target.parMinLen[1]=len;
+        lk.target.parMinLen[0]=lk._id; lk.target.parMinLen[1]=len*$('#linkDistMult').val();
         lk.strong=true;
       }
       if(len < lk.source.chiMinLen[1] || lk.source.chiMinLen[0]==lk._id){
-        lk.source.chiMinLen[0]=lk._id; lk.source.chiMinLen[1]=len;
+        lk.source.chiMinLen[0]=lk._id; lk.source.chiMinLen[1]=len*$('#linkDistMult').val();;
         lk.strong=true;
       }
       if(lk.strong){
@@ -596,6 +686,12 @@ vis.append('svg:rect')
         //   Math.exp((lk.source.y-lk.target.y)/100.)
         //   ));
         scale = $('#linkOrtInput').val()*g*Math.pow(lk.strength,3)/len*(Math.exp(-delx/len)-0.367879)*Math.sign(dely);
+        if(lk.strong){scale*=3;}
+        // scale = Math.min(scale, 0.5*lk.strength*lk.strength); //cap rotation at 30deg per tick
+        dx -= dely*scale; dy += delx*scale;
+      }
+      else if (lk.type == 'theorem'){ //orient orthogonal to flow
+        scale = -$('#linkOrtInput').val()*g*Math.pow(lk.strength,3)/len*(Math.pow(delx/len,2))*Math.sign(dely)*Math.sign(delx);
         if(lk.strong){scale*=3;}
         // scale = Math.min(scale, 0.5*lk.strength*lk.strength); //cap rotation at 30deg per tick
         dx -= dely*scale; dy += delx*scale;
@@ -643,10 +739,39 @@ vis.append('svg:rect')
 
     //Poistion all points on the links:
     link.attr("points", function(d){
-      return d.source.x+','+d.source.y+' '+
-          (d.source.x+d.target.x)/2+','+ //where to put the arrowhead
-          (d.source.y+d.target.y)/2+' '+
-             d.target.x+','+d.target.y;
+      if(d.type == 'used'){
+        // Draw a long narrow triangle, always using data coords
+        const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
+        const len = Math.sqrt(dx*dx + dy*dy);
+        const ux = dx/len, uy = dy/len;
+        const perpX = -uy, perpY = ux;
+        const width = 3*d.strength;
+        const p1 = [d.source.x + perpX*width/2, d.source.y + perpY*width/2];
+        const p2 = [d.source.x - perpX*width/2, d.source.y - perpY*width/2];
+        const p3 = [d.target.x, d.target.y];
+        return [p1, p3, p2].map(p => p.join(',')).join(' ')
+      }
+      else if(d.type == 'supports'){
+        var points = [d.source.x+','+d.source.y]; 
+        var w = d.strength * $('#sizeInput').val();
+        const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
+        const len = Math.sqrt(dx*dx + dy*dy);
+        // Generate n+1 points evenly spaced from source to target
+        var t = (marker_spacing + 1) *w / len; 
+        while (t<1) {
+            var x = d.source.x + t * dx;
+            var y = d.source.y + t * dy;
+            points.push(x + ',' + y);
+            t += marker_spacing *w / len;  // Parameter from 0 to 1
+        }
+        return points.join(' ');
+      }
+      else {
+        return d.source.x+','+d.source.y+' '+
+            (d.source.x+d.target.x)/2+','+ //where to put the arrowhead
+            (d.source.y+d.target.y)/2+' '+
+               d.target.x+','+d.target.y;
+      }
     })
 
     //position the node group:
