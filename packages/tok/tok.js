@@ -162,15 +162,15 @@ vis.append('svg:rect')
   // Square
   defs.append("polygon")
       .attr("id", "squareNode")
-      .attr("points","-0.7,-0.7 -0.7,0.7 0.7,0.7 0.7,-0.7")  
+      .attr("points","-0.9,-0.9 -0.9,0.9 0.9,0.9 0.9,-0.9")  
   // Rectangle
   defs.append("polygon")
       .attr("id", "rectangleNode")
-      .attr("points","-1,-0.3 1,-0.3 1,0.4 -1,0.4")  
+      .attr("points","-1.6,-0.7 0.5,-0.7 1.6,0.7 -0.5,0.7")  
   // Diamond (using polygon)
   defs.append("polygon")
       .attr("id", "diamondNode")
-      .attr("points", "0,-1.1 1.1,0 0,1.1 -1.1,0");
+      .attr("points", "0,-1.2 0.9,0 0,1.2 -0.9,0");
   // Triangle
   defs.append("polygon")
       .attr("id", "triangleNode")
@@ -409,7 +409,7 @@ vis.append('svg:rect')
         return d.strength*$('#sizeInput').val()+'px';
       },
       "marker-mid":function(d){
-        return (d.oriented && d.source.type!="derivation" && d.type!="used"
+        return (d.oriented && d.source.type!="derivation" && d.type!="used" && d.type!="specialCase"
            ?  "url(#arrowHead)" : null) //Arrow heads
       }
     })
@@ -422,6 +422,7 @@ vis.append('svg:rect')
         //at each junction, then remove backgnd line;
         //polyline to make long narrow triangle line
         // but then need to draw this line each tick
+        case "specialCase": 
         case "used":
           $(this).css("stroke-width", (w * 0.)); break;
         case "supports":
@@ -439,7 +440,6 @@ vis.append('svg:rect')
           $(this).css("stroke-dasharray", w*4+","+w*2);break;
         case "related": 
           $(this).css("stroke-dasharray", w+","+w*2); break;
-        case "specialCase": break;
         default: console.log("unrecognized link type:", d.type, d);
       }
     })
@@ -739,16 +739,22 @@ vis.append('svg:rect')
 
     //Poistion all points on the links:
     link.attr("points", function(d){
-      if(d.type == 'used'){
+      if(d.type == 'used' || d.type=='specialCase'){
         // Draw a long narrow triangle, always using data coords
         const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
         const len = Math.sqrt(dx*dx + dy*dy);
         const ux = dx/len, uy = dy/len;
         const perpX = -uy, perpY = ux;
         const width = 3*d.strength;
-        const p1 = [d.source.x + perpX*width/2, d.source.y + perpY*width/2];
-        const p2 = [d.source.x - perpX*width/2, d.source.y - perpY*width/2];
-        const p3 = [d.target.x, d.target.y];
+        if (d.type == 'used'){ // triangle from source into target
+          base = d.source; tip = d.target;
+        }
+        else { // triangle from target into source
+          base = d.target; tip = d.source;
+        }
+        const p1 = [base.x + perpX*width/2, base.y + perpY*width/2];
+        const p2 = [base.x - perpX*width/2, base.y - perpY*width/2];
+        const p3 = [tip.x, tip.y];
         return [p1, p3, p2].map(p => p.join(',')).join(' ')
       }
       else if(d.type == 'supports'){
