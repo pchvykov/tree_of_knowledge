@@ -4,26 +4,27 @@
 # 'meteor add' and 'meteor remove' will edit this file for you,
 # but you can also edit it by hand.
 
-meteor-base             # Packages every Meteor app needs to have
+meteor-base@1.5.2             # Packages every Meteor app needs to have
 #mobile-experience       # Packages for a great mobile UX
-mongo                   # The database Meteor supports right now
+mongo@2.1.3                   # The database Meteor supports right now
 blaze-html-templates    # Compile .html files into Meteor Blaze views
-session                 # Client-side reactive dictionary for your app
+session@1.2.2                 # Client-side reactive dictionary for your app
 jquery                  # Helpful client-side library
-tracker                 # Meteor's client-side reactive programming library
+tracker@1.3.4                 # Meteor's client-side reactive programming library
 
-es5-shim                # ECMAScript 5 compatibility for older browsers.
-ecmascript              # Enable ECMAScript2015+ syntax in app code
+es5-shim@4.8.1                # ECMAScript 5 compatibility for older browsers.
+ecmascript@0.16.12              # Enable ECMAScript2015+ syntax in app code
 
 json
-standard-app-packages
+check@1.4.4
+underscore
+
 pchvykov:tok
-standard-minifier-css
-standard-minifier-js
-mrt:mathjax
+standard-minifier-css@1.9.3
+standard-minifier-js@3.1.1
+
 #hitchcott:app-dump		#backup and restore DB
 #accounts-ui
 #twbs:bootstrap 		#for some nice css formats (really overkill though)
-pfafman:filesaver		#file saving
-d3
-ecwyne:mathjs			#for computing effective connectivity during zoom behavior
+shell-server
+dynamic-import
