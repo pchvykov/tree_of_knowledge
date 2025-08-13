@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@babel/runtime": "^7.28.2",
+    "d3": "^3.5.17",
+    "file-saver": "^2.0.5",
+    "mathjs": "^14.6.0",
+    "showdown": "^2.1.0"
+  }
+}
